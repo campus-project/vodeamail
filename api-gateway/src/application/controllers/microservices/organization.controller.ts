@@ -35,6 +35,7 @@ export class OrganizationController {
 
   @Put()
   async update(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Body() updateOrganizationDto,
   ) {
@@ -42,6 +43,7 @@ export class OrganizationController {
       .send('MS_ACCOUNT_UPDATE_ORGANIZATION', {
         ...updateOrganizationDto,
         id: organizationId,
+        actor_id: userId,
       })
       .toPromise()
       .catch(clientProxyException);

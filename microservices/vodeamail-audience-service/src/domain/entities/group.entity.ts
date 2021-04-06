@@ -35,6 +35,15 @@ export class Group {
   @DeleteDateColumn()
   deleted_at?: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  created_by?: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  updated_by?: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  deleted_by?: string;
+
   @ManyToMany(() => Contact, (object) => object.groups)
   contacts: Contact[];
 }

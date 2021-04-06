@@ -16,6 +16,7 @@ import {
 } from '../../application/dtos/group.dto';
 import { RpcException } from '@nestjs/microservices';
 import { ContactService } from './contact.service';
+import moment from 'moment';
 
 @Injectable()
 export class GroupService {
@@ -120,6 +121,7 @@ export class GroupService {
       description,
       is_visible,
       contact_ids,
+      actor_id: created_by,
     } = createGroupDto;
 
     const contacts = await this.contactService.findAll({
@@ -135,6 +137,8 @@ export class GroupService {
         description,
         is_visible,
         contacts,
+        created_by,
+        updated_by: created_by,
       }),
     );
 
@@ -153,6 +157,7 @@ export class GroupService {
       description,
       is_visible,
       contact_ids,
+      actor_id: updated_by,
     } = updateGroupDto;
 
     const group = await this.findOne({ id, organization_id });
@@ -171,6 +176,7 @@ export class GroupService {
       description,
       is_visible,
       contacts,
+      updated_by,
     });
 
     await this.groupRepository.save(group);
@@ -183,7 +189,13 @@ export class GroupService {
 
   @Transactional()
   async remove(deleteGroupDto: DeleteGroupDto): Promise<number> {
-    const { id, ids, is_hard, organization_id } = deleteGroupDto;
+    const {
+      id,
+      ids,
+      is_hard,
+      organization_id,
+      actor_id: deleted_by,
+    } = deleteGroupDto;
 
     const toBeDeleteIds = ids === undefined ? [] : ids;
     if (id !== undefined) {
@@ -200,7 +212,16 @@ export class GroupService {
     if (is_hard) {
       await this.groupRepository.remove(groups);
     } else {
-      await this.groupRepository.softRemove(groups);
+      await this.groupRepository.save(
+        groups.map((group) => {
+          Object.assign(group, {
+            deleted_by,
+            deleted_at: new Date().toISOString(),
+          });
+
+          return group;
+        }),
+      );
     }
 
     return groups.length;

@@ -123,7 +123,14 @@ export class RoleService {
 
   @Transactional()
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
-    const { id, name, organization_id, is_special, is_default } = createRoleDto;
+    const {
+      id,
+      name,
+      organization_id,
+      is_special,
+      is_default,
+      actor_id: created_by,
+    } = createRoleDto;
 
     const role = await this.roleRepository.save(
       this.roleRepository.create({
@@ -132,6 +139,8 @@ export class RoleService {
         name,
         is_special,
         is_default,
+        created_by,
+        updated_by: created_by,
       }),
     );
 
@@ -147,14 +156,21 @@ export class RoleService {
 
   @Transactional()
   async update(updateRoleDto: UpdateRoleDto): Promise<Role> {
-    const { id, name, organization_id, is_special, is_default } = updateRoleDto;
+    const {
+      id,
+      name,
+      organization_id,
+      is_special,
+      is_default,
+      actor_id: updated_by,
+    } = updateRoleDto;
 
     const role = await this.findOne({ id, organization_id });
     if (!role) {
       throw new RpcException(`Count not find resource ${id}`);
     }
 
-    Object.assign(role, { name, organization_id, is_default });
+    Object.assign(role, { name, organization_id, is_default, updated_by });
 
     if (role.is_special !== is_special) {
       Object.assign(role, { is_special });
@@ -163,7 +179,7 @@ export class RoleService {
     await this.roleRepository.save(role);
 
     if (role.is_default) {
-      await this.syncOnlyAllowedSingleDefault(role.id);
+      await this.syncOnlyAllowedSingleDefault(role.id, updated_by);
     }
 
     return this.findOne({
@@ -174,7 +190,13 @@ export class RoleService {
 
   @Transactional()
   async remove(deleteRoleDto: DeleteRoleDto): Promise<number> {
-    const { id, ids, is_hard, organization_id } = deleteRoleDto;
+    const {
+      id,
+      ids,
+      is_hard,
+      organization_id,
+      actor_id: deleted_by,
+    } = deleteRoleDto;
 
     const toBeDeleteIds = ids === undefined ? [] : ids;
     if (id !== undefined) {
@@ -194,14 +216,23 @@ export class RoleService {
     if (is_hard) {
       await this.roleRepository.remove(roles);
     } else {
-      await this.roleRepository.softRemove(roles);
+      await this.roleRepository.save(
+        roles.map((role) => {
+          Object.assign(role, {
+            deleted_by,
+            deleted_at: new Date().toISOString(),
+          });
+
+          return role;
+        }),
+      );
     }
 
     return roles.length;
   }
 
   @Transactional()
-  protected async syncOnlyAllowedSingleDefault(id: string) {
+  protected async syncOnlyAllowedSingleDefault(id: string, actorId?: string) {
     const roles = await this.roleRepository.find({
       where: {
         id: Not(id),
@@ -212,6 +243,7 @@ export class RoleService {
     for (const role of roles) {
       Object.assign(role, {
         is_default: false,
+        updated_by: actorId,
       });
 
       await this.roleRepository.save(role);

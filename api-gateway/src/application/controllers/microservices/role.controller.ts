@@ -79,12 +79,14 @@ export class RoleController {
 
   @Post()
   async create(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Body() createRoleDto,
   ) {
     const data = await this.redisClient
       .send('MS_ACCOUNT_CREATE_ROLE', {
         ...createRoleDto,
+        actor_id: userId,
         organization_id: organizationId,
       })
       .toPromise()
@@ -95,6 +97,7 @@ export class RoleController {
 
   @Put(':id')
   async update(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
     @Body() updateRoleDto,
@@ -102,6 +105,7 @@ export class RoleController {
     const data = await this.redisClient
       .send('MS_ACCOUNT_UPDATE_ROLE', {
         ...updateRoleDto,
+        actor_id: userId,
         organization_id: organizationId,
         id,
       })
@@ -113,11 +117,13 @@ export class RoleController {
 
   @Delete(':id')
   async remove(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
   ) {
     const data = await this.redisClient
       .send('MS_ACCOUNT_REMOVE_ROLE', {
+        actor_id: userId,
         organization_id: organizationId,
         id,
       })

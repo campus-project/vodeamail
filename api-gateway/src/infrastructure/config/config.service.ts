@@ -78,10 +78,10 @@ export class ConfigService extends BaseConfigService {
       logging: false,
       namingStrategy: new SnakeNamingStrategy(),
       entities: [
-        'dist/src/domain/entities/*.entity.{ts,js}',
-        'dist/src/domain/views/*.view.{ts,js}',
+        'src/domain/entities/*.entity.{ts,js}',
+        'src/domain/views/*.view.{ts,js}',
       ],
-      migrations: ['dist/src/infrastructure/database/migrations/**/*.{ts,js}'],
+      migrations: ['src/infrastructure/database/migrations/**/*.{ts,js}'],
       cli: {
         entitiesDir: 'src',
         migrationsDir: 'src/infrastructure/database/migrations',

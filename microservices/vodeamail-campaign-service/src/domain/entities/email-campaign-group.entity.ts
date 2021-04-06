@@ -1,13 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { EmailCampaign } from './email-campaign.entity';
 
 @Entity('email_campaign_groups')
@@ -23,15 +14,6 @@ export class EmailCampaignGroup {
 
   @Column({ type: 'uuid', length: 36 })
   group_id: string;
-
-  @CreateDateColumn()
-  created_at: string;
-
-  @UpdateDateColumn()
-  updated_at: string;
-
-  @DeleteDateColumn()
-  deleted_at?: string;
 
   @ManyToOne(() => EmailCampaign, (object) => object.email_campaign_groups)
   email_campaign: EmailCampaign;

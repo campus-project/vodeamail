@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { In, Not, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { EmailCampaign } from '../entities/email-campaign.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
@@ -16,7 +16,6 @@ import {
 } from '../../application/dtos/email-campaign.dto';
 import { RpcException } from '@nestjs/microservices';
 import { EmailCampaignGroup } from '../entities/email-campaign-group.entity';
-import { IsNotIn } from 'class-validator';
 
 @Injectable()
 export class EmailCampaignService {

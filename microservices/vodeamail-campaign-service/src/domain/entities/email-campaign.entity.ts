@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { EmailCampaignGroup } from './email-campaign-group.entity';
 import { EmailTemplate } from './email-template.entity';
+import { EmailCampaignAudience } from './email-campaign-audience.entity';
 
 @Entity('email_campaigns')
 export class EmailCampaign {
@@ -51,6 +52,9 @@ export class EmailCampaign {
 
   @OneToMany(() => EmailCampaignGroup, (object) => object.email_campaign)
   email_campaign_groups: EmailCampaignGroup[];
+
+  @OneToMany(() => EmailCampaignGroup, (object) => object.email_campaign)
+  email_campaign_audiences: EmailCampaignAudience[];
 
   @ManyToOne(() => EmailTemplate, (object) => object.email_campaigns)
   email_template: EmailTemplate[];

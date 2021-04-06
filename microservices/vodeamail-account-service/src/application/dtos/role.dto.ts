@@ -6,11 +6,13 @@ import {
   IsUUID,
 } from 'class-validator';
 import {
-  DeleteWithOrganizationDto,
   FindAllWithOrganizationDto,
   FindOneWithOrganizationDto,
-  OrganizationDto,
 } from '../../@vodea/dtos';
+import {
+  ActorDeleteWithOrganizationDto,
+  ActorOrganizationDto,
+} from '../../@vodea/dtos/actor.dto';
 
 export class FindAllRoleDto extends FindAllWithOrganizationDto {
   @IsOptional()
@@ -32,7 +34,7 @@ export class FindOneRoleDto extends FindOneWithOrganizationDto {
   is_default?: boolean;
 }
 
-export class CreateRoleDto extends OrganizationDto {
+export class CreateRoleDto extends ActorOrganizationDto {
   @IsOptional()
   @IsUUID('4')
   id?: string;
@@ -56,4 +58,4 @@ export class UpdateRoleDto extends CreateRoleDto {
   id: string;
 }
 
-export class DeleteRoleDto extends DeleteWithOrganizationDto {}
+export class DeleteRoleDto extends ActorDeleteWithOrganizationDto {}

@@ -9,17 +9,19 @@ import {
   IsUUID,
 } from 'class-validator';
 import {
-  DeleteWithOrganizationDto,
   FindAllWithOrganizationDto,
   FindOneWithOrganizationDto,
-  OrganizationDto,
 } from '../../@vodea/dtos';
+import {
+  ActorDeleteWithOrganizationDto,
+  ActorOrganizationDto,
+} from '../../@vodea/dtos/actor.dto';
 
 export class FindAllEmailCampaignDto extends FindAllWithOrganizationDto {}
 
 export class FindOneEmailCampaignDto extends FindOneWithOrganizationDto {}
 
-export class CreateEmailCampaignDto extends OrganizationDto {
+export class CreateEmailCampaignDto extends ActorOrganizationDto {
   @IsOptional()
   @IsUUID('4')
   id?: string;
@@ -64,4 +66,4 @@ export class UpdateEmailCampaignDto extends CreateEmailCampaignDto {
   id: string;
 }
 
-export class DeleteEmailCampaignDto extends DeleteWithOrganizationDto {}
+export class DeleteEmailCampaignDto extends ActorDeleteWithOrganizationDto {}

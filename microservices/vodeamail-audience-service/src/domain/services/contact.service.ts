@@ -127,6 +127,7 @@ export class ContactService {
       city,
       postal_code,
       group_ids,
+      actor_id: created_by,
     } = createContactDto;
 
     const groups = await this.groupService.findAll({
@@ -148,6 +149,8 @@ export class ContactService {
         city,
         postal_code,
         groups,
+        created_by,
+        updated_by: created_by,
       }),
     );
 
@@ -172,6 +175,7 @@ export class ContactService {
       city,
       postal_code,
       group_ids,
+      actor_id: updated_by,
     } = updateContactDto;
 
     const contact = await this.findOne({ id, organization_id });
@@ -196,6 +200,7 @@ export class ContactService {
       city,
       postal_code,
       groups,
+      updated_by,
     });
 
     await this.contactRepository.save(contact);
@@ -208,7 +213,13 @@ export class ContactService {
 
   @Transactional()
   async remove(deleteContactDto: DeleteContactDto): Promise<number> {
-    const { id, ids, is_hard, organization_id } = deleteContactDto;
+    const {
+      id,
+      ids,
+      is_hard,
+      organization_id,
+      actor_id: deleted_by,
+    } = deleteContactDto;
 
     const toBeDeleteIds = ids === undefined ? [] : ids;
     if (id !== undefined) {
@@ -225,7 +236,16 @@ export class ContactService {
     if (is_hard) {
       await this.contactRepository.remove(contacts);
     } else {
-      await this.contactRepository.softRemove(contacts);
+      await this.contactRepository.save(
+        contacts.map((contact) => {
+          Object.assign(contact, {
+            deleted_by,
+            deleted_at: new Date().toISOString(),
+          });
+
+          return contact;
+        }),
+      );
     }
 
     return contacts.length;

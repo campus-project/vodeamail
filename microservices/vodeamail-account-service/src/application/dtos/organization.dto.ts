@@ -1,15 +1,15 @@
 import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { FindAllDto, FindOneDto } from '../../@vodea/dtos';
 import {
-  DeleteWithOrganizationDto,
-  FindAllDto,
-  FindOneDto,
-} from '../../@vodea/dtos';
+  ActorDeleteWithOrganizationDto,
+  ActorDto,
+} from '../../@vodea/dtos/actor.dto';
 
 export class FindAllOrganizationDto extends FindAllDto {}
 
 export class FindOneOrganizationDto extends FindOneDto {}
 
-export class CreateOrganizationDto {
+export class CreateOrganizationDto extends ActorDto {
   @IsOptional()
   @IsUUID('4')
   id?: string;
@@ -37,4 +37,4 @@ export class UpdateOrganizationDto extends CreateOrganizationDto {
   id: string;
 }
 
-export class DeleteOrganizationDto extends DeleteWithOrganizationDto {}
+export class DeleteOrganizationDto extends ActorDeleteWithOrganizationDto {}

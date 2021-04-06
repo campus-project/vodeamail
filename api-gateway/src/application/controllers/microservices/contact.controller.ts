@@ -81,12 +81,14 @@ export class ContactController {
 
   @Post()
   async create(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Body() createContactDto,
   ) {
     const data = await this.redisClient
       .send('MS_AUDIENCE_CREATE_CONTACT', {
         ...createContactDto,
+        actor_id: userId,
         organization_id: organizationId,
       })
       .toPromise()
@@ -97,6 +99,7 @@ export class ContactController {
 
   @Put(':id')
   async update(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
     @Body() updateContactDto,
@@ -104,6 +107,7 @@ export class ContactController {
     const data = await this.redisClient
       .send('MS_AUDIENCE_UPDATE_CONTACT', {
         ...updateContactDto,
+        actor_id: userId,
         organization_id: organizationId,
         id,
       })
@@ -115,11 +119,13 @@ export class ContactController {
 
   @Delete(':id')
   async remove(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
   ) {
     const data = await this.redisClient
       .send('MS_AUDIENCE_REMOVE_CONTACT', {
+        actor_id: userId,
         organization_id: organizationId,
         id,
       })

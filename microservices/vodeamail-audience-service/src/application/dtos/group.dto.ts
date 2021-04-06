@@ -7,11 +7,13 @@ import {
   IsUUID,
 } from 'class-validator';
 import {
-  DeleteWithOrganizationDto,
   FindAllWithOrganizationDto,
   FindOneWithOrganizationDto,
-  OrganizationDto,
 } from '../../@vodea/dtos';
+import {
+  ActorDeleteWithOrganizationDto,
+  ActorOrganizationDto,
+} from '../../@vodea/dtos/actor.dto';
 
 export class FindAllGroupDto extends FindAllWithOrganizationDto {
   @IsOptional()
@@ -25,7 +27,7 @@ export class FindOneGroupDto extends FindOneWithOrganizationDto {
   is_visible?: boolean;
 }
 
-export class CreateGroupDto extends OrganizationDto {
+export class CreateGroupDto extends ActorOrganizationDto {
   @IsOptional()
   @IsUUID('4')
   id?: string;
@@ -54,4 +56,4 @@ export class UpdateGroupDto extends CreateGroupDto {
   id: string;
 }
 
-export class DeleteGroupDto extends DeleteWithOrganizationDto {}
+export class DeleteGroupDto extends ActorDeleteWithOrganizationDto {}

@@ -7,11 +7,13 @@ import {
   IsUUID,
 } from 'class-validator';
 import {
-  DeleteWithOrganizationDto,
   FindAllWithOrganizationDto,
   FindOneWithOrganizationDto,
-  OrganizationDto,
 } from '../../@vodea/dtos';
+import {
+  ActorDeleteWithOrganizationDto,
+  ActorOrganizationDto,
+} from '../../@vodea/dtos/actor.dto';
 
 export class FindAllContactDto extends FindAllWithOrganizationDto {
   @IsOptional()
@@ -35,7 +37,7 @@ export class FindOneContactDto extends FindOneWithOrganizationDto {
   group_ids?: string[];
 }
 
-export class CreateContactDto extends OrganizationDto {
+export class CreateContactDto extends ActorOrganizationDto {
   @IsOptional()
   @IsUUID('4')
   id?: string;
@@ -88,4 +90,4 @@ export class UpdateContactDto extends CreateContactDto {
   id: string;
 }
 
-export class DeleteContactDto extends DeleteWithOrganizationDto {}
+export class DeleteContactDto extends ActorDeleteWithOrganizationDto {}

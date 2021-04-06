@@ -54,12 +54,14 @@ export class UserController {
 
   @Post()
   async create(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Body() createUserDto,
   ) {
     const data = await this.redisClient
       .send('MS_ACCOUNT_CREATE_USER', {
         ...createUserDto,
+        actor_id: userId,
         organization_id: organizationId,
       })
       .toPromise()
@@ -70,6 +72,7 @@ export class UserController {
 
   @Put(':id')
   async update(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
     @Body() updateUserDto,
@@ -77,6 +80,7 @@ export class UserController {
     const data = await this.redisClient
       .send('MS_ACCOUNT_UPDATE_USER', {
         ...updateUserDto,
+        actor_id: userId,
         organization_id: organizationId,
         id,
       })
@@ -88,11 +92,13 @@ export class UserController {
 
   @Delete(':id')
   async remove(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
   ) {
     const data = await this.redisClient
       .send('MS_ACCOUNT_REMOVE_USER', {
+        actor_id: userId,
         organization_id: organizationId,
         id,
       })

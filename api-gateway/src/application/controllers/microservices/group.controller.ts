@@ -81,12 +81,14 @@ export class GroupController {
 
   @Post()
   async create(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Body() createGroupDto,
   ) {
     const data = await this.redisClient
       .send('MS_AUDIENCE_CREATE_GROUP', {
         ...createGroupDto,
+        actor_id: userId,
         organization_id: organizationId,
       })
       .toPromise()
@@ -97,6 +99,7 @@ export class GroupController {
 
   @Put(':id')
   async update(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
     @Body() updateGroupDto,
@@ -104,6 +107,7 @@ export class GroupController {
     const data = await this.redisClient
       .send('MS_AUDIENCE_UPDATE_GROUP', {
         ...updateGroupDto,
+        actor_id: userId,
         organization_id: organizationId,
         id,
       })
@@ -115,11 +119,13 @@ export class GroupController {
 
   @Delete(':id')
   async remove(
+    @User('id') userId: string,
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
   ) {
     const data = await this.redisClient
       .send('MS_AUDIENCE_REMOVE_GROUP', {
+        actor_id: userId,
         organization_id: organizationId,
         id,
       })
