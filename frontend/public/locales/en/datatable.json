@@ -1,0 +1,35 @@
+{
+  "search": "Search",
+  "body": {
+    "tooltip": "Sort",
+    "sort_by": "Sort for {{label}}",
+    "no_match": "Sorry, no matching records found"
+  },
+  "pagination": {
+    "next": "Next Page",
+    "previous": "Previous Page",
+    "row_per_page": "Rows per page:",
+    "display_rows": "of"
+  },
+  "toolbar": {
+    "search": "Search",
+    "download_csv": "Download CSV",
+    "print": "Print",
+    "view_columns": "View Columns",
+    "filter_table": "Filter Table"
+  },
+  "filter": {
+    "all": "All",
+    "title": "FILTERS",
+    "reset": "RESET"
+  },
+  "view_columns": {
+    "title": "Show Columns",
+    "title_aria": "Show/Hide Table Columns"
+  },
+  "selected_rows": {
+    "text": "row(s) selected",
+    "delete": "Delete",
+    "delete_aria": "Delete Selected Rows"
+  }
+}

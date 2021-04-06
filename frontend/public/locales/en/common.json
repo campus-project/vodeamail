@@ -1,0 +1,55 @@
+{
+  "error": {
+    "400": "400 Bad Request",
+    "401": "401 Unauthorized",
+    "422": "422 Unprocessable Entity",
+    "404": "404 Not Found",
+    "500": "500 Server Error",
+    "other": "Whoops, looks like something went wrong"
+  },
+
+  "active": "Active",
+  "in_active": "Inactive",
+  "subscribed": "Subscribed",
+  "not_subscribed": "Not Subscribed",
+  "draft": "Draft",
+  "scheduled": "Scheduled",
+  "completed": "Completed",
+  "next": "Next",
+
+  "add": "Add",
+  "add_label": "Add {{label}}",
+  "create": "Create",
+  "create_label": "Create {{label}}",
+  "edit": "Edit",
+  "edit_label": "Edit {{label}}",
+  "update": "Update",
+  "update_label": "Update {{label}}",
+  "delete": "Delete",
+  "delete_label": "Delete {{label}}",
+
+  "delete_confirmation_message": "Are you sure want to delete?",
+  "delete_impact_message": "This action is cannot be undo.",
+  "delete_confirmation_text": "Yes",
+  "delete_cancellation_text": "No",
+  "delete_loading_message": "Please wait...",
+  "delete_successfully": "Successfully deleted",
+  "delete_failed": "Failed to delete",
+
+  "successfully_created": "Successfully created",
+  "successfully_created_label": "Successfully create {{label}}",
+  "successfully_updated": "Successfully updated",
+  "successfully_updated_label": "Successfully update {{label}}",
+
+  "redirecting": "Redirecting",
+  "save_changes": "Save changes?",
+
+  "save": "Save",
+  "save_label": "Save {{label}}",
+  "cancel": "Cancel",
+  "cancel_label": "Cancel {{label}}",
+
+  "profile": "Profile",
+  "setting": "Setting",
+  "logout": "Logout"
+}
