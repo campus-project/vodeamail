@@ -19,8 +19,8 @@ import {
   paginationTransformer,
 } from '../../../@vodea/helpers';
 
-@Controller('contact')
-export class ContactController {
+@Controller('email-template')
+export class EmailTemplateController {
   constructor(
     @Inject('REDIS_TRANSPORT')
     private readonly redisClient: ClientProxy,
@@ -38,8 +38,8 @@ export class ContactController {
     const data = await this.redisClient
       .send(
         payload.using === 'builder'
-          ? 'MS_AUDIENCE_FIND_ALL_BUILDER_CONTACT'
-          : 'MS_AUDIENCE_FIND_ALL_CONTACT',
+          ? 'MS_CAMPAIGN_FIND_ALL_BUILDER_EMAIL_TEMPLATE'
+          : 'MS_CAMPAIGN_FIND_ALL_EMAIL_TEMPLATE',
         payload,
       )
       .toPromise()
@@ -50,7 +50,7 @@ export class ContactController {
     }
 
     const total = await this.redisClient
-      .send('MS_AUDIENCE_FIND_ALL_COUNT_CONTACT', payload)
+      .send('MS_CAMPAIGN_FIND_ALL_COUNT_EMAIL_TEMPLATE', payload)
       .toPromise()
       .catch(clientProxyException);
 
@@ -64,7 +64,7 @@ export class ContactController {
     @Query('relations') relations: string[],
   ) {
     const data = await this.redisClient
-      .send('MS_AUDIENCE_FIND_ONE_CONTACT', {
+      .send('MS_CAMPAIGN_FIND_ONE_EMAIL_TEMPLATE', {
         organization_id: organizationId,
         relations,
         id,
@@ -86,7 +86,7 @@ export class ContactController {
     @Body() createContactDto,
   ) {
     const data = await this.redisClient
-      .send('MS_AUDIENCE_CREATE_CONTACT', {
+      .send('MS_CAMPAIGN_CREATE_EMAIL_TEMPLATE', {
         ...createContactDto,
         actor_id: userId,
         organization_id: organizationId,
@@ -105,7 +105,7 @@ export class ContactController {
     @Body() updateContactDto,
   ) {
     const data = await this.redisClient
-      .send('MS_AUDIENCE_UPDATE_CONTACT', {
+      .send('MS_CAMPAIGN_UPDATE_EMAIL_TEMPLATE', {
         ...updateContactDto,
         actor_id: userId,
         organization_id: organizationId,
@@ -124,7 +124,7 @@ export class ContactController {
     @Param('id') id: string,
   ) {
     const data = await this.redisClient
-      .send('MS_AUDIENCE_REMOVE_CONTACT', {
+      .send('MS_CAMPAIGN_REMOVE_EMAIL_TEMPLATE', {
         actor_id: userId,
         organization_id: organizationId,
         id,

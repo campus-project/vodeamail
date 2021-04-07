@@ -39,7 +39,7 @@ services:
   account-service:
     image: "vodeamail-account-service:dev"
     build:
-      context: ./microservices/vodeamail-account-service
+      context: ./vodeamail-account-service
     container_name: vodeamail-account-service
     restart: "on-failure"
     environment:
@@ -59,7 +59,7 @@ services:
   audience-service:
     image: "vodeamail-audience-service:dev"
     build:
-      context: ./microservices/vodeamail-audience-service
+      context: ./vodeamail-audience-service
     container_name: vodeamail-audience-service
     restart: "on-failure"
     environment:
@@ -67,6 +67,26 @@ services:
       DB_HOST: "mysql"
       DB_PORT: "3306"
       DB_DATABASE: "vodeamail-audience-service"
+      DB_USERNAME: "homestead"
+      DB_PASSWORD: "secret"
+      REDIS_URL: "redis://redis:6379"
+    networks:
+      - infrastrucuture
+    depends_on:
+      - mysql
+      - redis
+
+  campaign-service:
+    image: "vodeamail-campaign-service:dev"
+    build:
+      context: ./vodeamail-campaign-service
+    container_name: vodeamail-campaign-service
+    restart: "on-failure"
+    environment:
+      APP_ENV: "local"
+      DB_HOST: "mysql"
+      DB_PORT: "3306"
+      DB_DATABASE: "vodeamail-campaign-service"
       DB_USERNAME: "homestead"
       DB_PASSWORD: "secret"
       REDIS_URL: "redis://redis:6379"
