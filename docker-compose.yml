@@ -39,7 +39,7 @@ services:
   account-service:
     image: "vodeamail-account-service:dev"
     build:
-      context: ./vodeamail-account-service
+      context: ./microservices/vodeamail-account-service
     container_name: vodeamail-account-service
     restart: "on-failure"
     environment:
@@ -59,7 +59,7 @@ services:
   audience-service:
     image: "vodeamail-audience-service:dev"
     build:
-      context: ./vodeamail-audience-service
+      context: ./microservices/vodeamail-audience-service
     container_name: vodeamail-audience-service
     restart: "on-failure"
     environment:
@@ -79,7 +79,7 @@ services:
   campaign-service:
     image: "vodeamail-campaign-service:dev"
     build:
-      context: ./vodeamail-campaign-service
+      context: ./microservices/vodeamail-campaign-service
     container_name: vodeamail-campaign-service
     restart: "on-failure"
     environment:
