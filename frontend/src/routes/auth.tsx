@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { lazy } from "react";
-import LayoutAuth from "../layouts/Auth";
+import LayoutAuth from "../layouts/auth";
 
 const LoginVodeaCloud = lazy(() => import("../pages/auth/LoginVodeaCloud"));
 const LoginVodeaCloudCallback = lazy(

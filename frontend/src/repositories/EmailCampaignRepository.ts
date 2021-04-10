@@ -2,9 +2,9 @@ import { api, createCancelTokenHandler } from "../utilities/services";
 
 const endPoint = () => process.env.REACT_APP_GATEWAY_ENDPOINT;
 
-const CampaignEmailRepository = {
+const EmailCampaignRepository = {
   all: function (params: any = null) {
-    return api.get(`${endPoint()}/group`, {
+    return api.get(`${endPoint()}/email-campaign`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.all.name
@@ -12,7 +12,7 @@ const CampaignEmailRepository = {
     });
   },
   show: function (id: number | string, params: any = null) {
-    return api.get(`${endPoint()}/group/${id}`, {
+    return api.get(`${endPoint()}/email-campaign/${id}`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.show.name
@@ -20,7 +20,7 @@ const CampaignEmailRepository = {
     });
   },
   create: function (payload: any, params: any = null) {
-    return api.post(`${endPoint()}/group`, payload, {
+    return api.post(`${endPoint()}/email-campaign`, payload, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.create.name
@@ -28,7 +28,7 @@ const CampaignEmailRepository = {
     });
   },
   update: function (id: number | string, payload: any, params: any = null) {
-    return api.put(`${endPoint()}/group/${id}`, payload, {
+    return api.put(`${endPoint()}/email-campaign/${id}`, payload, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.update.name
@@ -36,7 +36,7 @@ const CampaignEmailRepository = {
     });
   },
   delete: function (id: number | string, params: any = null) {
-    return api.delete(`${endPoint()}/group/${id}`, {
+    return api.delete(`${endPoint()}/email-campaign/${id}`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.delete.name
@@ -45,8 +45,8 @@ const CampaignEmailRepository = {
   },
 };
 
-export default CampaignEmailRepository;
+export default EmailCampaignRepository;
 
 const cancelTokenHandlerObject = createCancelTokenHandler(
-  CampaignEmailRepository
+  EmailCampaignRepository
 );

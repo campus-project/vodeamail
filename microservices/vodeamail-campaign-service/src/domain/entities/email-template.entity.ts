@@ -27,6 +27,9 @@ export class EmailTemplate {
   @Column({ type: 'uuid', nullable: true })
   image_id?: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  image_url?: string;
+
   @CreateDateColumn()
   created_at: string;
 

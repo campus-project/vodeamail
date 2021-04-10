@@ -19,7 +19,10 @@ import useActiveOptions from "../../../../utilities/hooks/useActiveOptions";
 import MuiSelect from "../../../../components/ui/form/MuiSelect";
 import GroupRepository from "../../../../repositories/GroupRepository";
 import { useIsMounted } from "../../../../utilities/hooks";
-import { mapHookFormErrors } from "../../../../utilities/helpers";
+import {
+  axiosErrorLoadDataHandler,
+  axiosErrorSaveHandler,
+} from "../../../../utilities/helpers";
 import { useSnackbar } from "notistack";
 import { useState } from "@hookstate/core";
 import { createStyles, withStyles } from "@material-ui/core/styles";
@@ -69,7 +72,7 @@ const GroupForm: React.FC<any> = () => {
         const { data: group } = resp.data;
 
         Object.assign(group, {
-          description: group.description === null ? "" : group.description,
+          description: group.description || "",
         });
 
         contacts.set(group.contacts || []);
@@ -81,16 +84,10 @@ const GroupForm: React.FC<any> = () => {
         }
       })
       .catch((e: any) => {
-        const errorTranslation = e?.response?.status
-          ? `common:error.${e.response.status}`
-          : "common:error.other";
-
-        enqueueSnackbar(t(errorTranslation), {
-          variant: "error",
-        });
-
         if (isMounted.current) {
           setOnFetchData(false);
+
+          axiosErrorLoadDataHandler(e, enqueueSnackbar, t);
         }
       });
   }, [false]);
@@ -163,20 +160,7 @@ const GroupForm: React.FC<any> = () => {
         if (isMounted.current) {
           setLoading(false);
 
-          if (e?.response?.data?.errors) {
-            const errors = mapHookFormErrors(e.response.data.errors);
-            Object.keys(errors).forEach((key: any) =>
-              setError(key, errors[key])
-            );
-          } else {
-            const errorTranslation = e?.response?.status
-              ? `common:error.${e.response.status}`
-              : "common:error.other";
-
-            enqueueSnackbar(t(errorTranslation), {
-              variant: "error",
-            });
-          }
+          axiosErrorSaveHandler(e, setError, enqueueSnackbar, t);
         }
       });
   };

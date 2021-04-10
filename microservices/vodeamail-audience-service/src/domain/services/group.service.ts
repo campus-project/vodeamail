@@ -16,7 +16,6 @@ import {
 } from '../../application/dtos/group.dto';
 import { RpcException } from '@nestjs/microservices';
 import { ContactService } from './contact.service';
-import moment from 'moment';
 
 @Injectable()
 export class GroupService {

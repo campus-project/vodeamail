@@ -12,9 +12,12 @@ import Loading from "../../components/ui/Loading";
 import { initMenu } from "../../store/actions/setting";
 import theme from "./theme";
 import { ConfirmProvider } from "material-ui-confirm";
+import { setLastLocation } from "../../store/actions";
+import { useLocation } from "react-router";
 
 const LayoutApps: React.FC<any> = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const { isOnFetchingUser } = useJwtService();
 
@@ -28,6 +31,12 @@ const LayoutApps: React.FC<any> = () => {
   useEffect(() => {
     dispatch(initMenu([]));
   }, [false]);
+
+  useEffect(() => {
+    if (!isOnFetchingUser && !isLogged) {
+      dispatch(setLastLocation(location.pathname + location.search));
+    }
+  }, [isOnFetchingUser, isLogged]);
 
   if (isOnFetchingUser) {
     return <Loading />;

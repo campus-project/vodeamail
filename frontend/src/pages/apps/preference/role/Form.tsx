@@ -23,7 +23,10 @@ import FormAction from "../../../../components/ui/form/MuiFormAction";
 import _ from "lodash";
 import RoleRepository from "../../../../repositories/RoleRepository";
 import { useIsMounted } from "../../../../utilities/hooks";
-import { mapHookFormErrors } from "../../../../utilities/helpers";
+import {
+  axiosErrorLoadDataHandler,
+  axiosErrorSaveHandler,
+} from "../../../../utilities/helpers";
 import { useSnackbar } from "notistack";
 import { Role } from "../../../../models";
 import { AxiosResponse } from "axios";
@@ -73,16 +76,10 @@ const RoleForm: React.FC<any> = () => {
         }
       })
       .catch((e: any) => {
-        const errorTranslation = e?.response?.status
-          ? `common:error.${e.response.status}`
-          : "common:error.other";
-
-        enqueueSnackbar(t(errorTranslation), {
-          variant: "error",
-        });
-
         if (isMounted.current) {
           setOnFetchData(false);
+
+          axiosErrorLoadDataHandler(e, enqueueSnackbar, t);
         }
       });
   }, [false]);
@@ -135,20 +132,7 @@ const RoleForm: React.FC<any> = () => {
         if (isMounted.current) {
           setLoading(false);
 
-          if (e?.response?.data?.errors) {
-            const errors = mapHookFormErrors(e.response.data.errors);
-            Object.keys(errors).forEach((key: any) =>
-              setError(key, errors[key])
-            );
-          } else {
-            const errorTranslation = e?.response?.status
-              ? `common:error.${e.response.status}`
-              : "common:error.other";
-
-            enqueueSnackbar(t(errorTranslation), {
-              variant: "error",
-            });
-          }
+          axiosErrorSaveHandler(e, setError, enqueueSnackbar, t);
         }
       });
   };

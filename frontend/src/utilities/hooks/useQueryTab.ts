@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { insertQuerySearch } from "../helpers/query-search.helper";
+import { insertQuerySearch } from "../helpers";
 import { useQuerySearch } from "./index";
 
 const useQueryTab = () => {

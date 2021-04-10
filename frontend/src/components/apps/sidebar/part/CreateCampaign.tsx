@@ -24,9 +24,13 @@ const CreateCampaign = () => {
 
   return (
     <Box p={2}>
-      <Link component={LinkDom} to={"/apps/campaign"} onClick={handleClick}>
+      <Link
+        component={LinkDom}
+        to={"/apps/campaign/email-campaign/create"}
+        onClick={handleClick}
+      >
         <Button fullWidth variant="contained" color={"primary"}>
-          {t("common:create_label", { label: "Campaign" })}
+          {t("common:create_label", { label: t("pages:email_campaign.title") })}
         </Button>
       </Link>
     </Box>

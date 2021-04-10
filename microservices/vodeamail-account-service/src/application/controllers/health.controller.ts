@@ -18,7 +18,6 @@ export class HealthController {
   @MessagePattern('MS_ACCOUNT_HEALTH_CHECK')
   @HealthCheck()
   healthCheck() {
-    console.log('asd');
     return this.health.check([
       () => this.http.pingCheck('network', 'https://www.google.com/'),
       () => this.db.pingCheck('database', { timeout: 300 }),

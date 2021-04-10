@@ -7,19 +7,38 @@ const initialState = {
       href: "/apps/dashboard",
       icon: "vicon-dashboard",
       permissions: "any",
-      children: [],
     },
     {
       label: "sidebar:menu.campaign",
       href: "/apps/campaign",
       icon: "vicon-megaphone",
       permissions: "any",
-      children: [],
+      otherUrls: [
+        "/apps/campaign/email-campaign/create",
+        "/apps/campaign/email-campaign/:slug/update",
+        "/apps/campaign/email-template/create",
+        "/apps/campaign/email-template/:slug/update",
+      ],
+      children: [
+        {
+          label: "sidebar:menu.email_campaign",
+          href: "/apps/campaign/email-campaign",
+          otherUrls: [
+            "/apps/campaign/email-campaign/create",
+            "/apps/campaign/email-campaign/:slug/update",
+          ],
+        },
+        {
+          label: "sidebar:menu.email_template",
+          href: "/apps/campaign/email-template",
+        },
+      ],
     },
     {
       label: "sidebar:menu.audience",
       href: "/apps/audience",
       icon: "vicon-people",
+      permissions: "any",
       otherUrls: [
         "/apps/audience/contact/create",
         "/apps/audience/contact/:slug/update",
@@ -32,7 +51,6 @@ const initialState = {
       href: "/apps/analytic",
       icon: "vicon-graph",
       permissions: "any",
-      children: [],
     },
     {
       label: "sidebar:menu.preference",
@@ -51,7 +69,6 @@ const initialState = {
         "/apps/preference/team/create",
         "/apps/preference/team/:slug/update",
       ],
-      children: [],
     },
   ],
   preferences: [

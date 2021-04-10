@@ -17,7 +17,10 @@ import FormAction from "../../../../components/ui/form/MuiFormAction";
 import _ from "lodash";
 import ContactRepository from "../../../../repositories/ContactRepository";
 import { useIsMounted } from "../../../../utilities/hooks";
-import { mapHookFormErrors } from "../../../../utilities/helpers";
+import {
+  axiosErrorLoadDataHandler,
+  axiosErrorSaveHandler,
+} from "../../../../utilities/helpers";
 import { useSnackbar } from "notistack";
 import { useState } from "@hookstate/core";
 import { createStyles, withStyles } from "@material-ui/core/styles";
@@ -72,17 +75,14 @@ const ContactForm: React.FC<any> = () => {
         const { data: contact } = resp.data;
 
         Object.assign(contact, {
-          name: contact.name === null ? "" : contact.name,
-          mobile_phone:
-            contact.mobile_phone === null ? "" : contact.mobile_phone,
-          address_line_1:
-            contact.address_line_1 === null ? "" : contact.address_line_1,
-          address_line_2:
-            contact.address_line_2 === null ? "" : contact.address_line_2,
-          country: contact.country === null ? "" : contact.country,
-          province: contact.province === null ? "" : contact.province,
-          city: contact.city === null ? "" : contact.city,
-          postal_code: contact.postal_code === null ? "" : contact.postal_code,
+          name: contact.name || "",
+          mobile_phone: contact.mobile_phone || "",
+          address_line_1: contact.address_line_1 || "",
+          address_line_2: contact.address_line_2 || "",
+          country: contact.country || "",
+          province: contact.province || "",
+          city: contact.city || "",
+          postal_code: contact.postal_code || "",
         });
 
         groups.set(contact.groups || []);
@@ -94,16 +94,10 @@ const ContactForm: React.FC<any> = () => {
         }
       })
       .catch((e: any) => {
-        const errorTranslation = e?.response?.status
-          ? `common:error.${e.response.status}`
-          : "common:error.other";
-
-        enqueueSnackbar(t(errorTranslation), {
-          variant: "error",
-        });
-
         if (isMounted.current) {
           setOnFetchData(false);
+
+          axiosErrorLoadDataHandler(e, enqueueSnackbar, t);
         }
       });
   }, [false]);
@@ -182,20 +176,7 @@ const ContactForm: React.FC<any> = () => {
         if (isMounted.current) {
           setLoading(false);
 
-          if (e?.response?.data?.errors) {
-            const errors = mapHookFormErrors(e.response.data.errors);
-            Object.keys(errors).forEach((key: any) =>
-              setError(key, errors[key])
-            );
-          } else {
-            const errorTranslation = e?.response?.status
-              ? `common:error.${e.response.status}`
-              : "common:error.other";
-
-            enqueueSnackbar(t(errorTranslation), {
-              variant: "error",
-            });
-          }
+          axiosErrorSaveHandler(e, setError, enqueueSnackbar, t);
         }
       });
   };

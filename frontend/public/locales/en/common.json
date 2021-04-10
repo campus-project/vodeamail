@@ -15,7 +15,10 @@
   "draft": "Draft",
   "scheduled": "Scheduled",
   "completed": "Completed",
+  "previous": "Previous",
   "next": "Next",
+  "continue": "Continue",
+  "please_wait": "Please wait",
 
   "add": "Add",
   "add_label": "Add {{label}}",
@@ -40,6 +43,8 @@
   "successfully_created_label": "Successfully create {{label}}",
   "successfully_updated": "Successfully updated",
   "successfully_updated_label": "Successfully update {{label}}",
+  "successfully_saved": "Successfully saved",
+  "successfully_saved_label": "Successfully saved {{label}}",
 
   "redirecting": "Redirecting",
   "save_changes": "Save changes?",
@@ -47,7 +52,9 @@
   "save": "Save",
   "save_label": "Save {{label}}",
   "cancel": "Cancel",
+  "cancel_or_back": "Cancel/Back",
   "cancel_label": "Cancel {{label}}",
+  "auto_save": "Changes saved.",
 
   "profile": "Profile",
   "setting": "Setting",

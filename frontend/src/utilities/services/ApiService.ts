@@ -6,7 +6,7 @@ const axios = require("axios");
 axios.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: any) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const originalRequest = error.config;
       const responseStatus = error?.response?.status;
 
@@ -29,12 +29,11 @@ axios.interceptors.response.use(
         resolve(response);
       }
 
-      //disable console error unauthorized
       if (responseStatus === 401) {
         return null;
       }
 
-      return Promise.reject(error);
+      return reject(error);
     });
   }
 );

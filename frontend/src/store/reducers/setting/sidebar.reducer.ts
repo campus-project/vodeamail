@@ -1,7 +1,7 @@
 import * as actions from "../../actions/setting";
 
 const sidebarOpenKey = "sidebar.open";
-const isOpen = parseFloat(localStorage.getItem(sidebarOpenKey) || "0");
+const isOpen = parseFloat(localStorage.getItem(sidebarOpenKey) || "1");
 
 const initialState = {
   anchor: "left",

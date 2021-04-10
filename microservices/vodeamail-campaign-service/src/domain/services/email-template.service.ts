@@ -105,6 +105,7 @@ export class EmailTemplateService {
       name,
       design,
       image_id,
+      image_url,
       actor_id: created_by,
     } = createEmailTemplateDto;
 
@@ -115,6 +116,7 @@ export class EmailTemplateService {
         name,
         design,
         image_id,
+        image_url,
         created_by,
         updated_by: created_by,
       }),
@@ -136,6 +138,7 @@ export class EmailTemplateService {
       name,
       design,
       image_id,
+      image_url,
       actor_id: updated_by,
     } = updateEmailTemplateDto;
 
@@ -149,6 +152,7 @@ export class EmailTemplateService {
       name,
       design,
       image_id,
+      image_url,
       actor_id: updated_by,
     });
 

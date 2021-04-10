@@ -1,17 +1,34 @@
 import React, { lazy } from "react";
 import { Navigate } from "react-router-dom";
-import CampaignEmailEditor from "../pages/apps/campaign/EmailEditor";
 
-import LayoutApps from "../layouts/Apps/Apps";
-import LayoutBaseApps from "../layouts/Apps/BaseApps";
+import LayoutApps from "../layouts/apps/Apps";
+import LayoutBaseApps from "../layouts/apps/BaseApps";
 
 const Dashboard = lazy(() => import("../pages/apps/dashboard"));
-const Campaign = lazy(() => import("../pages/apps/campaign"));
-const CampaignForm = lazy(() => import("../pages/apps/campaign/Form"));
+
+//campaign
+const EmailCampaign = lazy(
+  () => import("../pages/apps/campaign/email-campaign")
+);
+const EmailCampaignForm = lazy(
+  () => import("../pages/apps/campaign/email-campaign/Form")
+);
+const EmailTemplate = lazy(
+  () => import("../pages/apps/campaign/email-template")
+);
+const EmailTemplateForm = lazy(
+  () => import("../pages/apps/campaign/email-template/Form")
+);
+
+//audience
 const Audience = lazy(() => import("../pages/apps/audience"));
 const ContactForm = lazy(() => import("../pages/apps/audience/contact/Form"));
 const GroupForm = lazy(() => import("../pages/apps/audience/group/Form"));
+
+//analytic
 const Analytic = lazy(() => import("../pages/apps/analytic"));
+
+//preference
 const Preference = lazy(() => import("../pages/apps/preference"));
 const Organization = lazy(
   () => import("../pages/apps/preference/organization")
@@ -27,14 +44,25 @@ const routes = [
     path: "apps",
     element: <LayoutApps />,
     children: [
-      { path: "/", element: <Navigate to={"dashboard"} /> },
+      { path: "/", element: <Navigate to={"/apps/dashboard"} /> },
       {
         path: "dashboard",
         element: <Dashboard />,
       },
-      { path: "campaign", element: <Campaign /> },
-      { path: "campaign/create", element: <CampaignForm /> },
-      { path: "campaign/:id/edit", element: <CampaignForm /> },
+      {
+        path: "campaign",
+        element: <Navigate to={"/apps/campaign/email-campaign"} />,
+      },
+      { path: "campaign/email-campaign", element: <EmailCampaign /> },
+      {
+        path: "campaign/email-campaign/create",
+        element: <EmailCampaignForm />,
+      },
+      {
+        path: "campaign/email-campaign/:id/edit",
+        element: <EmailCampaignForm />,
+      },
+      { path: "campaign/email-template", element: <EmailTemplate /> },
 
       { path: "audience", element: <Audience /> },
       { path: "audience/contact/create", element: <ContactForm /> },
@@ -60,7 +88,13 @@ const routes = [
   {
     path: "apps/campaign",
     element: <LayoutBaseApps />,
-    children: [{ path: "email-editor", element: <CampaignEmailEditor /> }],
+    children: [
+      { path: "email-template/create", element: <EmailTemplateForm /> },
+      {
+        path: "email-template/:id/edit",
+        element: <EmailTemplateForm />,
+      },
+    ],
   },
 ];
 

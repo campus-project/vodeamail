@@ -10,9 +10,9 @@ import { useLocation } from "react-router";
 import { setSidebarClose } from "../../../../store/actions/setting";
 
 const CreateCampaign: React.FC<any> = () => {
+  const { t } = useTranslation();
   const classes = useStyles();
   const { pathname } = useLocation();
-  const { t } = useTranslation();
 
   const dispatch = useDispatch();
   const { items, variant, isOpen } = useSelector(({ setting }: any) => {

@@ -4,23 +4,23 @@ import React, { useCallback, useMemo } from "react";
 import { Box, Button, IconButton, Typography } from "@material-ui/core";
 import { Link as LinkDom } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import useQueryTab from "../../../utilities/hooks/useQueryTab";
-import MuiDatatable from "../../../components/datatable";
-import GroupRepository from "../../../repositories/GroupRepository";
+import useQueryTab from "../../../../utilities/hooks/useQueryTab";
+import MuiDatatable from "../../../../components/datatable";
 import { AxiosResponse } from "axios";
 import { State, useState } from "@hookstate/core";
 import { MUIDataTableColumn } from "mui-datatables";
-import DateTimeCell from "../../../components/datatable/DateTimeCell";
+import DateTimeCell from "../../../../components/datatable/DateTimeCell";
 import { Alert } from "@material-ui/lab";
-import ActionCell from "../../../components/datatable/ActionCell";
+import ActionCell from "../../../../components/datatable/ActionCell";
 import { EditOutlined } from "@material-ui/icons";
-import { useIsMounted } from "../../../utilities/hooks";
-import useStyles from "../audience/style";
-import MuiCard from "../../../components/ui/card/MuiCard";
-import AntTabs from "../../../components/ui/tabs/AntTabs";
-import AntTab from "../../../components/ui/tabs/AntTab";
+import { useIsMounted } from "../../../../utilities/hooks";
+import useStyles from "../../audience/style";
+import MuiCard from "../../../../components/ui/card/MuiCard";
+import AntTabs from "../../../../components/ui/tabs/AntTabs";
+import AntTab from "../../../../components/ui/tabs/AntTab";
+import EmailCampaignRepository from "../../../../repositories/EmailCampaignRepository";
 
-const Campaign: React.FC<any> = () => {
+const EmailCampaign: React.FC<any> = () => {
   const classes = useStyles();
 
   const isMounted = useIsMounted();
@@ -32,22 +32,22 @@ const Campaign: React.FC<any> = () => {
 
   const columns: MUIDataTableColumn[] = [
     {
-      label: t("pages:campaign.datatable.columns.name"),
+      label: t("pages:email_campaign.datatable.columns.name"),
       name: "name",
     },
     {
-      label: t("pages:campaign.datatable.columns.sent_at"),
+      label: t("pages:email_campaign.datatable.columns.sent_at"),
       name: "sent_at",
     },
     {
-      label: t("pages:campaign.datatable.columns.updated"),
+      label: t("pages:email_campaign.datatable.columns.updated"),
       name: "updated_at",
       options: {
         customBodyRender: (value) => <DateTimeCell data={value} />,
       },
     },
     {
-      label: t("pages:campaign.datatable.columns.status"),
+      label: t("pages:email_campaign.datatable.columns.status"),
       name: "status",
       options: {
         customBodyRender: (value) => (
@@ -74,7 +74,7 @@ const Campaign: React.FC<any> = () => {
             <ActionCell>
               <IconButton
                 component={LinkDom}
-                to={`/apps/audience/campaign/${value}/edit`}
+                to={`/apps/campaign/email-campaign/${value}/edit`}
               >
                 <EditOutlined />
               </IconButton>
@@ -90,9 +90,7 @@ const Campaign: React.FC<any> = () => {
       setLoading(true);
     }
 
-    await GroupRepository.all({
-      relations: ["contacts"],
-    })
+    await EmailCampaignRepository.all()
       .then((resp: AxiosResponse<any>) => {
         if (isMounted.current) {
           setLoading(false);
@@ -115,16 +113,18 @@ const Campaign: React.FC<any> = () => {
   return (
     <>
       <Box display={"flex"} justifyContent={"space-between"}>
-        <Typography variant={"h5"}>{t("pages:campaign.title")}</Typography>
+        <Typography variant={"h5"}>
+          {t("pages:email_campaign.title")}
+        </Typography>
 
         <Button
           component={LinkDom}
-          to={"/apps/campaign/create"}
+          to={"/apps/campaign/email-campaign/create"}
           variant={"contained"}
           color={"primary"}
         >
           {t("common:create_label", {
-            label: t("pages:campaign.title"),
+            label: t("pages:email_campaign.title"),
           })}
         </Button>
       </Box>
@@ -132,7 +132,7 @@ const Campaign: React.FC<any> = () => {
       <Box pt={2}>
         <MuiCard>
           <Box mb={4}>
-            <CampaignStatusTab
+            <EmailCampaignStatusTab
               handleChange={(
                 event: React.ChangeEvent<{}>,
                 newValue: number
@@ -150,17 +150,17 @@ const Campaign: React.FC<any> = () => {
   );
 };
 
-const CampaignStatusTab: React.FC<any> = ({ value, handleChange }) => {
+const EmailCampaignStatusTab: React.FC<any> = ({ value, handleChange }) => {
   const { t } = useTranslation();
 
   return (
     <AntTabs value={value} onChange={handleChange} aria-label="campaign tab">
-      <AntTab label={t("pages:campaign.tab.all")} />
-      <AntTab label={t("pages:campaign.tab.draft")} />
-      <AntTab label={t("pages:campaign.tab.scheduled")} />
-      <AntTab label={t("pages:campaign.tab.completed")} />
+      <AntTab label={t("pages:email_campaign.tab.all")} />
+      <AntTab label={t("pages:email_campaign.tab.draft")} />
+      <AntTab label={t("pages:email_campaign.tab.scheduled")} />
+      <AntTab label={t("pages:email_campaign.tab.completed")} />
     </AntTabs>
   );
 };
 
-export default Campaign;
+export default EmailCampaign;

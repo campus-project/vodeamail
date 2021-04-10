@@ -13,6 +13,8 @@ import { ContactController } from './controllers/microservices/contact.controlle
 import { GroupController } from './controllers/microservices/group.controller';
 import { OrganizationController } from './controllers/microservices/organization.controller';
 import { UserController } from './controllers/microservices/user.controller';
+import { EmailCampaignController } from './controllers/microservices/email-campaign.controller';
+import { EmailTemplateController } from './controllers/microservices/email-template.controller';
 
 @Module({
   imports: [TerminusModule, DomainModule, InfrastructureModule],
@@ -29,6 +31,8 @@ import { UserController } from './controllers/microservices/user.controller';
     // ms audience
     ContactController,
     GroupController,
+    EmailCampaignController,
+    EmailTemplateController,
   ],
   providers: [
     JwtStrategy,

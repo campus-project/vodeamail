@@ -19,7 +19,7 @@ import {
   paginationTransformer,
 } from '../../../@vodea/helpers';
 
-@Controller('email-template')
+@Controller('email-campaign')
 export class EmailCampaignController {
   constructor(
     @Inject('REDIS_TRANSPORT')

@@ -8,7 +8,7 @@ import { AxiosResponse } from "axios";
 import { useSnackbar } from "notistack";
 import { useTranslation } from "react-i18next";
 import _ from "lodash";
-import { $cloneState } from "../../../utilities/helpers";
+import { $cloneState, axiosErrorHandler } from "../../../utilities/helpers";
 
 export interface IParams {
   [key: string]: string | number | Array<string | number>;
@@ -46,8 +46,8 @@ const MuiAutoComplete = withStyles((theme: Theme) =>
     muiTextField = {},
     ...others
   } = props;
-  const isMounted = useIsMounted();
   const { t } = useTranslation();
+  const isMounted = useIsMounted();
   const { enqueueSnackbar } = useSnackbar();
 
   const options = useState([]);
@@ -80,15 +80,9 @@ const MuiAutoComplete = withStyles((theme: Theme) =>
       .catch((e: any) => {
         if (isMounted.current) {
           setLoading(false);
+
+          axiosErrorHandler(e, enqueueSnackbar, t);
         }
-
-        const errorTranslation = e?.response?.status
-          ? `common:error.${e.response.status}`
-          : "common:error.other";
-
-        enqueueSnackbar(t(errorTranslation), {
-          variant: "error",
-        });
       });
   };
 

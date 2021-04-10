@@ -23,6 +23,10 @@ export class CreateEmailTemplateDto extends ActorOrganizationDto {
   @IsUUID('4')
   image_id?: string;
 
+  @IsOptional()
+  @IsString()
+  image_url: string;
+
   @IsNotEmpty()
   @IsString()
   design: string;

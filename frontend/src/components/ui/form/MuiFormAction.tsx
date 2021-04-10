@@ -5,7 +5,7 @@ import React, { ReactNode } from "react";
 
 export interface MuiFormActionProps {
   title: string | ReactNode;
-  cancel: string | ReactNode;
+  cancel?: string | ReactNode;
   save: string | ReactNode;
   muiCardProps?: MuiCardProps;
   onCancel?: () => void;
@@ -49,15 +49,17 @@ const MuiCardBody = withStyles((theme: Theme) =>
         )}
 
         <Box display={"flex"} alignItems={"center"}>
-          <Box mr={1}>
-            {React.isValidElement(cancel) ? (
-              cancel
-            ) : (
-              <Button {...(onCancel ? { onClick: onCancel } : {})}>
-                {cancel}
-              </Button>
-            )}
-          </Box>
+          {cancel !== undefined ? (
+            <Box mr={1}>
+              {React.isValidElement(cancel) ? (
+                cancel
+              ) : (
+                <Button {...(onCancel ? { onClick: onCancel } : {})}>
+                  {cancel}
+                </Button>
+              )}
+            </Box>
+          ) : null}
           {React.isValidElement(save) ? (
             save
           ) : (

@@ -1,15 +1,13 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
-  status: {
-    display: "inline-block",
-    padding: `0 ${theme.spacing(1)}px`,
-  },
   containerEmailWrapper: {
     height: "100vh",
 
     "& .container-control-button": {
       position: "absolute",
+      bottom: theme.spacing(1),
+      right: 425 + theme.spacing(4),
     },
 
     "& .container-email-editor": {

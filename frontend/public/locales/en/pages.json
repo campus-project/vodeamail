@@ -22,6 +22,75 @@
       "setting": "Setting",
       "design": "Design",
       "preview": "Preview"
+    },
+    "section": {
+      "information": "Information",
+      "email_setting": "Email Setting",
+      "audience": "Audience",
+      "schedule": "Schedule",
+      "design": "Select Design",
+      "preview": "Preview"
+    },
+    "field": {
+      "name": "Name",
+      "subject": "Subject",
+      "from": "From",
+      "email_from": "Email From",
+      "send_directly": "Send Directly",
+      "certain_time": "Certain Time",
+      "date": "Date",
+      "time": "Time",
+      "or_create_design": "Or create your own design"
+    }
+  },
+  "email_campaign": {
+    "title": "Email Campaign",
+    "tab": {
+      "all": "All",
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "completed": "Completed"
+    },
+    "datatable": {
+      "columns": {
+        "name": "Name",
+        "sent_at": "Sent At",
+        "status": "Status",
+        "updated": "Updated At"
+      }
+    },
+    "step": {
+      "setting": "Setting",
+      "design": "Design",
+      "preview": "Preview"
+    },
+    "section": {
+      "information": "Information",
+      "email_setting": "Email Setting",
+      "audience": "Audience",
+      "schedule": "Schedule",
+      "design": "Select Design",
+      "preview": "Preview"
+    },
+    "field": {
+      "name": "Name",
+      "subject": "Subject",
+      "from": "From",
+      "email_from": "Email From",
+      "send_directly": "Send Directly",
+      "certain_time": "Certain Time",
+      "date": "Date",
+      "time": "Time",
+      "or_create_design": "Or create your own design"
+    }
+  },
+  "email_template": {
+    "title": "Email Template",
+    "datatable": {
+      "columns": {
+        "name": "Name",
+        "updated": "Updated At"
+      }
     }
   },
   "audience": {
