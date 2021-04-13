@@ -1,27 +1,26 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useCallback, useMemo } from "react";
-import { Box, Button, IconButton, Typography } from "@material-ui/core";
+import { Box, IconButton, Typography } from "@material-ui/core";
 import { Link as LinkDom } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import MuiDatatable from "../../../../components/datatable";
-import EmailTemplateRepository from "../../../../repositories/EmailTemplateRepository";
 import { AxiosResponse } from "axios";
-import { useState } from "@hookstate/core";
+import { State, useState } from "@hookstate/core";
 import { MUIDataTableColumn } from "mui-datatables";
 import ActionCell from "../../../../components/datatable/ActionCell";
-import { DeleteOutlined, EditOutlined } from "@material-ui/icons";
-import { useDeleteResource, useIsMounted } from "../../../../utilities/hooks";
+import { EditOutlined } from "@material-ui/icons";
+import { useIsMounted } from "../../../../utilities/hooks";
 import MuiCard from "../../../../components/ui/card/MuiCard";
 import _ from "lodash";
-import { Group as IGroup } from "../../../../models";
 import DateTime from "../../../../components/data/DateTime";
+import EmailCampaignRepository from "../../../../repositories/EmailCampaignRepository";
 
-const EmailTemplate: React.FC<any> = () => {
+const Emailanalytic: React.FC<any> = () => {
   const isMounted = useIsMounted();
   const { t } = useTranslation();
 
-  const data = useState<IGroup[]>([]);
+  const data: State<any[]> = useState<any[]>([]);
   const [totalData, setTotalData] = React.useState<number>(0);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [dataQuery, setDataQuery] = React.useState<any>({
@@ -29,15 +28,32 @@ const EmailTemplate: React.FC<any> = () => {
     per_page: 5,
   });
 
-  const { handleDelete } = useDeleteResource(EmailTemplateRepository);
-
   const columns: MUIDataTableColumn[] = [
     {
-      label: t("pages:email_template.datatable.columns.name"),
+      label: t("pages:email_analytic.datatable.columns.name"),
       name: "name",
     },
     {
-      label: t("pages:email_template.datatable.columns.updated"),
+      label: t("pages:email_analytic.datatable.columns.subject"),
+      name: "subject",
+    },
+    {
+      label: t("pages:email_analytic.datatable.columns.from"),
+      name: "from",
+    },
+    {
+      label: t("pages:email_analytic.datatable.columns.email_from"),
+      name: "email_from",
+    },
+    {
+      label: t("pages:email_analytic.datatable.columns.sent_at"),
+      name: "sent_at",
+      options: {
+        customBodyRender: (value) => <DateTime data={value} />,
+      },
+    },
+    {
+      label: t("pages:email_analytic.datatable.columns.updated"),
       name: "updated_at",
       options: {
         customBodyRender: (value) => <DateTime data={value} />,
@@ -52,21 +68,9 @@ const EmailTemplate: React.FC<any> = () => {
             <ActionCell>
               <IconButton
                 component={LinkDom}
-                to={`/apps/campaign/email-template/${value}/edit`}
-                onClick={(event: any) => {
-                  event.stopPropagation();
-                  window.location.href = `/apps/campaign/email-template/${value}/edit`;
-                }}
+                to={`/apps/analytic/email-analytic/${value}`}
               >
                 <EditOutlined />
-              </IconButton>
-
-              <IconButton
-                onClick={() => {
-                  handleDelete(value).then(() => loadData());
-                }}
-              >
-                <DeleteOutlined />
               </IconButton>
             </ActionCell>
           );
@@ -80,7 +84,7 @@ const EmailTemplate: React.FC<any> = () => {
       setLoading(true);
     }
 
-    await EmailTemplateRepository.all({
+    await EmailCampaignRepository.all({
       ...params,
       using: "builder",
     })
@@ -133,23 +137,8 @@ const EmailTemplate: React.FC<any> = () => {
     <>
       <Box display={"flex"} justifyContent={"space-between"}>
         <Typography variant={"h5"}>
-          {t("pages:email_template.title")}
+          {t("pages:email_analytic.title")}
         </Typography>
-
-        <Button
-          component={LinkDom}
-          to={"/apps/campaign/email-template/create"}
-          variant={"contained"}
-          color={"primary"}
-          onClick={(event: any) => {
-            event.stopPropagation();
-            window.location.href = "/apps/campaign/email-template/create";
-          }}
-        >
-          {t("common:create_label", {
-            label: t("pages:email_template.title"),
-          })}
-        </Button>
       </Box>
 
       <Box pt={2}>
@@ -172,4 +161,4 @@ const EmailTemplate: React.FC<any> = () => {
   );
 };
 
-export default EmailTemplate;
+export default Emailanalytic;

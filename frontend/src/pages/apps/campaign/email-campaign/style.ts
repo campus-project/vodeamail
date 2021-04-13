@@ -5,6 +5,10 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-block",
     padding: `0 ${theme.spacing(1)}px`,
   },
+  campaignStepperContainer: {
+    padding: `${theme.spacing(3)}px 0px`,
+    margin: `0 ${theme.spacing(-1)}px`,
+  },
   campaignStepper: {
     boxShadow: "0px 2px 8px #0000001A;",
     padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
@@ -33,6 +37,10 @@ const useStyles = makeStyles((theme) => ({
     color: "white !important",
   },
 
+  templateItemGroupContainer: {
+    height: theme.spacing(25 * 2 + 6),
+    overflowY: "auto",
+  },
   templateItemGroup: {
     display: "grid",
     gridTemplateColumns: "repeat(12, 1fr)",
@@ -50,6 +58,19 @@ const useStyles = makeStyles((theme) => ({
         height: theme.spacing(25),
         width: "100%",
         objectFit: "contain",
+      },
+
+      "& .name": {
+        position: "absolute",
+        top: theme.spacing(1.3),
+        left: theme.spacing(1.5),
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        maxWidth: "70%",
+        color: "white",
+        padding: `${theme.spacing(0.1)}px ${theme.spacing(1)}px`,
+        backgroundColor: "rgb(16 14 14 / 0.5)",
       },
 
       "& .MuiIconButton-root": {

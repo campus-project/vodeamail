@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   Box,
   Grid,
@@ -22,31 +22,36 @@ import { EmailCampaign } from "../../../../models/EmailCampaign";
 import Loading from "../../../../components/ui/Loading";
 import FormSetting, { EmailCampaignSettingData } from "./FormStep/Setting";
 import FormDesign, { EmailCampaignDesignData } from "./FormStep/Design";
-import FormPreview from "./FormStep/Preview";
+import FormPreview, { EmailCampaignPreviewData } from "./FormStep/Preview";
 import {
   $clone,
-  $cloneState,
   axiosErrorLoadDataHandler,
   axiosErrorSaveHandler,
 } from "../../../../utilities/helpers";
-import { useState } from "@hookstate/core";
 import { withStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import useStyles from "./style";
 import EmailCampaignRepository from "../../../../repositories/EmailCampaignRepository";
 import { AxiosResponse } from "axios";
 import { Resource } from "../../../../contracts";
-import FormAction from "../../../../components/ui/form/MuiFormAction";
+import {
+  loadEmailTemplates,
+  setEmailCampaignTemplate,
+} from "../../../../store/actions";
+import { useDispatch, useSelector } from "react-redux";
 
 const defaultValues: EmailCampaign = {
-  name: "Campaign Default",
-  subject: "Test Subject",
-  from: "Vodea",
-  email_from: "info@vodea.id",
-  email_template_id: "ffe2a9e6-a5f7-4fde-8542-9e3da613e033",
+  name: "",
+  subject: "",
+  from: "",
+  email_from: "",
+  email_template_id: "",
+  email_template_html: "",
   sent_at: "",
+  send_date_at: new Date(),
+  send_time_at: new Date(),
   is_directly_scheduled: 0,
-  is_delivered: 0,
+  status: 1,
   group_ids: [],
 };
 
@@ -58,6 +63,13 @@ const CampaignForm: React.FC<any> = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
+  const dispatch = useDispatch();
+  const { emailDomain } = useSelector(({ campaign }: any) => {
+    return {
+      emailDomain: campaign.email_campaign.email_domain,
+    };
+  });
+
   const [step, setStep] = React.useState(0);
   const steps = [
     t("pages:email_campaign.step.setting"),
@@ -65,7 +77,7 @@ const CampaignForm: React.FC<any> = () => {
     t("pages:email_campaign.step.preview"),
   ];
 
-  const data = useState<EmailCampaign>(defaultValues);
+  const [data, setData] = React.useState<EmailCampaign>(defaultValues);
   const [onFetchData, setOnFetchData] = React.useState<boolean>(Boolean(id));
   const [loading, setLoading] = React.useState<boolean>(false);
   const [errors, setError] = React.useState<{ [key: string]: any }>({});
@@ -80,12 +92,17 @@ const CampaignForm: React.FC<any> = () => {
     }
 
     await EmailCampaignRepository.show(id, {
-      relations: ["email_template"],
+      relations: ["email_template", "groups"],
     })
       .then((resp: AxiosResponse<Resource<EmailCampaign>>) => {
         const { data: emailCampaign } = resp.data;
 
-        data.set(emailCampaign);
+        setData(() => ({
+          ...emailCampaign,
+          email_from: emailCampaign.email_from.split("@")[0],
+          send_date_at: emailCampaign.sent_at,
+          send_time_at: emailCampaign.sent_at,
+        }));
 
         if (isMounted.current) {
           setOnFetchData(false);
@@ -106,28 +123,46 @@ const CampaignForm: React.FC<any> = () => {
     })();
   }, []);
 
-  const onNextSetting = (emailCampaignSetting: EmailCampaignSettingData) => {
-    data.set((nodes) => {
-      Object.assign(nodes, $clone(emailCampaignSetting));
-      return nodes;
-    });
+  useEffect(() => {
+    dispatch(loadEmailTemplates());
 
+    return () => {
+      dispatch(setEmailCampaignTemplate([]));
+    };
+  }, []);
+
+  const onNextSetting = (emailCampaignSetting: EmailCampaignSettingData) => {
+    setData((nodes) => ({
+      ...nodes,
+      ...emailCampaignSetting,
+    }));
     setStep(1);
   };
 
   const onNextDesign = (emailCampaignDesign: EmailCampaignDesignData) => {
-    data.set((nodes) => {
-      Object.assign(nodes, $clone(emailCampaignDesign));
-      return nodes;
-    });
-
+    setData((nodes) => ({
+      ...nodes,
+      ...emailCampaignDesign,
+    }));
     setStep(2);
   };
 
-  const onSubmit = async (formData: EmailCampaign) => {
+  const onSubmitPreview = (emailCampaignPreview: EmailCampaignPreviewData) => {
+    setData((nodes) => ({
+      ...nodes,
+      ...emailCampaignPreview,
+    }));
+
+    onSubmit().then(() => {});
+  };
+
+  const onSubmit = async () => {
     setLoading(true);
 
+    const formData = $clone(data);
+
     Object.assign(formData, {
+      email_from: `${formData.email_from}${emailDomain}`,
       is_directly_scheduled: Boolean(formData.is_directly_scheduled),
     });
 
@@ -186,9 +221,10 @@ const CampaignForm: React.FC<any> = () => {
         <Hidden smDown>
           <Grid item xs={12}>
             <Grid container spacing={3}>
-              <Grid item md={6} xs={12}>
+              <Grid item md={4} xs={12}>
                 <Stepper
                   activeStep={step}
+                  className={classes.campaignStepperContainer}
                   connector={<CampaignStepIconConnector />}
                 >
                   {steps.map((label) => (
@@ -208,37 +244,28 @@ const CampaignForm: React.FC<any> = () => {
         </Hidden>
 
         <Grid item xs={12}>
-          {step === 0 ? (
-            <FormSetting
-              data={$cloneState(data)}
-              errors={errors}
-              onNext={onNextSetting}
-            />
-          ) : null}
-          {step === 1 ? (
+          <Box style={step === 0 ? {} : { display: "none" }}>
+            <FormSetting data={data} errors={errors} onNext={onNextSetting} />
+          </Box>
+
+          <Box style={step === 1 ? {} : { display: "none" }}>
             <FormDesign
-              data={$cloneState(data)}
+              data={data}
               errors={errors}
               onPrevious={() => setStep(0)}
               onNext={onNextDesign}
             />
-          ) : null}
-          {step === 2 ? <FormPreview data={$cloneState(data)} /> : null}
-        </Grid>
+          </Box>
 
-        {step === steps.length - 1 ? (
-          <Grid item xs={12}>
-            <FormAction
-              title={t("common:save_changes")}
-              cancel={t("common:cancel")}
-              save={t("common:save")}
-              onCancel={() => setStep(1)}
-              onSave={() => onSubmit($cloneState(data))}
-              saveDisable={loading}
-              saveLoading={loading}
+          <Box style={step === 2 ? {} : { display: "none" }}>
+            <FormPreview
+              data={data}
+              onPrevious={() => setStep(0)}
+              onNext={onSubmitPreview}
+              loading={loading}
             />
-          </Grid>
-        ) : null}
+          </Box>
+        </Grid>
       </Grid>
     </>
   );

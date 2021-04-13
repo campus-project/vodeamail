@@ -1,4 +1,4 @@
-import * as actions from "../../actions/setting";
+import * as actions from "../../actions";
 
 const sidebarOpenKey = "sidebar.open";
 const isOpen = parseFloat(localStorage.getItem(sidebarOpenKey) || "1");

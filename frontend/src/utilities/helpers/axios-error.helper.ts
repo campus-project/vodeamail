@@ -16,8 +16,8 @@ export const axiosErrorSaveHandler = (
   enqueueSnackbar: any,
   t: any
 ) => {
-  if (e?.response?.data?.errors) {
-    const errors = mapHookFormErrors(e.response.data.errors);
+  if (e?.response?.data?.message) {
+    const errors = mapHookFormErrors(e.response.data.message);
     Object.keys(errors).forEach((key: any) => setError(key, errors[key]));
   } else {
     const errorTranslation = e?.response?.status

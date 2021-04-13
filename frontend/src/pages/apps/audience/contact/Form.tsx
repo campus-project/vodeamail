@@ -102,7 +102,7 @@ const ContactForm: React.FC<any> = () => {
       });
   }, [false]);
 
-  const groups = useState<Group[]>(defaultValues.group_ids);
+  const groups = useState<Group[]>([]);
   const { handleSubmit, errors, setError, control, reset } = useForm<Contact>({
     mode: "onChange",
     resolver: yupResolver(

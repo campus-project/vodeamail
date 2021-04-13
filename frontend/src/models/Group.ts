@@ -5,6 +5,7 @@ export interface Group {
   name: string;
   description: string | null;
   is_visible: number;
+
   contacts?: Contact[];
   contact_ids: Contact[];
 }

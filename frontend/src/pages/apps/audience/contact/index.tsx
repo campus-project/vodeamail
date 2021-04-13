@@ -13,13 +13,13 @@ import { IconButton, Typography } from "@material-ui/core";
 import { Link as LinkDom } from "react-router-dom";
 import { DeleteOutlined, EditOutlined } from "@material-ui/icons";
 import ActionCell from "../../../../components/datatable/ActionCell";
-import DateTimeCell from "../../../../components/datatable/DateTimeCell";
 import { Alert } from "@material-ui/lab";
 import useStyles from "../style";
-import NumberCell from "../../../../components/datatable/NumberCell";
 import { useDeleteResource, useIsMounted } from "../../../../utilities/hooks";
 import { Group as IGroup } from "../../../../models/Group";
 import _ from "lodash";
+import Number from "../../../../components/data/Number";
+import DateTime from "../../../../components/data/DateTime";
 
 const Group: React.FC<any> = () => {
   const { t } = useTranslation();
@@ -46,14 +46,14 @@ const Group: React.FC<any> = () => {
       name: "total_group",
       columnName: "summary_contacts.total_group",
       options: {
-        customBodyRender: (value) => <NumberCell data={value} />,
+        customBodyRender: (value) => <Number data={value} />,
       },
     },
     {
       label: t("pages:group.datatable.columns.updated"),
       name: "updated_at",
       options: {
-        customBodyRender: (value) => <DateTimeCell data={value} />,
+        customBodyRender: (value) => <DateTime data={value} />,
       },
     },
     {

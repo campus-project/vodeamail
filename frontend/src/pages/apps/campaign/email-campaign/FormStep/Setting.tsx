@@ -10,6 +10,7 @@ import {
   Box,
   FormControlLabel,
   Grid,
+  InputAdornment,
   Radio,
   RadioGroup,
   Typography,
@@ -32,11 +33,10 @@ import * as yup from "yup";
 import { EmailCampaign } from "../../../../../models/EmailCampaign";
 import FormAction from "../../../../../components/ui/form/MuiFormAction";
 import MuiTimePicker from "../../../../../components/ui/form/MuiTimePicker";
+import { useSelector } from "react-redux";
+import { $clone } from "../../../../../utilities/helpers";
 
-export interface EmailCampaignSettingData extends Partial<EmailCampaign> {
-  send_date_at: string;
-  send_time_at: string;
-}
+export interface EmailCampaignSettingData extends Partial<EmailCampaign> {}
 
 interface FormSettingProps {
   data: EmailCampaignSettingData;
@@ -48,7 +48,13 @@ const FormSetting: React.FC<FormSettingProps> = (props) => {
   const { onNext, errors: feedBackErrors, data } = props;
   const { t } = useTranslation();
 
-  const groups = useState<Group[]>(data.group_ids || []);
+  const { emailDomain } = useSelector(({ campaign }: any) => {
+    return {
+      emailDomain: campaign.email_campaign.email_domain,
+    };
+  });
+
+  const groups = useState<Group[]>([]);
   const onDeleteGroup = (indexDeleted: number[]) => {
     groups.set((nodes) =>
       nodes.filter((group, index) => !indexDeleted.includes(index))
@@ -68,7 +74,10 @@ const FormSetting: React.FC<FormSettingProps> = (props) => {
         name: yup.string().required(),
         subject: yup.string().required(),
         from: yup.string().required(),
-        email_from: yup.string().required(),
+        email_from: yup
+          .string()
+          .required()
+          .matches(/^[aA-zZ\s]+$/),
         is_directly_scheduled: yup.number().required(),
         send_date_at: yup.mixed().when("is_directly_scheduled", {
           is: 0,
@@ -85,6 +94,7 @@ const FormSetting: React.FC<FormSettingProps> = (props) => {
 
   useEffect(() => {
     reset(data);
+    groups.set(data.groups || []);
   }, [data]);
 
   const getError = (key: string) =>
@@ -117,9 +127,10 @@ const FormSetting: React.FC<FormSettingProps> = (props) => {
     Object.assign(formData, {
       sent_at: sentAt,
       group_ids: groups.value.map((group) => group.id),
+      groups: groups.value,
     });
 
-    onNext(formData);
+    onNext($clone(formData));
   };
 
   return (
@@ -213,6 +224,13 @@ const FormSetting: React.FC<FormSettingProps> = (props) => {
                               label={t("pages:email_campaign.field.email_from")}
                               error={hasError("email_from")}
                               helperText={getError("email_from.message")}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="start">
+                                    {emailDomain}
+                                  </InputAdornment>
+                                ),
+                              }}
                             />
                           )}
                         />
@@ -433,7 +451,7 @@ const SearchContact: React.FC<ISearchContact> = ({
     options.filter(
       (option: any) =>
         !selectedIds.includes(option.id) &&
-        (state.inputValue ? option.name.search(state.inputValue) : 1) !== -1
+        (state.inputValue ? option.name.indexOf(state.inputValue) : 1) !== -1
     );
 
   return (

@@ -24,11 +24,11 @@ import FormAction from "../../../../../components/ui/form/MuiFormAction";
 import useStyles from "../style";
 import { Alert } from "@material-ui/lab";
 import { NavLink } from "react-router-dom";
+import { EmailTemplate } from "../../../../../models/EmailTemplate";
+import { useSelector } from "react-redux";
+import MuiTextField from "../../../../../components/ui/form/MuiTextField";
 
-export interface EmailCampaignDesignData extends Partial<EmailCampaign> {
-  send_date_at: string;
-  send_time_at: string;
-}
+export interface EmailCampaignDesignData extends Partial<EmailCampaign> {}
 
 interface FormDesignProps {
   data: EmailCampaignDesignData;
@@ -37,43 +37,19 @@ interface FormDesignProps {
   onNext: (data: EmailCampaignDesignData) => void;
 }
 
-const emailTemplates = [
-  {
-    id: "ffe2a9e6-a5f7-4fde-8542-9e3da613e033",
-    url:
-      "https://cdn.dribbble.com/users/530801/screenshots/1991124/attachments/349112/attach_01.png",
-  },
-  {
-    id: "59fb1674-1900-4bcc-9327-ffffd1fc5951",
-    url:
-      "https://cdn.dribbble.com/users/530801/screenshots/1991124/attachments/349112/attach_01.png",
-  },
-  {
-    id: "842ce40f-5436-43e3-800a-3fb11fe32301",
-    url:
-      "https://cdn.dribbble.com/users/530801/screenshots/1991124/attachments/349112/attach_01.png",
-  },
-  {
-    id: "cebede06-a019-4eb4-9377-70009998fc7c",
-    url:
-      "https://cdn.dribbble.com/users/530801/screenshots/1991124/attachments/349112/attach_01.png",
-  },
-  {
-    id: "b3cd67fa-3383-4f8d-bdef-a0b5472e9bd2",
-    url:
-      "https://cdn.dribbble.com/users/530801/screenshots/1991124/attachments/349112/attach_01.png",
-  },
-  {
-    id: "4273cc70-00e7-48d6-b02e-44789a8047e3",
-    url:
-      "https://cdn.dribbble.com/users/530801/screenshots/1991124/attachments/349112/attach_01.png",
-  },
-];
-
 const FormDesign: React.FC<FormDesignProps> = (props) => {
   const { onPrevious, onNext, errors: feedBackErrors, data } = props;
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const [emailTemplateSearch, setEmailTemplateSearch] = React.useState<string>(
+    ""
+  );
+  const { emailTemplates } = useSelector(({ campaign }: any) => {
+    return {
+      emailTemplates: campaign.email_campaign.email_templates,
+    };
+  });
 
   const {
     handleSubmit,
@@ -94,11 +70,39 @@ const FormDesign: React.FC<FormDesignProps> = (props) => {
     reset(data);
   }, [data]);
 
+  const handleChangeEmailTemplateSearch = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setEmailTemplateSearch(event.target.value);
+  };
+
+  const realEmailTemplates = (): EmailTemplate[] => {
+    return !emailTemplateSearch
+      ? emailTemplates
+      : emailTemplates.filter(
+          (emailTemplate: EmailTemplate) =>
+            emailTemplate.name.indexOf(emailTemplateSearch) !== -1
+        );
+  };
+
   const getError = (key: string) =>
     _.get(errors, key) || _.get(feedBackErrors, key);
 
   const hasError = (key: string) =>
     _.has(errors, key) || _.has(feedBackErrors, key);
+
+  const onSubmit = (formData: EmailCampaignDesignData) => {
+    const selectedEmailTemplate = emailTemplates.find(
+      (emailTemplate: EmailTemplate) =>
+        emailTemplate.id === formData.email_template_id
+    );
+
+    Object.assign(formData, {
+      email_template_html: selectedEmailTemplate?.html || "",
+    });
+
+    onNext(formData);
+  };
 
   return (
     <>
@@ -114,37 +118,60 @@ const FormDesign: React.FC<FormDesignProps> = (props) => {
             <MuiCardBody>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  {hasError("email_template_id") ? (
-                    <Alert severity="error">
-                      {getError("email_template_id.message")}
-                    </Alert>
-                  ) : null}
+                  <Grid container spacing={3}>
+                    {hasError("email_template_id") ? (
+                      <Grid item xs={12}>
+                        <Alert severity="error">
+                          {getError("email_template_id.message")}
+                        </Alert>
+                      </Grid>
+                    ) : null}
 
-                  <Controller
-                    control={control}
-                    name={"email_template_id"}
-                    defaultValue={data.email_template_id}
-                    render={({ value, onChange, ...others }) => (
-                      <RadioGroup
-                        {...others}
-                        onChange={(event, newValue: string) =>
-                          onChange(newValue)
-                        }
-                        value={value}
-                        className={classes.templateItemGroup}
-                      >
-                        {emailTemplates.map((emailTemplate) => (
-                          <FormControlLabel
-                            value={emailTemplate.id}
-                            control={<Radio color="primary" />}
-                            key={emailTemplate.id}
-                            checked={value === emailTemplate.id}
-                            label={<TemplateItem url={emailTemplate.url} />}
-                          />
-                        ))}
-                      </RadioGroup>
-                    )}
-                  />
+                    <Grid item md={4} xs={12}>
+                      <Box mb={3}>
+                        <MuiTextField
+                          value={emailTemplateSearch}
+                          onChange={handleChangeEmailTemplateSearch}
+                          placeholder={t("common:search")}
+                        />
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  <Box className={classes.templateItemGroupContainer}>
+                    <Controller
+                      control={control}
+                      name={"email_template_id"}
+                      defaultValue={data.email_template_id}
+                      render={({ value, onChange, ...others }) => (
+                        <RadioGroup
+                          {...others}
+                          onChange={(event, newValue: string) =>
+                            onChange(newValue)
+                          }
+                          value={value}
+                          className={classes.templateItemGroup}
+                        >
+                          {realEmailTemplates().map(
+                            (emailTemplate: EmailTemplate) => (
+                              <FormControlLabel
+                                value={emailTemplate.id}
+                                control={<Radio color="primary" />}
+                                key={emailTemplate.id}
+                                checked={value === emailTemplate.id}
+                                label={
+                                  <TemplateItem
+                                    name={emailTemplate.name}
+                                    url={emailTemplate.image_url}
+                                  />
+                                }
+                              />
+                            )
+                          )}
+                        </RadioGroup>
+                      )}
+                    />
+                  </Box>
                 </Grid>
               </Grid>
             </MuiCardBody>
@@ -161,7 +188,7 @@ const FormDesign: React.FC<FormDesignProps> = (props) => {
                 variant="contained"
                 color={"primary"}
                 component={NavLink}
-                to={"/apps/campaign/email-template/create"}
+                to={"/apps/campaign/email-template/create?from=campaign"}
                 target={"_blank"}
               >
                 {t("common:create_label", { label: "Design" })}
@@ -176,7 +203,7 @@ const FormDesign: React.FC<FormDesignProps> = (props) => {
             cancel={t("common:previous")}
             save={t("common:continue")}
             onCancel={onPrevious}
-            onSave={handleSubmit(onNext)}
+            onSave={handleSubmit(onSubmit)}
           />
         </Grid>
       </Grid>
@@ -184,10 +211,13 @@ const FormDesign: React.FC<FormDesignProps> = (props) => {
   );
 };
 
-const TemplateItem: React.FC<any> = ({ url }) => {
+const TemplateItem: React.FC<any> = ({ url, name }) => {
   return (
     <Box className={"template-item"}>
-      <img src={url} alt="template" />
+      <Typography className={"name"} variant={"body2"}>
+        {name}
+      </Typography>
+      <img src={url} alt={name} />
     </Box>
   );
 };

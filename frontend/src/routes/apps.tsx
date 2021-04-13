@@ -26,7 +26,10 @@ const ContactForm = lazy(() => import("../pages/apps/audience/contact/Form"));
 const GroupForm = lazy(() => import("../pages/apps/audience/group/Form"));
 
 //analytic
-const Analytic = lazy(() => import("../pages/apps/analytic"));
+const AnalyticEmail = lazy(() => import("../pages/apps/analytic/email"));
+const AnalyticEmailDetail = lazy(
+  () => import("../pages/apps/analytic/email/Detail")
+);
 
 //preference
 const Preference = lazy(() => import("../pages/apps/preference"));
@@ -70,7 +73,15 @@ const routes = [
       { path: "audience/group/create", element: <GroupForm /> },
       { path: "audience/group/:id/edit", element: <GroupForm /> },
 
-      { path: "analytic", element: <Analytic /> },
+      {
+        path: "analytic",
+        element: <Navigate to={"/apps/analytic/email"} />,
+      },
+      { path: "analytic/email", element: <AnalyticEmail /> },
+      {
+        path: "analytic/email/:id",
+        element: <AnalyticEmailDetail />,
+      },
 
       { path: "preference", element: <Preference /> },
       { path: "preference/organization", element: <Organization /> },

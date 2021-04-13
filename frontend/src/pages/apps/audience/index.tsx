@@ -10,7 +10,7 @@ import MuiTabs from "../../../components/ui/tabs/MuiTabs";
 
 const Audience: React.FC<any> = () => {
   const { t } = useTranslation();
-  const { tab, setTab } = useQueryTab();
+  const { tab, setTab } = useQueryTab(2);
 
   const tabs: string[] = [
     t("pages:audience.tab.contact"),

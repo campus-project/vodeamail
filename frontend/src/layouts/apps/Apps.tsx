@@ -11,7 +11,7 @@ import { useJwtService } from "../../utilities/hooks";
 import Loading from "../../components/ui/Loading";
 import Header from "../../components/apps/header";
 import Sidebar from "../../components/apps/sidebar";
-import { initMenu } from "../../store/actions/setting";
+import { initMenu } from "../../store/actions";
 import clsx from "clsx";
 import useStyles from "./style";
 import theme from "./theme";

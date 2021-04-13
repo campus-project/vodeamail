@@ -1,4 +1,4 @@
-import * as actions from "../../actions/setting";
+import * as actions from "../../actions";
 
 const initialState = {
   items: [
@@ -51,6 +51,14 @@ const initialState = {
       href: "/apps/analytic",
       icon: "vicon-graph",
       permissions: "any",
+      otherUrls: ["/apps/analytic/email", "/apps/analytic/email/:slug"],
+      children: [
+        {
+          label: "sidebar:menu.email_analytic",
+          href: "/apps/analytic/email",
+          otherUrls: ["/apps/analytic/email/:slug"],
+        },
+      ],
     },
     {
       label: "sidebar:menu.preference",

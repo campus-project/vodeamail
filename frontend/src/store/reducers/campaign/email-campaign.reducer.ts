@@ -1,21 +1,16 @@
 import * as actions from "../../actions";
 
 const initialState = {
-  date: "DD MMM YYYY",
-  datetime: "DD MMM YYYY HH:mm",
+  email_domain: "@vodea.id",
+  email_templates: [],
 };
 
 const format = function (state = initialState, action: any) {
   switch (action.type) {
-    case actions.SETTING_FORMAT_DATE:
+    case actions.EMAIL_CAMPAIGN_SET_EMAIL_TEMPLATE:
       return {
         ...state,
-        date: action.payload,
-      };
-    case actions.SETTING_FORMAT_DATE_TIME:
-      return {
-        ...state,
-        datetime: action.payload,
+        email_templates: action.payload,
       };
     default:
       return state;

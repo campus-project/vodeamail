@@ -2,6 +2,7 @@ export interface EmailTemplate {
   id?: string;
   name: string;
   design: string;
-  image_id?: string;
-  image_url?: string;
+  html: string;
+  example_value_tags: string;
+  image_url: string;
 }

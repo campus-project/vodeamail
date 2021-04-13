@@ -5,5 +5,6 @@ export interface Role {
   name: string;
   is_special: boolean;
   is_default: boolean;
+
   users?: User[];
 }

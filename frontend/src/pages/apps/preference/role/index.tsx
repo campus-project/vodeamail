@@ -12,14 +12,14 @@ import RoleRepository from "../../../../repositories/RoleRepository";
 import MuiDatatable, {
   IMuiDatatableColumn,
 } from "../../../../components/datatable";
-import NumberCell from "../../../../components/datatable/NumberCell";
-import DateTimeCell from "../../../../components/datatable/DateTimeCell";
 import { Alert } from "@material-ui/lab";
 import ActionCell from "../../../../components/datatable/ActionCell";
 import { DeleteOutlined, EditOutlined } from "@material-ui/icons";
 import { AxiosResponse } from "axios";
 import _ from "lodash";
 import MuiCard from "../../../../components/ui/card/MuiCard";
+import Number from "../../../../components/data/Number";
+import DateTime from "../../../../components/data/DateTime";
 
 const Role: React.FC<any> = () => {
   const { t } = useTranslation();
@@ -46,14 +46,14 @@ const Role: React.FC<any> = () => {
       name: "total_user",
       columnName: "summary_roles.total_user",
       options: {
-        customBodyRender: (value) => <NumberCell data={value} />,
+        customBodyRender: (value) => <Number data={value} />,
       },
     },
     {
       label: t("pages:role.datatable.columns.updated"),
       name: "updated_at",
       options: {
-        customBodyRender: (value) => <DateTimeCell data={value} />,
+        customBodyRender: (value) => <DateTime data={value} />,
       },
     },
     {

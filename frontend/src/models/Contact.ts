@@ -12,6 +12,7 @@ export interface Contact {
   city?: string | null;
   postal_code?: string | null;
   is_subscribed?: boolean;
+
   groups?: Group[];
   group_ids: Group[];
 }

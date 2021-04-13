@@ -92,7 +92,7 @@ const GroupForm: React.FC<any> = () => {
       });
   }, [false]);
 
-  const contacts = useState<Contact[]>(defaultValues.contact_ids);
+  const contacts = useState<Contact[]>([]);
   const { handleSubmit, errors, setError, control, reset } = useForm<Group>({
     mode: "onChange",
     resolver: yupResolver(

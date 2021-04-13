@@ -1,14 +1,13 @@
 import React from "react";
 import moment from "moment";
-import { Box } from "@material-ui/core";
 import { useSelector } from "react-redux";
 
-interface IDateTimeCell {
+interface IDateTime {
   data: string;
   defaultValue?: string;
 }
 
-const DateTimeCell: React.FC<IDateTimeCell> = ({ data, defaultValue = "" }) => {
+const DateTime: React.FC<IDateTime> = ({ data, defaultValue = "" }) => {
   const { datetime } = useSelector(({ setting }: any) => {
     return {
       datetime: setting.format.datetime,
@@ -16,7 +15,7 @@ const DateTimeCell: React.FC<IDateTimeCell> = ({ data, defaultValue = "" }) => {
   });
 
   const value = moment(data);
-  return <Box>{value.isValid() ? value.format(datetime) : defaultValue}</Box>;
+  return <>{value.isValid() ? value.format(datetime) : defaultValue}</>;
 };
 
-export default DateTimeCell;
+export default DateTime;
