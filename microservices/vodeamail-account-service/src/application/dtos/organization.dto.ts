@@ -4,7 +4,7 @@ import {
   ActorDto,
   FindAllDto,
   FindOneDto,
-} from '../../@vodea/dtos';
+} from 'vnest-core';
 
 export class FindAllOrganizationDto extends FindAllDto {}
 

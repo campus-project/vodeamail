@@ -1,12 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Brackets, In, IsNull, Like, Repository } from 'typeorm';
+import { Brackets, In, IsNull, Repository } from 'typeorm';
 import { Contact } from '../entities/contact.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import {
-  buildFindAllQueryOption,
-  buildFindOneQueryOption,
-} from '../../@vodea/typeorm';
+import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
 import {
   CreateContactDto,
   DeleteContactDto,

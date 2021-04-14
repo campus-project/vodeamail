@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsUUID } from 'class-validator';
-import { FindOneDto } from '../../@vodea/dtos';
+import { FindOneDto } from 'vnest-core';
 
 export class FindOneRefreshTokenDto extends FindOneDto {}
 

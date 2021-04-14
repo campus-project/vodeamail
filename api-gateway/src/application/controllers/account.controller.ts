@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, Post } from '@nestjs/common';
-import { User } from '../../@vodea/decorators/user.decorator';
 import { RefreshTokenService } from '../../domain/services/refresh-token.service';
+import { User } from 'vnest-core';
 
 @Controller('account')
 export class AccountController {

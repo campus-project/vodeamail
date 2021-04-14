@@ -3,14 +3,13 @@ import { In, Repository } from 'typeorm';
 import { RefreshToken } from '../entities/refresh-token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { DeleteDto } from '../../@vodea/dtos';
-import { buildFindOneQueryOption } from '../../@vodea/typeorm';
 import {
   CreateRefreshTokenDto,
   FindOneRefreshTokenDto,
   RevokeRefreshTokenDto,
 } from '../../application/dtos/refresh-token.dto';
 import * as moment from 'moment';
+import { buildFindOneQueryOption, DeleteDto } from 'vnest-core';
 
 @Injectable()
 export class RefreshTokenService {

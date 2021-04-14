@@ -14,7 +14,7 @@ import {
 } from '../../application/dtos/vodea-cloud.dto';
 import { JwtService } from './jwt.service';
 import { ClientProxy } from '@nestjs/microservices';
-import { clientProxyException } from '../../@vodea/microservices';
+import { clientProxyException } from 'vnest-core';
 
 @Injectable()
 export class VodeaCloudService {

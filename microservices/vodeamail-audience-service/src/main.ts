@@ -8,8 +8,7 @@ import {
   patchTypeORMRepositoryWithBaseRepository,
 } from 'typeorm-transactional-cls-hooked';
 import { MicroserviceOptions } from '@nestjs/microservices';
-import { ValidationRpcPipe } from './@vodea/pipes';
-import { ExceptionRpcFilter } from './@vodea/filters';
+import { ExceptionRpcFilter, ValidationRpcPipe } from 'vnest-core';
 
 initializeTransactionalContext();
 patchTypeORMRepositoryWithBaseRepository();

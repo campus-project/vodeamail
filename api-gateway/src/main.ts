@@ -6,11 +6,11 @@ import * as rateLimit from 'express-rate-limit';
 import { AppModule } from './app.module';
 import { ConfigService } from './infrastructure/config/config.service';
 import { ClassSerializerInterceptor } from '@nestjs/common';
-import { ValidationPipe } from './@vodea/pipes';
 import {
   initializeTransactionalContext,
   patchTypeORMRepositoryWithBaseRepository,
 } from 'typeorm-transactional-cls-hooked';
+import { ValidationPipe } from 'vnest-core';
 
 initializeTransactionalContext();
 patchTypeORMRepositoryWithBaseRepository();

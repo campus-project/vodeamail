@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigServiceAbstract as BaseConfigService } from '../../@vodea/config';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { ClientOptions, Transport } from '@nestjs/microservices';
+import { ConfigServiceAbstract } from 'vnest-core';
 
 import { Organization } from '../../domain/entities/organization.entity';
 import { Role } from '../../domain/entities/role.entity';
 import { User } from '../../domain/entities/user.entity';
 
 @Injectable()
-export class ConfigService extends BaseConfigService {
+export class ConfigService extends ConfigServiceAbstract {
   constructor() {
     super();
     super.init();

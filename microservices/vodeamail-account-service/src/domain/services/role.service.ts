@@ -3,10 +3,7 @@ import { Brackets, In, IsNull, Not, Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import {
-  buildFindAllQueryOption,
-  buildFindOneQueryOption,
-} from '../../@vodea/typeorm';
+import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
 import {
   CreateRoleDto,
   DeleteRoleDto,
@@ -125,7 +122,7 @@ export class RoleService {
 
   async findOne(options: FindOneRoleDto): Promise<Role> {
     const queryBuilder = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+      buildFindOneQueryOption({ options }),
       options,
     );
 

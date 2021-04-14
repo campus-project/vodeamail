@@ -3,10 +3,7 @@ import { Brackets, In, IsNull, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import {
-  buildFindAllQueryOption,
-  buildFindOneQueryOption,
-} from '../../@vodea/typeorm';
+import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
 import {
   CreateUserDto,
   DeleteUserDto,

@@ -1,7 +1,7 @@
 import { AuthGuard } from '@nestjs/passport';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY, PERMISSION_KEY } from '../../@vodea/decorators';
+import { IS_PUBLIC_KEY, PERMISSION_KEY } from 'vnest-core';
 
 @Injectable()
 export class AuthStrategy extends AuthGuard('jwt') {

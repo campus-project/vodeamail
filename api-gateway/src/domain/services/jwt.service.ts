@@ -22,7 +22,7 @@ import {
   GenerateAccessTokenFromRefreshTokenDto,
 } from '../../application/dtos/auth.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { clientProxyException } from '../../@vodea/microservices';
+import { clientProxyException } from 'vnest-core';
 
 @Injectable()
 export class JwtService {

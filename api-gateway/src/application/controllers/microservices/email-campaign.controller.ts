@@ -6,19 +6,18 @@ import {
   Inject,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { clientProxyException } from '../../../@vodea/microservices';
-import { User } from '../../../@vodea/decorators/user.decorator';
-import { FindAllQueryDto } from '../../../@vodea/dtos/find-all-query.dto';
 import {
   buildFindAllPayload,
+  clientProxyException,
+  FindAllQueryDto,
   paginationTransformer,
-} from '../../../@vodea/helpers';
+  User,
+} from 'vnest-core';
 
 @Controller('email-campaign')
 export class EmailCampaignController {

@@ -11,7 +11,7 @@ import {
   ActorOrganizationDto,
   FindAllWithOrganizationDto,
   FindOneWithOrganizationDto,
-} from '../../@vodea/dtos';
+} from 'vnest-core';
 
 export class FindAllContactDto extends FindAllWithOrganizationDto {
   @IsOptional()

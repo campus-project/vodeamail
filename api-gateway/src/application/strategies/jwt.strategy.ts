@@ -3,7 +3,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '../../infrastructure/config/config.service';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { clientProxyException } from '../../@vodea/microservices';
+import { clientProxyException } from 'vnest-core';
 
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(

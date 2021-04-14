@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigServiceAbstract as BaseConfigService } from '../../@vodea/config';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { ClientOptions, Transport } from '@nestjs/microservices';
+import { ConfigServiceAbstract } from 'vnest-core';
 
 import { Contact } from '../../domain/entities/contact.entity';
 import { Group } from '../../domain/entities/group.entity';
@@ -9,7 +9,7 @@ import { SummaryContactView } from '../../domain/views/summary-contact.view';
 import { SummaryGroupView } from '../../domain/views/summary-group.view';
 
 @Injectable()
-export class ConfigService extends BaseConfigService {
+export class ConfigService extends ConfigServiceAbstract {
   constructor() {
     super();
     super.init();

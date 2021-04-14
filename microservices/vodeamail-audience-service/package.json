@@ -41,7 +41,8 @@
     "typeorm": "^0.2.31",
     "typeorm-naming-strategies": "^2.0.0",
     "typeorm-seeding": "^1.6.1",
-    "typeorm-transactional-cls-hooked": "^0.1.20"
+    "typeorm-transactional-cls-hooked": "^0.1.20",
+    "vnest-core": "github:tanyudii/vnest-core"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.5.6",

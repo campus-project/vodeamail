@@ -5,9 +5,8 @@ import {
   HttpHealthIndicator,
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
-import { Public } from '../../@vodea/decorators';
 import { ClientProxy } from '@nestjs/microservices';
-import { clientProxyException } from '../../@vodea/microservices';
+import { clientProxyException, Public } from 'vnest-core';
 
 @Controller('health')
 export class HealthController {

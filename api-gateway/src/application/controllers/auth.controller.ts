@@ -2,8 +2,8 @@ import { Body, Controller, HttpCode, Inject, Post } from '@nestjs/common';
 import { VodeaCloudService } from '../../domain/services/vodea-cloud.service';
 import { VodeaCloudSignInDto } from '../dtos/vodea-cloud.dto';
 import { GenerateAccessTokenFromRefreshTokenDto } from '../dtos/auth.dto';
-import { Public } from '../../@vodea/decorators';
 import { JwtService } from '../../domain/services/jwt.service';
+import { Public } from 'vnest-core';
 
 @Controller('auth')
 export class AuthController {

@@ -8,10 +8,16 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { clientProxyException } from '../../../@vodea/microservices';
-import { User } from '../../../@vodea/decorators/user.decorator';
+import {
+  buildFindAllPayload,
+  clientProxyException,
+  FindAllQueryDto,
+  paginationTransformer,
+  User,
+} from 'vnest-core';
 
 @Controller('user')
 export class UserController {
@@ -21,15 +27,34 @@ export class UserController {
   ) {}
 
   @Get()
-  async findAll(@User('organization_id') organizationId: string) {
+  async findAll(
+    @User('organization_id') organizationId: string,
+    @Query() query: FindAllQueryDto,
+  ) {
+    const payload = buildFindAllPayload(query, {
+      organization_id: organizationId,
+    });
+
     const data = await this.redisClient
-      .send('MS_ACCOUNT_FIND_ALL_USER', {
-        organization_id: organizationId,
-      })
+      .send(
+        payload.using === 'builder'
+          ? 'MS_ACCOUNT_FIND_ALL_BUILDER_USER'
+          : 'MS_ACCOUNT_FIND_ALL_USER',
+        payload,
+      )
       .toPromise()
       .catch(clientProxyException);
 
-    return { data };
+    if (query.per_page === undefined) {
+      return { data };
+    }
+
+    const total = await this.redisClient
+      .send('MS_ACCOUNT_FIND_ALL_COUNT_USER', payload)
+      .toPromise()
+      .catch(clientProxyException);
+
+    return paginationTransformer(data, total);
   }
 
   @Get(':id')
