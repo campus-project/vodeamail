@@ -1,0 +1,22 @@
+{
+  "menu": {
+    "dashboard": "Dashboard",
+    "campaign": "Campaign",
+    "email_campaign": "Email",
+    "email_template": "Template",
+    "audience": "Audience",
+    "audience_contact": "Contact",
+    "audience_group": "Group",
+    "analytic": "Analytic",
+    "email_analytic": "Email",
+    "preference": "Preference"
+  },
+
+  "usage": {
+    "used": "{{used}} used",
+    "used_limit": "{{used}} from {{limit}}",
+    "see_detail": "See Detail",
+    "campaign": "Email Campaign",
+    "transaction": "Email Transaction"
+  }
+}

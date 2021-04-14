@@ -1,0 +1,182 @@
+{
+  "dashboard": {
+    "title": "Dashboard"
+  },
+  "email_campaign": {
+    "title": "Email Campaign",
+    "tab": {
+      "all": "All",
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "completed": "Completed"
+    },
+    "datatable": {
+      "columns": {
+        "name": "Name",
+        "subject": "Subject",
+        "from": "From",
+        "email_from": "Email From",
+        "sent_at": "Sent At",
+        "status": "Status",
+        "updated": "Updated At"
+      }
+    },
+    "step": {
+      "setting": "Setting",
+      "design": "Design",
+      "preview": "Preview"
+    },
+    "section": {
+      "information": "Information",
+      "email_setting": "Email Setting",
+      "audience": "Audience",
+      "schedule": "Schedule",
+      "design": "Select Design",
+      "preview": "Preview",
+      "summary": "Summary"
+    },
+    "field": {
+      "name": "Name",
+      "subject": "Subject",
+      "from": "From",
+      "email_from": "Email From",
+      "send_directly": "Send Directly",
+      "certain_time": "Certain Time",
+      "date": "Date",
+      "time": "Time",
+      "schedule": "Schedule",
+      "group": "Group",
+      "draft": "Draft",
+      "or_create_design": "Or create your own design"
+    }
+  },
+  "email_template": {
+    "title": "Email Template",
+    "datatable": {
+      "columns": {
+        "name": "Name",
+        "updated": "Updated At"
+      }
+    },
+    "field": {
+      "name": "Name"
+    },
+    "text": {
+      "dialog_title": "Setting",
+      "dialog_description": "To identify the email template, please enter your template name here."
+    }
+  },
+  "audience": {
+    "title": "Audience",
+    "tab": {
+      "contact": "Contact",
+      "group": "Group"
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "section": {
+      "information": "Information",
+      "address": "Address",
+      "group": "Group"
+    },
+    "field": {
+      "email": "Email",
+      "name": "Name",
+      "mobile_phone": "Mobile Phone",
+      "address_line_1": "Address Line 1",
+      "address_line_2": "Address Line 2",
+      "country": "Country",
+      "province": "Province",
+      "city": "City",
+      "postal_code": "Postal Code",
+      "group_name": "Group",
+      "group_status": "Status"
+    },
+    "datatable": {
+      "columns": {
+        "email": "Email",
+        "total_group": "Total Group",
+        "updated": "Updated At",
+        "status": "Status"
+      }
+    }
+  },
+  "group": {
+    "title": "Group",
+    "section": {
+      "information": "Information",
+      "visibility": "Visibility",
+      "contact": "Contact"
+    },
+    "field": {
+      "name": "Name",
+      "description": "Description",
+      "contact": "Contact",
+      "visibility": "Visibility",
+      "status": "Status",
+      "contact_email": "Email",
+      "contact_status": "Status"
+    },
+    "datatable": {
+      "columns": {
+        "name": "Name",
+        "total_contact": "Total Contact",
+        "updated": "Updated At",
+        "status": "Status"
+      }
+    }
+  },
+  "email_analytic": {
+    "title": "Analytic",
+    "datatable": {
+      "columns": {
+        "name": "Name",
+        "subject": "Subject",
+        "from": "From",
+        "email_from": "Email From",
+        "sent_at": "Sent At",
+        "updated": "Updated At"
+      }
+    }
+  },
+  "preference": {
+    "title": "Preference",
+    "setting": {
+      "organization": {
+        "title": "Organization",
+        "description": "Setting your business or organization"
+      },
+      "role": {
+        "title": "Role",
+        "description": "Setup your role for user privilege"
+      },
+      "privilege": {
+        "title": "Permission",
+        "description": "Configure your role access for application"
+      },
+      "team": {
+        "title": "Team Up",
+        "description": "Create or update your team of business"
+      }
+    }
+  },
+  "role": {
+    "title": "Role",
+    "section": {
+      "information": "Information"
+    },
+    "field": {
+      "name": "Name",
+      "default": "Default role for new invitation"
+    },
+    "datatable": {
+      "columns": {
+        "name": "Name",
+        "total_user": "Total User",
+        "default": "Default",
+        "updated": "Updated At"
+      }
+    }
+  }
+}

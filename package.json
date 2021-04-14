@@ -1,0 +1,37 @@
+{
+  "name": "vodeamail",
+  "version": "1.0.0",
+  "description": "PT. Vodea Dwi Karsa",
+  "author": "Yudi Hertanto <y.hertanto17@gmail.com>",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "./scripts/install.sh",
+    "lint": "./scripts/lint.sh",
+    "build": "./scripts/build.sh",
+    "start": "npm run install && npm run lint && npm run build && npm run docker:build && npm run docker:start",
+    "docker:build": "docker-compose build",
+    "docker:start": "docker-compose up",
+    "docker:teardown": "docker-compose down -v",
+    "frontend:start": "scripts/frontend-start.sh",
+    "frontend:lint": "scripts/frontend-lint.sh",
+    "frontend:install": "scripts/frontend-install.sh",
+    "api-gateway:start": "scripts/api-gateway-start.sh",
+    "ms:account:start": "scripts/ms-account-start.sh",
+    "ms:audience:start": "scripts/ms-audience-start.sh",
+    "ms:campaign:start": "scripts/ms-campaign-start.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanyudii/vodeamail.git"
+  },
+  "private": true,
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/tanyudii/vodeamail/issues"
+  },
+  "homepage": "https://github.com/tanyudii/vodeamail#readme"
+}

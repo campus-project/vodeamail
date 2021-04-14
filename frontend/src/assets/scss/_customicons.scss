@@ -1,0 +1,157 @@
+@font-face {
+  font-family: 'vicon';
+  src: url('./../fonts/vicon/vicon.ttf');
+  src: url('./../fonts/vicon/vicon.eot') format('embedded-opentype'), url('./../fonts/vicon/vicon.ttf') format('truetype'),
+    url('./../fonts/vicon/vicon.woff') format('woff'), url('./../fonts/vicon/vicon.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^='vicon-'],
+[class*=' vicon-'] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'vicon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.vicon-home:before {
+  content: '\e900';
+}
+
+.vicon-box:before {
+  content: '\e901';
+}
+
+.vicon-shopping-bag:before {
+  content: '\e902';
+}
+
+.vicon-discount:before {
+  content: '\e903';
+}
+
+.vicon-profile:before {
+  content: '\e904';
+}
+
+.vicon-graph:before {
+  content: '\e905';
+}
+
+.vicon-documents:before {
+  content: '\e906';
+}
+
+.vicon-compose:before {
+  content: '\e907';
+}
+
+.vicon-mail:before {
+  content: '\e908';
+}
+
+.vicon-tree-structure:before {
+  content: '\e909';
+}
+
+.vicon-pictures-folder:before {
+  content: '\e90a';
+}
+
+.vicon-adjust:before {
+  content: '\e90b';
+}
+
+.vicon-squared-menu:before {
+  content: '\e90c';
+}
+
+.vicon-notification:before {
+  content: '\e90d';
+}
+
+.vicon-menu-f:before {
+  content: '\e90e';
+}
+
+.vicon-notification-f:before {
+  content: '\e90f';
+}
+
+.vicon-trash:before {
+  content: '\e911';
+}
+
+.vicon-pen-f:before {
+  content: '\e910';
+}
+
+.vicon-megaphone:before {
+  content: '\e912';
+}
+
+.vicon-people:before {
+  content: '\e914';
+}
+
+.vicon-gear:before {
+  content: '\e916';
+}
+
+.vicon-tools:before {
+  content: '\e915';
+}
+
+.vicon-dashboard:before {
+  content: '\e913';
+}
+
+.vicon-business:before {
+  content: '\e917';
+}
+
+.vicon-calendar:before {
+  content: '\e918';
+}
+
+.vicon-certificate:before {
+  content: '\e919';
+}
+
+.vicon-key:before {
+  content: '\e91a';
+}
+
+.vicon-resume:before {
+  content: '\e91b';
+}
+
+.vicon-ruler:before {
+  content: '\e91c';
+}
+
+.vicon-workflow:before {
+  content: '\e91d';
+}
+
+.vicon-new-document:before {
+  content: '\e924';
+}
+
+.vicon-design:before {
+  content: '\e91f';
+}
+
+.vicon-inspection:before {
+  content: '\e922';
+}
