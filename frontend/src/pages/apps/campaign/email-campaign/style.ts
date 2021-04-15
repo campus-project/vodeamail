@@ -43,13 +43,12 @@ const useStyles = makeStyles((theme) => ({
   },
   templateItemGroup: {
     display: "grid",
-    gridTemplateColumns: "repeat(12, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)",
     gridGap: theme.spacing(2),
 
     "& .MuiFormControlLabel-root": {
       position: "relative",
       borderRadius: theme.shape.borderRadius,
-      gridColumn: "auto/span 4",
       border: "1px solid black",
       marginLeft: "unset",
       marginRight: "unset",
