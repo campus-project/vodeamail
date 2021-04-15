@@ -5,10 +5,13 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Group } from './group.entity';
+import { SummaryContactView } from '../views/summary-contact.view';
+import { JoinColumn } from 'typeorm/browser';
 
 @Entity('contacts')
 export class Contact {
@@ -79,4 +82,7 @@ export class Contact {
     },
   })
   groups: Group[];
+
+  @OneToOne(() => SummaryContactView, (object) => object.contact)
+  summary_contact: SummaryContactView;
 }

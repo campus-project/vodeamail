@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, In, IsNull, Like, Repository } from 'typeorm';
+import { Brackets, In, IsNull, Repository } from 'typeorm';
 import { EmailTemplate } from '../entities/email-template.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
@@ -30,7 +30,7 @@ export class EmailTemplateService {
     if (search) {
       const whereClause = queryBuilder.where;
       queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key, index) => {
+        Object.keys(whereClause).forEach((key) => {
           qb.where({ [key]: whereClause[key] });
         });
 

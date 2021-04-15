@@ -31,6 +31,7 @@ export class ContactController {
     @User('organization_id') organizationId: string,
     @Query() query: FindAllQueryDto,
   ) {
+    console.log(query);
     const payload = buildFindAllPayload(query, {
       organization_id: organizationId,
     });

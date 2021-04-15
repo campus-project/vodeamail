@@ -30,7 +30,7 @@ export class OrganizationService {
     if (search) {
       const whereClause = queryBuilder.where;
       queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key, index) => {
+        Object.keys(whereClause).forEach((key) => {
           qb.where({ [key]: whereClause[key] });
         });
 
@@ -213,6 +213,7 @@ export class OrganizationService {
     queryBuilder,
     options: FindOneOrganizationDto | FindAllOrganizationDto,
   ) {
+    console.log(options);
     return queryBuilder;
   }
 }

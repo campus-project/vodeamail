@@ -1,4 +1,6 @@
-import { ViewColumn, ViewEntity } from 'typeorm';
+import { OneToOne, ViewColumn, ViewEntity } from 'typeorm';
+import { Contact } from '../entities/contact.entity';
+import { JoinColumn } from 'typeorm/browser';
 
 @ViewEntity({
   name: 'summary_contacts',
@@ -24,5 +26,8 @@ export class SummaryContactView {
   contact_id: string;
 
   @ViewColumn()
-  total_contact: number;
+  total_group: number;
+
+  @OneToOne(() => Contact, (object) => object.summary_contact)
+  contact: Contact;
 }

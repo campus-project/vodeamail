@@ -34,7 +34,7 @@ export class ContactService {
     if (search) {
       const whereClause = queryBuilder.where;
       queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key, index) => {
+        Object.keys(whereClause).forEach((key) => {
           qb.where({ [key]: whereClause[key] });
         });
 
@@ -94,13 +94,8 @@ export class ContactService {
 
     const builder = await this.contactRepository
       .createQueryBuilder('contacts')
-      .select('contacts.*')
-      .addSelect('total_group')
-      .leftJoin(
-        'summary_contacts',
-        'summary_contacts',
-        '(summary_contacts.contact_id = contacts.id)',
-      )
+      .leftJoinAndSelect('contacts.groups', 'groups')
+      .leftJoinAndSelect('contacts.summary_contact', 'summary_contact')
       .where(where)
       .cache(cache)
       .orderBy(order)
@@ -112,16 +107,18 @@ export class ContactService {
     }
 
     if (search) {
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('`contacts`.`email` LIKE ' + `"%${search}%"`).orWhere(
-            '`summary_contacts`.`total_group` LIKE ' + `"%${search}%"`,
-          );
-        }),
-      );
+      builder
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where('contacts.email LIKE "%:search%"').orWhere(
+              'summary_contacts.total_group LIKE "%:search%"',
+            );
+          }),
+        )
+        .setParameter('search', search);
     }
-
-    return builder.execute();
+    console.log(builder.getSql());
+    return builder.getMany();
   }
 
   async findOne(options: FindOneContactDto): Promise<Contact> {

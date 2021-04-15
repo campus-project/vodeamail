@@ -49,7 +49,7 @@ export class EmailCampaignService {
     if (search) {
       const whereClause = queryBuilder.where;
       queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key, index) => {
+        Object.keys(whereClause).forEach((key) => {
           qb.where({ [key]: whereClause[key] });
         });
 
@@ -79,7 +79,7 @@ export class EmailCampaignService {
         return temp;
       });
 
-      const groupIds = [].concat.apply([], emailCampaignGroups);
+      const groupIds = Array.prototype.concat.apply([], emailCampaignGroups);
       const allGroups = await this.redisClient
         .send('MS_AUDIENCE_FIND_ALL_GROUP', {
           ids: groupIds,
@@ -434,10 +434,12 @@ export class EmailCampaignService {
 
     const now = moment();
     const sentAt = moment(emailCampaign.sent_at);
-
     if (now.diff(sentAt, 'days', true) < 0) {
       return;
     }
+
+    //todo:get contact by group ids
+    console.log(group_ids);
   }
 
   protected buildFindQuery(

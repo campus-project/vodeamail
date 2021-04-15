@@ -30,7 +30,7 @@ export class RoleService {
     if (search) {
       const whereClause = queryBuilder.where;
       queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key, index) => {
+        Object.keys(whereClause).forEach((key) => {
           qb.where({ [key]: whereClause[key] });
         });
 
