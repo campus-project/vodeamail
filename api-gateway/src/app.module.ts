@@ -5,5 +5,6 @@ import { ApplicationModule } from './application/application.module';
 
 @Module({
   imports: [InfrastructureModule, DomainModule, ApplicationModule],
+  controllers: [],
 })
 export class AppModule {}

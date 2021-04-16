@@ -14,19 +14,22 @@ import {
 import { RpcException } from '@nestjs/microservices';
 import { GroupService } from './group.service';
 import { FindAllGroupDto } from '../../application/dtos/group.dto';
+import { ContactGroup } from '../entities/contact-group.entity';
 
 @Injectable()
 export class ContactService {
   constructor(
     @InjectRepository(Contact)
     private readonly contactRepository: Repository<Contact>,
+    @InjectRepository(ContactGroup)
+    private readonly contactGroupRepository: Repository<ContactGroup>,
     @Inject('AUDIENCE_GROUP_SERVICE')
     private readonly groupService: GroupService,
   ) {}
 
   async findAll(options: FindAllContactDto): Promise<Contact[]> {
     const { search } = options;
-    const queryBuilder = this.buildFindQuery(
+    let queryBuilder = this.buildFindQuery(
       buildFindAllQueryOption({ options }),
       options,
     );
@@ -38,9 +41,10 @@ export class ContactService {
           qb.where({ [key]: whereClause[key] });
         });
 
-        qb.where(
-          new Brackets((qb1) => {
-            qb1.where('`email` LIKE ' + `"%${search}%"`);
+        qb.andWhere(
+          new Brackets((qb) => {
+            const params = { search: `%${search}%` };
+            qb.where('email LIKE :search', params);
           }),
         );
       });
@@ -58,7 +62,7 @@ export class ContactService {
 
     const builder = await this.contactRepository
       .createQueryBuilder('contacts')
-      .leftJoin(
+      .innerJoin(
         'summary_contacts',
         'summary_contacts',
         '(summary_contacts.contact_id = contacts.id)',
@@ -73,10 +77,12 @@ export class ContactService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`contacts`.`email` LIKE ' + `"%${search}%"`).orWhere(
-            '`summary_contacts`.`total_group` LIKE ' + `"%${search}%"`,
+          qb.where('contacts.email LIKE :search', params).orWhere(
+            'summary_contacts.total_group LIKE :search',
+            params,
           );
         }),
       );
@@ -94,8 +100,13 @@ export class ContactService {
 
     const builder = await this.contactRepository
       .createQueryBuilder('contacts')
-      .leftJoinAndSelect('contacts.groups', 'groups')
-      .leftJoinAndSelect('contacts.summary_contact', 'summary_contact')
+      .select('contacts.*')
+      .addSelect('total_group')
+      .innerJoin(
+        'summary_contacts',
+        'summary_contacts',
+        '(summary_contacts.contact_id = contacts.id)',
+      )
       .where(where)
       .cache(cache)
       .orderBy(order)
@@ -107,18 +118,18 @@ export class ContactService {
     }
 
     if (search) {
-      builder
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where('contacts.email LIKE "%:search%"').orWhere(
-              'summary_contacts.total_group LIKE "%:search%"',
-            );
-          }),
-        )
-        .setParameter('search', search);
+      const params = { search: `%${search}%` };
+      builder.andWhere(
+        new Brackets((qb) => {
+          qb.where('contacts.email LIKE :search', params).orWhere(
+            'summary_contacts.total_group LIKE :search',
+            params,
+          );
+        }),
+      );
     }
-    console.log(builder.getSql());
-    return builder.getMany();
+
+    return builder.execute();
   }
 
   async findOne(options: FindOneContactDto): Promise<Contact> {
@@ -153,6 +164,15 @@ export class ContactService {
       organization_id,
     });
 
+    const contactGroups = [];
+    for (const group of groups) {
+      contactGroups.push(
+        this.contactGroupRepository.create({
+          group_id: group.id,
+        }),
+      );
+    }
+
     const contact = await this.contactRepository.save(
       this.contactRepository.create({
         id,
@@ -166,7 +186,7 @@ export class ContactService {
         province,
         city,
         postal_code,
-        groups,
+        contact_groups: contactGroups,
         created_by,
         updated_by: created_by,
       }),
@@ -206,6 +226,15 @@ export class ContactService {
       organization_id,
     });
 
+    const contactGroups = [];
+    for (const group of groups) {
+      contactGroups.push(
+        this.contactGroupRepository.create({
+          group_id: group.id,
+        }),
+      );
+    }
+
     Object.assign(contact, {
       organization_id,
       email,
@@ -217,7 +246,7 @@ export class ContactService {
       province,
       city,
       postal_code,
-      groups,
+      contact_groups: contactGroups,
       updated_by,
     });
 
@@ -277,15 +306,14 @@ export class ContactService {
       organization_id: options.organization_id || IsNull(),
     });
 
-    if (options.group_id !== undefined) {
-      Object.assign(queryBuilder.where, {
-        group_id: options.group_id,
-      });
+    const groupIds = options.group_id === undefined ? [] : [options.group_id];
+    if (options.group_ids !== undefined) {
+      groupIds.push(...options.group_ids);
     }
 
-    if (options.group_ids !== undefined) {
+    if (options.is_subscribed) {
       Object.assign(queryBuilder.where, {
-        group_ids: In(options.group_ids),
+        is_subscribed: options.is_subscribed,
       });
     }
 

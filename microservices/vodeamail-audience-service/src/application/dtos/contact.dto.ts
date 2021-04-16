@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -15,6 +16,10 @@ import {
 
 export class FindAllContactDto extends FindAllWithOrganizationDto {
   @IsOptional()
+  @IsBoolean()
+  is_subscribed?: boolean;
+
+  @IsOptional()
   @IsUUID('4')
   group_id?: string;
 
@@ -25,6 +30,10 @@ export class FindAllContactDto extends FindAllWithOrganizationDto {
 }
 
 export class FindOneContactDto extends FindOneWithOrganizationDto {
+  @IsOptional()
+  @IsBoolean()
+  is_subscribed?: boolean;
+
   @IsOptional()
   @IsUUID('4')
   group_id?: string;

@@ -13,11 +13,15 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import {
   buildFindAllPayload,
+  buildFindOnePayload,
   clientProxyException,
-  FindAllQueryDto,
   paginationTransformer,
   User,
 } from 'vnest-core';
+import {
+  FindAllContactQueryDto,
+  FindOneContactQueryDto,
+} from '../../dtos/microservices/contact.dto';
 
 @Controller('contact')
 export class ContactController {
@@ -29,11 +33,16 @@ export class ContactController {
   @Get()
   async findAll(
     @User('organization_id') organizationId: string,
-    @Query() query: FindAllQueryDto,
+    @Query() query: FindAllContactQueryDto,
   ) {
-    console.log(query);
     const payload = buildFindAllPayload(query, {
       organization_id: organizationId,
+      group_id: query.group_id || undefined,
+      group_ids: query.group_ids || undefined,
+      is_subscribed:
+        query.is_subscribed === undefined
+          ? undefined
+          : query.is_subscribed.toLowerCase() === 'true',
     });
 
     const data = await this.redisClient
@@ -62,14 +71,21 @@ export class ContactController {
   async findOne(
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
-    @Query('relations') relations: string[],
+    @Query() query: FindOneContactQueryDto,
   ) {
+    const payload = buildFindOnePayload(query, {
+      id,
+      organization_id: organizationId,
+      group_id: query.group_id || undefined,
+      group_ids: query.group_ids || undefined,
+      is_subscribed:
+        query.is_subscribed === undefined
+          ? undefined
+          : query.is_subscribed.toLowerCase() === 'true',
+    });
+
     const data = await this.redisClient
-      .send('MS_AUDIENCE_FIND_ONE_CONTACT', {
-        organization_id: organizationId,
-        relations,
-        id,
-      })
+      .send('MS_AUDIENCE_FIND_ONE_CONTACT', payload)
       .toPromise()
       .catch(clientProxyException);
 

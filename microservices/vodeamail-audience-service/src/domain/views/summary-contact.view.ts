@@ -27,7 +27,4 @@ export class SummaryContactView {
 
   @ViewColumn()
   total_group: number;
-
-  @OneToOne(() => Contact, (object) => object.summary_contact)
-  contact: Contact;
 }

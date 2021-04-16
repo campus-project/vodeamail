@@ -37,11 +37,13 @@ export class UserService {
           qb.where({ [key]: whereClause[key] });
         });
 
-        qb.where(
-          new Brackets((qb1) => {
-            qb1
-              .where('`name` LIKE ' + `"%${search}%"`)
-              .orWhere('`email` LIKE ' + `"%${search}%"`);
+        qb.andWhere(
+          new Brackets((qb) => {
+            const params = { search: `%${search}%` };
+            qb.where('name LIKE :search', params).orWhere(
+              'email LIKE :search',
+              params,
+            );
           }),
         );
       });
@@ -69,10 +71,12 @@ export class UserService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`users`.`name` LIKE ' + `"%${search}%"`).orWhere(
-            '`users`.`email` LIKE ' + `"%${search}%"`,
+          qb.where('users.name LIKE :search', params).orWhere(
+            'users.LIKE LIKE :search',
+            params,
           );
         }),
       );
@@ -102,10 +106,12 @@ export class UserService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`users`.`name` LIKE ' + `"%${search}%"`).orWhere(
-            '`users`.`email` LIKE ' + `"%${search}%"`,
+          qb.where('users.name LIKE :search', params).orWhere(
+            'users.LIKE LIKE :search',
+            params,
           );
         }),
       );

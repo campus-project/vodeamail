@@ -5,13 +5,12 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Group } from './group.entity';
-import { SummaryContactView } from '../views/summary-contact.view';
-import { JoinColumn } from 'typeorm/browser';
+import { ContactGroup } from './contact-group.entity';
 
 @Entity('contacts')
 export class Contact {
@@ -69,20 +68,6 @@ export class Contact {
   @Column({ type: 'uuid', nullable: true })
   deleted_by?: string;
 
-  @ManyToMany(() => Group, (object) => object.contacts)
-  @JoinTable({
-    name: 'contact_groups',
-    joinColumn: {
-      name: 'contact_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'group_id',
-      referencedColumnName: 'id',
-    },
-  })
-  groups: Group[];
-
-  @OneToOne(() => SummaryContactView, (object) => object.contact)
-  summary_contact: SummaryContactView;
+  @OneToMany(() => ContactGroup, (object) => object.contact)
+  contact_groups: ContactGroup[];
 }

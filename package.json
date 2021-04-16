@@ -12,6 +12,7 @@
     "install": "./scripts/install.sh",
     "lint": "./scripts/lint.sh",
     "build": "./scripts/build.sh",
+    "update": "./scripts/update.sh",
     "start": "npm run install && npm run lint && npm run build && npm run docker:build && npm run docker:start",
     "docker:build": "docker-compose build",
     "docker:start": "docker-compose up",

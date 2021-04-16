@@ -34,13 +34,13 @@ export class OrganizationService {
           qb.where({ [key]: whereClause[key] });
         });
 
-        qb.where(
-          new Brackets((qb1) => {
-            qb1
-              .where('`name` LIKE ' + `"%${search}%"`)
-              .orWhere('`address` LIKE ' + `"%${search}%"`)
-              .orWhere('`telephone` LIKE ' + `"%${search}%"`)
-              .orWhere('`fax` LIKE ' + `"%${search}%"`);
+        qb.andWhere(
+          new Brackets((qb) => {
+            const params = { search: `%${search}%` };
+            qb.where('name LIKE :search', params)
+              .orWhere('address LIKE :search', params)
+              .orWhere('telephone LIKE :search', params)
+              .orWhere('fax LIKE :search', params);
           }),
         );
       });
@@ -68,12 +68,13 @@ export class OrganizationService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`organizations`.`name` LIKE ' + `"%${search}%"`)
-            .orWhere('`organizations`.`address` LIKE ' + `"%${search}%"`)
-            .orWhere('`organizations`.`telephone` LIKE ' + `"%${search}%"`)
-            .orWhere('`organizations`.`fax` LIKE ' + `"%${search}%"`);
+          qb.where('organizations.name LIKE :search', params)
+            .orWhere('organizations.address LIKE :search', params)
+            .orWhere('organizations.telephone LIKE :search', params)
+            .orWhere('organizations.fax LIKE :search', params);
         }),
       );
     }
@@ -104,12 +105,13 @@ export class OrganizationService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`organizations`.`name` LIKE ' + `"%${search}%"`)
-            .orWhere('`organizations`.`address` LIKE ' + `"%${search}%"`)
-            .orWhere('`organizations`.`telephone` LIKE ' + `"%${search}%"`)
-            .orWhere('`organizations`.`fax` LIKE ' + `"%${search}%"`);
+          qb.where('organizations.name LIKE :search', params)
+            .orWhere('organizations.address LIKE :search', params)
+            .orWhere('organizations.telephone LIKE :search', params)
+            .orWhere('organizations.fax LIKE :search', params);
         }),
       );
     }

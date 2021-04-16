@@ -13,12 +13,15 @@ import {
 } from '../../application/dtos/group.dto';
 import { RpcException } from '@nestjs/microservices';
 import { ContactService } from './contact.service';
+import { ContactGroup } from '../entities/contact-group.entity';
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
+    @InjectRepository(ContactGroup)
+    private readonly contactGroupRepository: Repository<ContactGroup>,
     @Inject(forwardRef(() => 'AUDIENCE_CONTACT_SERVICE'))
     private readonly contactService: ContactService,
   ) {}
@@ -37,9 +40,10 @@ export class GroupService {
           qb.where({ [key]: whereClause[key] });
         });
 
-        qb.where(
-          new Brackets((qb1) => {
-            qb1.where('`name` LIKE ' + `"%${search}%"`);
+        qb.andWhere(
+          new Brackets((qb) => {
+            const params = { search: `%${search}%` };
+            qb.where('name LIKE :search', params);
           }),
         );
       });
@@ -57,7 +61,7 @@ export class GroupService {
 
     const builder = await this.groupRepository
       .createQueryBuilder('groups')
-      .leftJoin(
+      .innerJoin(
         'summary_groups',
         'summary_groups',
         '(summary_groups.group_id = groups.id)',
@@ -72,10 +76,12 @@ export class GroupService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`groups`.`name` LIKE ' + `"%${search}%"`).orWhere(
-            '`summary_groups`.`total_group` LIKE ' + `"%${search}%"`,
+          qb.where('groups.name LIKE :search', params).orWhere(
+            'summary_groups.total_contact LIKE :search',
+            params,
           );
         }),
       );
@@ -95,7 +101,7 @@ export class GroupService {
       .createQueryBuilder('groups')
       .select('groups.*')
       .addSelect('total_contact')
-      .leftJoin(
+      .innerJoin(
         'summary_groups',
         'summary_groups',
         '(summary_groups.group_id = groups.id)',
@@ -111,10 +117,12 @@ export class GroupService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`groups`.`name` LIKE ' + `"%${search}%"`).orWhere(
-            '`summary_groups`.`total_group` LIKE ' + `"%${search}%"`,
+          qb.where('groups.name LIKE :search', params).orWhere(
+            'summary_groups.total_contact LIKE :search',
+            params,
           );
         }),
       );
@@ -149,6 +157,15 @@ export class GroupService {
       organization_id,
     });
 
+    const contactGroups = [];
+    contacts.forEach((contact) => {
+      contactGroups.push(
+        this.contactGroupRepository.create({
+          contact_id: contact.id,
+        }),
+      );
+    });
+
     const group = await this.groupRepository.save(
       this.groupRepository.create({
         id,
@@ -156,7 +173,7 @@ export class GroupService {
         name,
         description,
         is_visible,
-        contacts,
+        contact_groups: contactGroups,
         created_by,
         updated_by: created_by,
       }),
@@ -190,12 +207,21 @@ export class GroupService {
       organization_id,
     });
 
+    const contactGroups = [];
+    contacts.forEach((contact) => {
+      contactGroups.push(
+        this.contactGroupRepository.create({
+          contact_id: contact.id,
+        }),
+      );
+    });
+
     Object.assign(group, {
       organization_id,
       name,
       description,
       is_visible,
-      contacts,
+      contact_groups: contactGroups,
       updated_by,
     });
 

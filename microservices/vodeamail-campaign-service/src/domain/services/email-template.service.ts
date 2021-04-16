@@ -34,9 +34,10 @@ export class EmailTemplateService {
           qb.where({ [key]: whereClause[key] });
         });
 
-        qb.where(
-          new Brackets((qb1) => {
-            qb1.where('`name` LIKE ' + `"%${search}%"`);
+        qb.andWhere(
+          new Brackets((qb) => {
+            const params = { search: `%${search}%` };
+            qb.where('name LIKE :search', params);
           }),
         );
       });
@@ -64,9 +65,10 @@ export class EmailTemplateService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`email_templates`.`name` LIKE ' + `"%${search}%"`);
+          qb.where('email_templates.name LIKE :search', params);
         }),
       );
     }
@@ -97,9 +99,10 @@ export class EmailTemplateService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`email_templates`.`name` LIKE ' + `"%${search}%"`);
+          qb.where('email_templates.name LIKE :search', params);
         }),
       );
     }

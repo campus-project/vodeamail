@@ -53,13 +53,13 @@ export class EmailCampaignService {
           qb.where({ [key]: whereClause[key] });
         });
 
-        qb.where(
-          new Brackets((qb1) => {
-            qb1
-              .where('`name` LIKE ' + `"%${search}%"`)
-              .orWhere('`subject` LIKE ' + `"%${search}%"`)
-              .orWhere('`from` LIKE ' + `"%${search}%"`)
-              .orWhere('`email_from` LIKE ' + `"%${search}%"`);
+        qb.andWhere(
+          new Brackets((qb) => {
+            const params = { search: `%${search}%` };
+            qb.where('name LIKE :search', params)
+              .orWhere('subject LIKE :search', params)
+              .orWhere('from LIKE :search', params)
+              .orWhere('email_from LIKE :search', params);
           }),
         );
       });
@@ -123,18 +123,21 @@ export class EmailCampaignService {
     }
 
     if (status !== undefined && !isNaN(parseInt(String(status)))) {
-      builder.where('`email_campaigns`.`status` = ' + `"${status}"`);
+      builder.andWhere('email_campaigns.status = :status', { status });
     }
 
     if (search) {
-      builder.where('`email_campaigns`.`status` = ' + `"${status}"`);
-
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`email_campaigns`.`name` LIKE ' + `"%${search}%"`)
-            .orWhere('`email_campaigns`.`subject` LIKE ' + `"%${search}%"`)
-            .orWhere('`email_campaigns`.`from` LIKE ' + `"%${search}%"`)
-            .orWhere('`email_campaigns`.`email_from` LIKE ' + `"%${search}%"`);
+          qb.where('email_campaigns.name LIKE :search', params)
+            .orWhere('email_campaigns.subject LIKE :search', params)
+            .orWhere('email_campaigns.from LIKE :search', params)
+            .orWhere('email_campaigns.email_from LIKE :search', params);
+
+          if (status === undefined) {
+            qb.orWhere('email_campaigns.status = :status', { status });
+          }
         }),
       );
     }
@@ -169,12 +172,17 @@ export class EmailCampaignService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`email_campaigns`.`name` LIKE ' + `"%${search}%"`)
-            .orWhere('`email_campaigns`.`subject` LIKE ' + `"%${search}%"`)
-            .orWhere('`email_campaigns`.`from` LIKE ' + `"%${search}%"`)
-            .orWhere('`email_campaigns`.`email_from` LIKE ' + `"%${search}%"`);
+          qb.where('email_campaigns.name LIKE :search', params)
+            .orWhere('email_campaigns.subject LIKE :search', params)
+            .orWhere('email_campaigns.from LIKE :search', params)
+            .orWhere('email_campaigns.email_from LIKE :search', params);
+
+          if (status === undefined) {
+            qb.orWhere('email_campaigns.status = :status', { status });
+          }
         }),
       );
     }

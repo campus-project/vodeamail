@@ -38,7 +38,7 @@ const Group: React.FC<any> = () => {
 
   const columns: IMuiDatatableColumn[] = [
     {
-      label: t("pages:group.datatable.columns.name"),
+      label: t("pages:contact.datatable.columns.email"),
       name: "email",
     },
     {
@@ -50,14 +50,14 @@ const Group: React.FC<any> = () => {
       },
     },
     {
-      label: t("pages:group.datatable.columns.updated"),
+      label: t("pages:contact.datatable.columns.updated"),
       name: "updated_at",
       options: {
         customBodyRender: (value) => <DateTime data={value} />,
       },
     },
     {
-      label: t("pages:group.datatable.columns.status"),
+      label: t("pages:contact.datatable.columns.status"),
       name: "is_subscribed",
       options: {
         customBodyRender: (value) => (

@@ -13,11 +13,15 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import {
   buildFindAllPayload,
+  buildFindOnePayload,
   clientProxyException,
-  FindAllQueryDto,
   paginationTransformer,
   User,
 } from 'vnest-core';
+import {
+  FindAllEmailTemplateQueryDto,
+  FindOneEmailTemplateQueryDto,
+} from '../../dtos/microservices/email-template.dto';
 
 @Controller('email-template')
 export class EmailTemplateController {
@@ -29,7 +33,7 @@ export class EmailTemplateController {
   @Get()
   async findAll(
     @User('organization_id') organizationId: string,
-    @Query() query: FindAllQueryDto,
+    @Query() query: FindAllEmailTemplateQueryDto,
   ) {
     const payload = buildFindAllPayload(query, {
       organization_id: organizationId,
@@ -61,14 +65,15 @@ export class EmailTemplateController {
   async findOne(
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
-    @Query('relations') relations: string[],
+    @Query() query: FindOneEmailTemplateQueryDto,
   ) {
+    const payload = buildFindOnePayload(query, {
+      id,
+      organization_id: organizationId,
+    });
+
     const data = await this.redisClient
-      .send('MS_CAMPAIGN_FIND_ONE_EMAIL_TEMPLATE', {
-        organization_id: organizationId,
-        relations,
-        id,
-      })
+      .send('MS_CAMPAIGN_FIND_ONE_EMAIL_TEMPLATE', payload)
       .toPromise()
       .catch(clientProxyException);
 

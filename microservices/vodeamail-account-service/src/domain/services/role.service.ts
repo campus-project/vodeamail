@@ -34,9 +34,10 @@ export class RoleService {
           qb.where({ [key]: whereClause[key] });
         });
 
-        qb.where(
-          new Brackets((qb1) => {
-            qb1.where('`name` LIKE ' + `"%${search}%"`);
+        qb.andWhere(
+          new Brackets((qb) => {
+            const params = { search: `%${search}%` };
+            qb.where('name LIKE :search', params);
           }),
         );
       });
@@ -69,10 +70,12 @@ export class RoleService {
     }
 
     if (search) {
+      const params = { search: `%${search}%` };
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('`roles`.`name` LIKE ' + `"%${search}%"`).orWhere(
-            '`summary_roles`.`total_user` LIKE ' + `"%${search}%"`,
+          qb.where('organizations.name LIKE :search', params).orWhere(
+            'summary_roles.total_user LIKE :search',
+            params,
           );
         }),
       );

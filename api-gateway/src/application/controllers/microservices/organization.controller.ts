@@ -13,11 +13,15 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import {
   buildFindAllPayload,
+  buildFindOnePayload,
   clientProxyException,
-  FindAllQueryDto,
   paginationTransformer,
   User,
 } from 'vnest-core';
+import {
+  FindAllOrganizationQueryDto,
+  FindOneOrganizationQueryDto,
+} from '../../dtos/microservices/organization.dto';
 
 @Controller('organization')
 export class OrganizationController {
@@ -29,7 +33,7 @@ export class OrganizationController {
   @Get()
   async findAll(
     @User('organization_id') organizationId: string,
-    @Query() query: FindAllQueryDto,
+    @Query() query: FindAllOrganizationQueryDto,
   ) {
     const payload = buildFindAllPayload(query, {
       organization_id: organizationId,
@@ -61,12 +65,15 @@ export class OrganizationController {
   async findOne(
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
+    @Query() query: FindOneOrganizationQueryDto,
   ) {
+    const payload = buildFindOnePayload(query, {
+      id,
+      organization_id: organizationId,
+    });
+
     const data = await this.redisClient
-      .send('MS_ACCOUNT_FIND_ONE_ORGANIZATION', {
-        organization_id: organizationId,
-        id,
-      })
+      .send('MS_ACCOUNT_FIND_ONE_ORGANIZATION', payload)
       .toPromise()
       .catch(clientProxyException);
 

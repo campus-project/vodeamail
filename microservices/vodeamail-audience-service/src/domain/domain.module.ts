@@ -5,6 +5,7 @@ import { ContactService } from './services/contact.service';
 import { GroupService } from './services/group.service';
 import { Contact } from './entities/contact.entity';
 import { Group } from './entities/group.entity';
+import { ContactGroup } from './entities/contact-group.entity';
 
 const providers: Provider[] = [
   {
@@ -18,7 +19,10 @@ const providers: Provider[] = [
 ];
 
 @Module({
-  imports: [InfrastructureModule, TypeOrmModule.forFeature([Contact, Group])],
+  imports: [
+    InfrastructureModule,
+    TypeOrmModule.forFeature([Contact, ContactGroup, Group]),
+  ],
   providers: [...providers],
   exports: [...providers],
 })

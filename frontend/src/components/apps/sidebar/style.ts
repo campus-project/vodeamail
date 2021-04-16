@@ -32,7 +32,6 @@ export const useStyles = makeStyles((theme) => ({
         },
 
         "&.opened": {
-          background: grey[50],
           color: theme.palette.primary.main,
           borderRadius: theme.shape.borderRadius,
 

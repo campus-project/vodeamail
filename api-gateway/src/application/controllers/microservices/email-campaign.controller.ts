@@ -13,11 +13,15 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import {
   buildFindAllPayload,
+  buildFindOnePayload,
   clientProxyException,
-  FindAllQueryDto,
   paginationTransformer,
   User,
 } from 'vnest-core';
+import {
+  FindAllEmailCampaignQueryDto,
+  FindOneEmailCampaignQueryDto,
+} from '../../dtos/microservices/email-campaign.dto';
 
 @Controller('email-campaign')
 export class EmailCampaignController {
@@ -29,12 +33,11 @@ export class EmailCampaignController {
   @Get()
   async findAll(
     @User('organization_id') organizationId: string,
-    @Query() query: FindAllQueryDto,
-    @Query('status') status: string | undefined,
+    @Query() query: FindAllEmailCampaignQueryDto,
   ) {
     const payload = buildFindAllPayload(query, {
       organization_id: organizationId,
-      status: status === undefined ? undefined : parseInt(status),
+      status: query.status === undefined ? undefined : parseInt(query.status),
     });
 
     const data = await this.redisClient
@@ -63,16 +66,16 @@ export class EmailCampaignController {
   async findOne(
     @User('organization_id') organizationId: string,
     @Param('id') id: string,
-    @Query('relations') relations: string[],
-    @Query('status') status: string | undefined,
+    @Query() query: FindOneEmailCampaignQueryDto,
   ) {
+    const payload = buildFindOnePayload(query, {
+      id,
+      organization_id: organizationId,
+      status: query.status === undefined ? undefined : parseInt(query.status),
+    });
+
     const data = await this.redisClient
-      .send('MS_CAMPAIGN_FIND_ONE_EMAIL_CAMPAIGN', {
-        organization_id: organizationId,
-        relations,
-        status: status === undefined ? undefined : parseInt(status),
-        id,
-      })
+      .send('MS_CAMPAIGN_FIND_ONE_EMAIL_CAMPAIGN', payload)
       .toPromise()
       .catch(clientProxyException);
 
