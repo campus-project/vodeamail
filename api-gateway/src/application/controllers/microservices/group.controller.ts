@@ -37,6 +37,8 @@ export class GroupController {
   ) {
     const payload = buildFindAllPayload(query, {
       organization_id: organizationId,
+      contact_id: query.contact_id || undefined,
+      contact_ids: query.contact_ids || undefined,
     });
 
     const data = await this.redisClient
@@ -65,6 +67,8 @@ export class GroupController {
     const payload = buildFindOnePayload(query, {
       id,
       organization_id: organizationId,
+      contact_id: query.contact_id || undefined,
+      contact_ids: query.contact_ids || undefined,
     });
 
     const data = await this.redisClient

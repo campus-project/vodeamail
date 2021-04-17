@@ -38,6 +38,8 @@ export class EmailCampaignController {
     const payload = buildFindAllPayload(query, {
       organization_id: organizationId,
       status: query.status === undefined ? undefined : parseInt(query.status),
+      group_id: query.group_id || undefined,
+      group_ids: query.group_ids || undefined,
     });
 
     const data = await this.redisClient
@@ -67,6 +69,8 @@ export class EmailCampaignController {
       id,
       organization_id: organizationId,
       status: query.status === undefined ? undefined : parseInt(query.status),
+      group_id: query.group_id || undefined,
+      group_ids: query.group_ids || undefined,
     });
 
     const data = await this.redisClient
