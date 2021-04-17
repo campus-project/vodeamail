@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Brackets, In, IsNull, Repository } from 'typeorm';
+import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { Contact } from '../entities/contact.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
+import { buildFindAllQueryBuilder, buildFindOneQueryBuilder } from 'vnest-core';
 import {
   CreateContactDto,
   DeleteContactDto,
@@ -15,6 +15,9 @@ import { RpcException } from '@nestjs/microservices';
 import { GroupService } from './group.service';
 import { FindAllGroupDto } from '../../application/dtos/group.dto';
 import { ContactGroup } from '../entities/contact-group.entity';
+
+export const existsQuery = <T>(builder: SelectQueryBuilder<T>) =>
+  `exists (${builder.getQuery()})`;
 
 @Injectable()
 export class ContactService {
@@ -28,117 +31,48 @@ export class ContactService {
   ) {}
 
   async findAll(options: FindAllContactDto): Promise<Contact[]> {
-    const { search } = options;
-    let queryBuilder = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    if (search) {
-      const whereClause = queryBuilder.where;
-      queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key) => {
-          qb.where({ [key]: whereClause[key] });
-        });
-
-        qb.andWhere(
-          new Brackets((qb) => {
-            const params = { search: `%${search}%` };
-            qb.where('email LIKE :search', params);
-          }),
-        );
-      });
-    }
-
-    return await this.contactRepository.find(queryBuilder);
-  }
-
-  async findAllCount(options: FindAllGroupDto): Promise<number> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.contactRepository
+    const qb = this.contactRepository
       .createQueryBuilder('contacts')
-      .innerJoin(
+      .leftJoin(
         'summary_contacts',
         'summary_contacts',
         '(summary_contacts.contact_id = contacts.id)',
-      )
-      .where(where)
-      .cache(cache)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('contacts.email LIKE :search', params).orWhere(
-            'summary_contacts.total_group LIKE :search',
-            params,
-          );
-        }),
       );
-    }
 
-    return builder.getCount();
-  }
-
-  async findAllBuilder(options: FindAllGroupDto): Promise<Contact[]> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, order, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
-
-    const builder = await this.contactRepository
-      .createQueryBuilder('contacts')
-      .select('contacts.*')
-      .addSelect('total_group')
-      .innerJoin(
-        'summary_contacts',
-        'summary_contacts',
-        '(summary_contacts.contact_id = contacts.id)',
-      )
-      .where(where)
-      .cache(cache)
-      .orderBy(order)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('contacts.email LIKE :search', params).orWhere(
-            'summary_contacts.total_group LIKE :search',
-            params,
-          );
-        }),
-      );
-    }
 
     return builder.execute();
   }
 
-  async findOne(options: FindOneContactDto): Promise<Contact> {
-    const queryBuilder = this.buildFindQuery(
-      buildFindOneQueryOption({ options }),
+  async findAllCount(options: FindAllGroupDto): Promise<number> {
+    const qb = this.contactRepository
+      .createQueryBuilder('contacts')
+      .leftJoin(
+        'summary_contacts',
+        'summary_contacts',
+        '(summary_contacts.contact_id = contacts.id)',
+      );
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
 
-    return await this.contactRepository.findOne(queryBuilder);
+    return builder.getCount();
+  }
+
+  async findOne(options: FindOneContactDto): Promise<Contact> {
+    const qb = this.contactRepository.createQueryBuilder('contacts');
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindOneQueryBuilder(qb, options), options),
+      options,
+    );
+
+    return builder.execute();
   }
 
   @Transactional()
@@ -298,25 +232,66 @@ export class ContactService {
     return contacts.length;
   }
 
-  protected buildFindQuery(
-    queryBuilder,
+  protected makeFilter(
+    builder: any,
     options: FindOneContactDto | FindAllContactDto,
   ) {
-    Object.assign(queryBuilder.where, {
-      organization_id: options.organization_id || IsNull(),
-    });
+    const {
+      organization_id: organizationId,
+      is_subscribed: isSubscribed,
+      group_id: groupId,
+      group_ids: groupIds,
+    } = options;
 
-    const groupIds = options.group_id === undefined ? [] : [options.group_id];
-    if (options.group_ids !== undefined) {
-      groupIds.push(...options.group_ids);
+    builder.where(
+      new Brackets((qb) => {
+        qb.where('contacts.organization_id = :organizationId', {
+          organizationId,
+        }).orWhere('contacts.organization_id IS NULL');
+      }),
+    );
+
+    if (isSubscribed !== undefined) {
+      builder.andWhere(
+        new Brackets((qb) => {
+          qb.where('contacts.is_subscribed = :isSubscribed', { isSubscribed });
+        }),
+      );
     }
 
-    if (options.is_subscribed) {
-      Object.assign(queryBuilder.where, {
-        is_subscribed: options.is_subscribed,
-      });
+    const filterGroupIds = groupId === undefined ? [] : [groupId];
+    if (groupIds !== undefined) {
+      filterGroupIds.push(...groupIds);
     }
 
-    return queryBuilder;
+    if (filterGroupIds.length) {
+      builder.where(
+        existsQuery(
+          this.contactGroupRepository
+            .createQueryBuilder('contact_groups')
+            .where('contact_groups.contact_id = contacts.id')
+            .where({
+              group_id: In(filterGroupIds),
+            }),
+        ),
+      );
+    }
+
+    return builder;
+  }
+
+  protected makeSearchable(builder: any, { search }: FindAllContactDto) {
+    if (search) {
+      const params = { search: `%${search}%` };
+      builder.where(
+        new Brackets((qb) => {
+          qb.where('contacts.email LIKE :search', params)
+            .orWhere('contacts.name LIKE :search', params)
+            .orWhere('summary_contacts.total_group LIKE :search', params);
+        }),
+      );
+    }
+
+    return builder;
   }
 }

@@ -1,9 +1,9 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Brackets, In, IsNull, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { Group } from '../entities/group.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
+import { buildFindAllQueryBuilder, buildFindOneQueryBuilder } from 'vnest-core';
 import {
   CreateGroupDto,
   DeleteGroupDto,
@@ -27,117 +27,48 @@ export class GroupService {
   ) {}
 
   async findAll(options: FindAllGroupDto): Promise<Group[]> {
-    const { search } = options;
-    const queryBuilder = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    if (search) {
-      const whereClause = queryBuilder.where;
-      queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key) => {
-          qb.where({ [key]: whereClause[key] });
-        });
-
-        qb.andWhere(
-          new Brackets((qb) => {
-            const params = { search: `%${search}%` };
-            qb.where('name LIKE :search', params);
-          }),
-        );
-      });
-    }
-
-    return await this.groupRepository.find(queryBuilder);
-  }
-
-  async findAllCount(options: FindAllGroupDto): Promise<number> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.groupRepository
+    const qb = this.groupRepository
       .createQueryBuilder('groups')
-      .innerJoin(
+      .leftJoin(
         'summary_groups',
         'summary_groups',
         '(summary_groups.group_id = groups.id)',
-      )
-      .where(where)
-      .cache(cache)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('groups.name LIKE :search', params).orWhere(
-            'summary_groups.total_contact LIKE :search',
-            params,
-          );
-        }),
       );
-    }
 
-    return builder.getCount();
-  }
-
-  async findAllBuilder(options: FindAllGroupDto): Promise<Group[]> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, order, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
-
-    const builder = await this.groupRepository
-      .createQueryBuilder('groups')
-      .select('groups.*')
-      .addSelect('total_contact')
-      .innerJoin(
-        'summary_groups',
-        'summary_groups',
-        '(summary_groups.group_id = groups.id)',
-      )
-      .where(where)
-      .cache(cache)
-      .orderBy(order)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('groups.name LIKE :search', params).orWhere(
-            'summary_groups.total_contact LIKE :search',
-            params,
-          );
-        }),
-      );
-    }
 
     return builder.execute();
   }
 
-  async findOne(options: FindOneGroupDto): Promise<Group> {
-    const queryBuilder = this.buildFindQuery(
-      buildFindOneQueryOption({ options }),
+  async findAllCount(options: FindAllGroupDto): Promise<number> {
+    const qb = this.groupRepository
+      .createQueryBuilder('groups')
+      .leftJoin(
+        'summary_groups',
+        'summary_groups',
+        '(summary_groups.group_id = groups.id)',
+      );
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
 
-    return await this.groupRepository.findOne(queryBuilder);
+    return builder.getCount();
+  }
+
+  async findOne(options: FindOneGroupDto): Promise<Group> {
+    const qb = this.groupRepository.createQueryBuilder('groups');
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindOneQueryBuilder(qb, options), options),
+      options,
+    );
+
+    return builder.execute();
   }
 
   @Transactional()
@@ -273,20 +204,44 @@ export class GroupService {
     return groups.length;
   }
 
-  protected buildFindQuery(
-    queryBuilder,
+  protected makeFilter(
+    builder: any,
     options: FindOneGroupDto | FindAllGroupDto,
   ) {
-    Object.assign(queryBuilder.where, {
-      organization_id: options.organization_id || IsNull(),
-    });
+    const { organization_id: organizationId, is_visible: isVisible } = options;
 
-    if (options.is_visible !== undefined) {
-      Object.assign(queryBuilder.where, {
-        is_visible: options.is_visible,
-      });
+    builder.where(
+      new Brackets((qb) => {
+        qb.where('groups.organization_id = :organizationId', {
+          organizationId,
+        }).orWhere('groups.organization_id IS NULL');
+      }),
+    );
+
+    if (isVisible !== undefined) {
+      builder.andWhere(
+        new Brackets((qb) => {
+          qb.where('groups.is_visible = :isVisible', { isVisible });
+        }),
+      );
     }
 
-    return queryBuilder;
+    return builder;
+  }
+
+  protected makeSearchable(builder: any, { search }: FindAllGroupDto) {
+    if (search) {
+      const params = { search: `%${search}%` };
+      builder.where(
+        new Brackets((qb) => {
+          qb.where('groups.name LIKE :search', params).orWhere(
+            'summary_groups.total_contact LIKE :search',
+            params,
+          );
+        }),
+      );
+    }
+
+    return builder;
   }
 }

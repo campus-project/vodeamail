@@ -40,12 +40,7 @@ export class OrganizationController {
     });
 
     const data = await this.redisClient
-      .send(
-        payload.using === 'builder'
-          ? 'MS_ACCOUNT_FIND_ALL_BUILDER_ORGANIZATION'
-          : 'MS_ACCOUNT_FIND_ALL_ORGANIZATION',
-        payload,
-      )
+      .send('MS_ACCOUNT_FIND_ALL_ORGANIZATION', payload)
       .toPromise()
       .catch(clientProxyException);
 

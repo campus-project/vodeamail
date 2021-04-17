@@ -3,7 +3,7 @@ import { Brackets, In, Repository } from 'typeorm';
 import { Organization } from '../entities/organization.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
+import { buildFindAllQueryBuilder, buildFindOneQueryBuilder } from 'vnest-core';
 import {
   CreateOrganizationDto,
   DeleteOrganizationDto,
@@ -21,108 +21,33 @@ export class OrganizationService {
   ) {}
 
   async findAll(options: FindAllOrganizationDto): Promise<Organization[]> {
-    const { search } = options;
-    const queryBuilder = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+    const qb = this.organizationRepository.createQueryBuilder('organizations');
+    const builder = this.makeSearchable(
+      buildFindAllQueryBuilder(qb, options),
       options,
     );
-
-    if (search) {
-      const whereClause = queryBuilder.where;
-      queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key) => {
-          qb.where({ [key]: whereClause[key] });
-        });
-
-        qb.andWhere(
-          new Brackets((qb) => {
-            const params = { search: `%${search}%` };
-            qb.where('name LIKE :search', params)
-              .orWhere('address LIKE :search', params)
-              .orWhere('telephone LIKE :search', params)
-              .orWhere('fax LIKE :search', params);
-          }),
-        );
-      });
-    }
-
-    return await this.organizationRepository.find(queryBuilder);
-  }
-
-  async findAllCount(options: FindAllOrganizationDto): Promise<number> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.organizationRepository
-      .createQueryBuilder('organizations')
-      .where(where)
-      .cache(cache)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('organizations.name LIKE :search', params)
-            .orWhere('organizations.address LIKE :search', params)
-            .orWhere('organizations.telephone LIKE :search', params)
-            .orWhere('organizations.fax LIKE :search', params);
-        }),
-      );
-    }
-
-    return builder.getCount();
-  }
-
-  async findAllBuilder(
-    options: FindAllOrganizationDto,
-  ): Promise<Organization[]> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, order, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.organizationRepository
-      .createQueryBuilder('organizations')
-      .select('organizations.*')
-      .where(where)
-      .cache(cache)
-      .orderBy(order)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('organizations.name LIKE :search', params)
-            .orWhere('organizations.address LIKE :search', params)
-            .orWhere('organizations.telephone LIKE :search', params)
-            .orWhere('organizations.fax LIKE :search', params);
-        }),
-      );
-    }
 
     return builder.execute();
   }
 
-  async findOne(options: FindOneOrganizationDto): Promise<Organization> {
-    const queryBuilder = buildFindOneQueryOption({ options });
+  async findAllCount(options: FindAllOrganizationDto): Promise<number> {
+    const qb = this.organizationRepository.createQueryBuilder('organizations');
+    const builder = this.makeSearchable(
+      buildFindAllQueryBuilder(qb, options),
+      options,
+    );
 
-    return await this.organizationRepository.findOne(queryBuilder);
+    return builder.getCount();
+  }
+
+  async findOne(options: FindOneOrganizationDto): Promise<Organization> {
+    const qb = this.organizationRepository.createQueryBuilder('organizations');
+    const builder = this.makeSearchable(
+      buildFindOneQueryBuilder(qb, options),
+      options,
+    );
+
+    return builder.execute();
   }
 
   @Transactional()
@@ -211,11 +136,19 @@ export class OrganizationService {
     return organizations.length;
   }
 
-  protected buildFindQuery(
-    queryBuilder,
-    options: FindOneOrganizationDto | FindAllOrganizationDto,
-  ) {
-    console.log(options);
-    return queryBuilder;
+  protected makeSearchable(builder: any, { search }: FindAllOrganizationDto) {
+    if (search) {
+      const params = { search: `%${search}%` };
+      builder.where(
+        new Brackets((qb) => {
+          qb.where('organizations.name LIKE :search', params)
+            .orWhere('organizations.address LIKE :search', params)
+            .orWhere('organizations.telephone LIKE :search', params)
+            .orWhere('organizations.fax LIKE :search', params);
+        }),
+      );
+    }
+
+    return builder;
   }
 }

@@ -31,11 +31,6 @@ export class RoleController {
     return this.roleService.findAllCount(findAllRoleDto);
   }
 
-  @MessagePattern('MS_ACCOUNT_FIND_ALL_BUILDER_ROLE')
-  findAllBuilder(@Payload() findAllRoleDto: FindAllRoleDto) {
-    return this.roleService.findAllBuilder(findAllRoleDto);
-  }
-
   @MessagePattern('MS_ACCOUNT_FIND_ONE_ROLE')
   findOne(@Payload() findOneRoleDto: FindOneRoleDto) {
     return this.roleService.findOne(findOneRoleDto);

@@ -40,12 +40,7 @@ export class UserController {
     });
 
     const data = await this.redisClient
-      .send(
-        payload.using === 'builder'
-          ? 'MS_ACCOUNT_FIND_ALL_BUILDER_USER'
-          : 'MS_ACCOUNT_FIND_ALL_USER',
-        payload,
-      )
+      .send('MS_ACCOUNT_FIND_ALL_USER', payload)
       .toPromise()
       .catch(clientProxyException);
 

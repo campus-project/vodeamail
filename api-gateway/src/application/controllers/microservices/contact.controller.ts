@@ -46,12 +46,7 @@ export class ContactController {
     });
 
     const data = await this.redisClient
-      .send(
-        payload.using === 'builder'
-          ? 'MS_AUDIENCE_FIND_ALL_BUILDER_CONTACT'
-          : 'MS_AUDIENCE_FIND_ALL_CONTACT',
-        payload,
-      )
+      .send('MS_AUDIENCE_FIND_ALL_CONTACT', payload)
       .toPromise()
       .catch(clientProxyException);
 

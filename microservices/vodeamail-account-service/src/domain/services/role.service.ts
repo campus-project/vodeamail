@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, In, IsNull, Not, Repository } from 'typeorm';
+import { Brackets, In, Not, Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
+import { buildFindAllQueryBuilder, buildFindOneQueryBuilder } from 'vnest-core';
 import {
   CreateRoleDto,
   DeleteRoleDto,
@@ -21,115 +21,54 @@ export class RoleService {
   ) {}
 
   async findAll(options: FindAllRoleDto): Promise<Role[]> {
-    const { search } = options;
-    const queryBuilder = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    if (search) {
-      const whereClause = queryBuilder.where;
-      queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key) => {
-          qb.where({ [key]: whereClause[key] });
-        });
-
-        qb.andWhere(
-          new Brackets((qb) => {
-            const params = { search: `%${search}%` };
-            qb.where('name LIKE :search', params);
-          }),
-        );
-      });
-    }
-
-    return await this.roleRepository.find(queryBuilder);
-  }
-
-  async findAllCount(options: FindAllRoleDto): Promise<number> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.roleRepository
-      .createQueryBuilder('roles')
+    const qb = this.roleRepository
+      .createQueryBuilder('organizations')
       .leftJoin(
         'summary_roles',
         'summary_roles',
         '(summary_roles.role_id = roles.id)',
-      )
-      .where(where)
-      .cache(cache)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('organizations.name LIKE :search', params).orWhere(
-            'summary_roles.total_user LIKE :search',
-            params,
-          );
-        }),
       );
-    }
 
-    return builder.getCount();
-  }
-
-  async findAllBuilder(options: FindAllRoleDto): Promise<Role[]> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, order, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
-
-    const builder = await this.roleRepository
-      .createQueryBuilder('roles')
-      .select('roles.*')
-      .addSelect('total_user')
-      .leftJoin(
-        'summary_roles',
-        'summary_roles',
-        '(summary_roles.role_id = roles.id)',
-      )
-      .where(where)
-      .cache(cache)
-      .orderBy(order)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('`roles`.`name` LIKE ' + `"%${search}%"`).orWhere(
-            '`summary_roles`.`total_user` LIKE ' + `"%${search}%"`,
-          );
-        }),
-      );
-    }
 
     return builder.execute();
   }
 
-  async findOne(options: FindOneRoleDto): Promise<Role> {
-    const queryBuilder = this.buildFindQuery(
-      buildFindOneQueryOption({ options }),
+  async findAllCount(options: FindAllRoleDto): Promise<number> {
+    const qb = this.roleRepository
+      .createQueryBuilder('organizations')
+      .leftJoin(
+        'summary_roles',
+        'summary_roles',
+        '(summary_roles.role_id = roles.id)',
+      );
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
 
-    return await this.roleRepository.findOne(queryBuilder);
+    return builder.getCount();
+  }
+
+  async findOne(options: FindOneRoleDto): Promise<Role> {
+    const qb = this.roleRepository
+      .createQueryBuilder('roles')
+      .leftJoin(
+        'summary_roles',
+        'summary_roles',
+        '(summary_roles.role_id = roles.id)',
+      );
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindOneQueryBuilder(qb, options), options),
+      options,
+    );
+
+    return builder.execute();
   }
 
   @Transactional()
@@ -261,26 +200,53 @@ export class RoleService {
     }
   }
 
-  protected buildFindQuery(
-    queryBuilder,
-    options: FindOneRoleDto | FindAllRoleDto,
-  ) {
-    Object.assign(queryBuilder.where, {
-      organization_id: options.organization_id || IsNull(),
-    });
+  protected makeFilter(builder: any, options: FindOneRoleDto | FindAllRoleDto) {
+    const {
+      organization_id: organizationId,
+      is_special: isSpecial,
+      is_default: isDefault,
+    } = options;
 
-    if (options.is_special !== undefined) {
-      Object.assign(queryBuilder.where, {
-        is_special: options.is_special,
-      });
+    builder.where(
+      new Brackets((qb) => {
+        qb.where('roles.organization_id = :organizationId', {
+          organizationId,
+        }).orWhere('roles.organization_id IS NULL');
+      }),
+    );
+
+    if (isSpecial !== undefined) {
+      builder.where(
+        new Brackets((qb) => {
+          qb.where('roles.is_special = :isSpecial', { isSpecial });
+        }),
+      );
     }
 
-    if (options.is_default !== undefined) {
-      Object.assign(queryBuilder.where, {
-        is_default: options.is_default,
-      });
+    if (isDefault !== undefined) {
+      builder.where(
+        new Brackets((qb) => {
+          qb.where('roles.is_default = :isDefault', { isDefault });
+        }),
+      );
     }
 
-    return queryBuilder;
+    return builder;
+  }
+
+  protected makeSearchable(builder: any, { search }: FindAllRoleDto) {
+    if (search) {
+      const params = { search: `%${search}%` };
+      builder.where(
+        new Brackets((qb) => {
+          qb.where('organizations.name LIKE :search', params).orWhere(
+            'summary_roles.total_user LIKE :search',
+            params,
+          );
+        }),
+      );
+    }
+
+    return builder;
   }
 }

@@ -26,6 +26,11 @@ export class OrganizationController {
     return this.organizationService.findAll(findAllOrganizationDto);
   }
 
+  @MessagePattern('MS_ACCOUNT_FIND_ALL_COUNT_ORGANIZATION')
+  findAllCount(@Payload() findAllOrganizationDto: FindAllOrganizationDto) {
+    return this.organizationService.findAllCount(findAllOrganizationDto);
+  }
+
   @MessagePattern('MS_ACCOUNT_FIND_ONE_ORGANIZATION')
   findOne(@Payload() findOneOrganizationDto: FindOneOrganizationDto) {
     return this.organizationService.findOne(findOneOrganizationDto);

@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, In, IsNull, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
+import {
+  buildFindAllQueryBuilder,
+  buildFindOneQueryBuilder,
+  buildFindOneQueryOption,
+} from 'vnest-core';
 import {
   CreateUserDto,
   DeleteUserDto,
@@ -13,8 +17,6 @@ import {
   UpdateUserDto,
 } from '../../application/dtos/user.dto';
 import { RpcException } from '@nestjs/microservices';
-import { FindAllRoleDto } from '../../application/dtos/role.dto';
-import { Role } from '../entities/role.entity';
 
 @Injectable()
 export class UserService {
@@ -24,109 +26,36 @@ export class UserService {
   ) {}
 
   async findAll(options: FindAllUserDto): Promise<User[]> {
-    const { search } = options;
-    const queryBuilder = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+    const qb = this.userRepository.createQueryBuilder('users');
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
-
-    if (search) {
-      const whereClause = queryBuilder.where;
-      queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key) => {
-          qb.where({ [key]: whereClause[key] });
-        });
-
-        qb.andWhere(
-          new Brackets((qb) => {
-            const params = { search: `%${search}%` };
-            qb.where('name LIKE :search', params).orWhere(
-              'email LIKE :search',
-              params,
-            );
-          }),
-        );
-      });
-    }
-
-    return await this.userRepository.find(queryBuilder);
-  }
-
-  async findAllCount(options: FindAllRoleDto): Promise<number> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.userRepository
-      .createQueryBuilder('users')
-      .where(where)
-      .cache(cache)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('users.name LIKE :search', params).orWhere(
-            'users.LIKE LIKE :search',
-            params,
-          );
-        }),
-      );
-    }
-
-    return builder.getCount();
-  }
-
-  async findAllBuilder(options: FindAllRoleDto): Promise<Role[]> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, order, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.userRepository
-      .createQueryBuilder('users')
-      .select('users.*')
-      .where(where)
-      .cache(cache)
-      .orderBy(order)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('users.name LIKE :search', params).orWhere(
-            'users.LIKE LIKE :search',
-            params,
-          );
-        }),
-      );
-    }
 
     return builder.execute();
   }
 
-  async findOne(options: FindOneUserDto): Promise<User> {
-    const queryBuilder = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+  async findAllCount(options: FindAllUserDto): Promise<number> {
+    const qb = this.userRepository.createQueryBuilder('users');
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
 
-    return await this.userRepository.findOne(queryBuilder);
+    return builder.getCount();
+  }
+
+  async findOne(options: FindOneUserDto): Promise<User> {
+    const qb = this.userRepository.createQueryBuilder('users');
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindOneQueryBuilder(qb, options), options),
+      options,
+    );
+
+    return builder.execute();
   }
 
   async findOneBypassOrganization(
@@ -238,20 +167,41 @@ export class UserService {
     return users.length;
   }
 
-  protected buildFindQuery(
-    queryBuilder,
-    options: FindOneUserDto | FindAllUserDto,
-  ) {
-    Object.assign(queryBuilder.where, {
-      organization_id: options.organization_id || IsNull(),
-    });
+  protected makeFilter(builder: any, options: FindOneUserDto | FindAllUserDto) {
+    const { organization_id: organizationId, role_id: roleId } = options;
 
-    if (options.role_id !== undefined) {
-      Object.assign(queryBuilder.where, {
-        role_id: options.role_id,
-      });
+    builder.where(
+      new Brackets((qb) => {
+        qb.where('users.organization_id = :organizationId', {
+          organizationId,
+        }).orWhere('users.organization_id IS NULL');
+      }),
+    );
+
+    if (roleId !== undefined) {
+      builder.where(
+        new Brackets((qb) => {
+          qb.where('users.role_id = :roleId', { roleId });
+        }),
+      );
     }
 
-    return queryBuilder;
+    return builder;
+  }
+
+  protected makeSearchable(builder: any, { search }: FindAllUserDto) {
+    if (search) {
+      const params = { search: `%${search}%` };
+      builder.where(
+        new Brackets((qb) => {
+          qb.where('users.name LIKE :search', params).orWhere(
+            'users.email LIKE :search',
+            params,
+          );
+        }),
+      );
+    }
+
+    return builder;
   }
 }

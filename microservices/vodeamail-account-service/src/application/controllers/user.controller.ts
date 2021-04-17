@@ -27,6 +27,11 @@ export class UserController {
     return this.userService.findAll(findAllUserDto);
   }
 
+  @MessagePattern('MS_ACCOUNT_FIND_ALL_COUNT_USER')
+  findAllCount(@Payload() findAllUserDto: FindAllUserDto) {
+    return this.userService.findAllCount(findAllUserDto);
+  }
+
   @MessagePattern('MS_ACCOUNT_FIND_ONE_USER')
   findOne(@Payload() findOneUserDto: FindOneUserDto) {
     return this.userService.findOne(findOneUserDto);

@@ -40,12 +40,7 @@ export class GroupController {
     });
 
     const data = await this.redisClient
-      .send(
-        payload.using === 'builder'
-          ? 'MS_AUDIENCE_FIND_ALL_BUILDER_GROUP'
-          : 'MS_AUDIENCE_FIND_ALL_GROUP',
-        payload,
-      )
+      .send('MS_AUDIENCE_FIND_ALL_GROUP', payload)
       .toPromise()
       .catch(clientProxyException);
 

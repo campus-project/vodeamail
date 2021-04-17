@@ -41,12 +41,7 @@ export class EmailCampaignController {
     });
 
     const data = await this.redisClient
-      .send(
-        payload.using === 'builder'
-          ? 'MS_CAMPAIGN_FIND_ALL_BUILDER_EMAIL_CAMPAIGN'
-          : 'MS_CAMPAIGN_FIND_ALL_EMAIL_CAMPAIGN',
-        payload,
-      )
+      .send('MS_CAMPAIGN_FIND_ALL_EMAIL_CAMPAIGN', payload)
       .toPromise()
       .catch(clientProxyException);
 

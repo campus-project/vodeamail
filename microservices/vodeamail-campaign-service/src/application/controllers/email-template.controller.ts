@@ -31,11 +31,6 @@ export class EmailTemplateController {
     return this.emailTemplate.findAllCount(findAllEmailTemplateDto);
   }
 
-  @MessagePattern('MS_CAMPAIGN_FIND_ALL_BUILDER_EMAIL_TEMPLATE')
-  findAllBuilder(@Payload() findAllEmailTemplateDto: FindAllEmailTemplateDto) {
-    return this.emailTemplate.findAllBuilder(findAllEmailTemplateDto);
-  }
-
   @MessagePattern('MS_CAMPAIGN_FIND_ONE_EMAIL_TEMPLATE')
   findOne(@Payload() findOneEmailTemplateDto: FindOneEmailTemplateDto) {
     return this.emailTemplate.findOne(findOneEmailTemplateDto);

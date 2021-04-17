@@ -31,11 +31,6 @@ export class GroupController {
     return this.groupService.findAllCount(findAllGroupDto);
   }
 
-  @MessagePattern('MS_AUDIENCE_FIND_ALL_BUILDER_GROUP')
-  findAllBuilder(@Payload() findAllGroupDto: FindAllGroupDto) {
-    return this.groupService.findAllBuilder(findAllGroupDto);
-  }
-
   @MessagePattern('MS_AUDIENCE_FIND_ONE_GROUP')
   findOne(@Payload() findOneGroupDto: FindOneGroupDto) {
     return this.groupService.findOne(findOneGroupDto);

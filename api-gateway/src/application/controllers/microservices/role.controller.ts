@@ -40,12 +40,7 @@ export class RoleController {
     });
 
     const data = await this.redisClient
-      .send(
-        payload.using === 'builder'
-          ? 'MS_ACCOUNT_FIND_ALL_BUILDER_ROLE'
-          : 'MS_ACCOUNT_FIND_ALL_ROLE',
-        payload,
-      )
+      .send('MS_ACCOUNT_FIND_ALL_ROLE', payload)
       .toPromise()
       .catch(clientProxyException);
 

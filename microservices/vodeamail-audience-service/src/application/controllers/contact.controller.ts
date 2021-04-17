@@ -31,11 +31,6 @@ export class ContactController {
     return this.contactService.findAllCount(findAllContactDto);
   }
 
-  @MessagePattern('MS_AUDIENCE_FIND_ALL_BUILDER_CONTACT')
-  findAllBuilder(@Payload() findAllContactDto: FindAllContactDto) {
-    return this.contactService.findAllBuilder(findAllContactDto);
-  }
-
   @MessagePattern('MS_AUDIENCE_FIND_ONE_CONTACT')
   findOne(@Payload() findOneContactDto: FindOneContactDto) {
     return this.contactService.findOne(findOneContactDto);
