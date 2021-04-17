@@ -13,8 +13,7 @@ import { ViewColumn, ViewEntity } from 'typeorm';
         contact_groups.group_id, 
         COUNT( DISTINCT contact_groups.contact_id ) AS total_contact 
       FROM
-        contact_groups 
-        JOIN contacts ON contacts.id = contact_groups.contact_id AND contacts.deleted_at IS NULL
+        contact_groups
       GROUP BY 
         contact_groups.group_id 
     ) contact_groups ON contact_groups.group_id = groups.id`,

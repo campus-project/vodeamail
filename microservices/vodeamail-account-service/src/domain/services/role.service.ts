@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, In, Not, Repository } from 'typeorm';
-import { Role } from '../entities/role.entity';
+import { Brackets, In, Not, Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { buildFindAllQueryBuilder, buildFindOneQueryBuilder } from 'vnest-core';
+import { buildFindAllQueryBuilder } from 'vnest-core';
+import { RpcException } from '@nestjs/microservices';
+import * as _ from 'lodash';
+
 import {
   CreateRoleDto,
   DeleteRoleDto,
@@ -11,18 +13,27 @@ import {
   FindOneRoleDto,
   UpdateRoleDto,
 } from '../../application/dtos/role.dto';
-import { RpcException } from '@nestjs/microservices';
+import { Role } from '../entities/role.entity';
+import { Organization } from '../entities/organization.entity';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class RoleService {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async findAll(options: FindAllRoleDto): Promise<Role[]> {
+    const { relations } = options;
     const qb = this.roleRepository
-      .createQueryBuilder('organizations')
+      .createQueryBuilder('roles')
+      .select('roles.*')
+      .addSelect('summary_roles.total_user', 'total_user')
       .leftJoin(
         'summary_roles',
         'summary_roles',
@@ -34,27 +45,59 @@ export class RoleService {
       options,
     );
 
-    return builder.execute();
+    let data = await builder.execute();
+
+    //relations
+    if (relations !== undefined && relations.length) {
+      const roleIds = [];
+      const organizationIds = [];
+
+      const relationValues = {
+        organizations: undefined,
+        users: undefined,
+      };
+
+      data.forEach((role) => {
+        roleIds.push(role.id);
+        organizationIds.push(role.organization_id);
+      });
+
+      //organization
+      if (relations.indexOf('organization') !== -1) {
+        relationValues.organizations = await this.organizationRepository.find({
+          id: In([...new Set(organizationIds)]),
+        });
+      }
+
+      //users
+      if (relations.indexOf('users') !== -1) {
+        relationValues.users = await this.userRepository.find({
+          role_id: In([...new Set(roleIds)]),
+        });
+      }
+
+      data = data.map((role) => {
+        if (relationValues.organizations !== undefined) {
+          role.organization =
+            relationValues.organizations.find(
+              (organization) => organization.id === role.organization_id,
+            ) || null;
+        }
+
+        if (relationValues.users !== undefined) {
+          role.users =
+            relationValues.users.filter((user) => user.role_id === role.id) ||
+            [];
+        }
+
+        return role;
+      });
+    }
+
+    return data;
   }
 
   async findAllCount(options: FindAllRoleDto): Promise<number> {
-    const qb = this.roleRepository
-      .createQueryBuilder('organizations')
-      .leftJoin(
-        'summary_roles',
-        'summary_roles',
-        '(summary_roles.role_id = roles.id)',
-      );
-
-    const builder = this.makeSearchable(
-      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
-      options,
-    );
-
-    return builder.getCount();
-  }
-
-  async findOne(options: FindOneRoleDto): Promise<Role> {
     const qb = this.roleRepository
       .createQueryBuilder('roles')
       .leftJoin(
@@ -64,11 +107,17 @@ export class RoleService {
       );
 
     const builder = this.makeSearchable(
-      this.makeFilter(buildFindOneQueryBuilder(qb, options), options),
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
 
-    return builder.execute();
+    return await builder.getCount();
+  }
+
+  async findOne(options: FindOneRoleDto): Promise<Role> {
+    const data = await this.findAll(options);
+
+    return _.head(data);
   }
 
   @Transactional()
@@ -115,7 +164,10 @@ export class RoleService {
       actor_id: updated_by,
     } = updateRoleDto;
 
-    const role = await this.findOne({ id, organization_id });
+    const role = await this.roleRepository.findOne({
+      where: { id, organization_id },
+    });
+
     if (!role) {
       throw new RpcException(`Count not find resource ${id}`);
     }
@@ -200,14 +252,17 @@ export class RoleService {
     }
   }
 
-  protected makeFilter(builder: any, options: FindOneRoleDto | FindAllRoleDto) {
+  protected makeFilter(
+    builder: SelectQueryBuilder<Role>,
+    options: FindOneRoleDto | FindAllRoleDto,
+  ) {
     const {
       organization_id: organizationId,
       is_special: isSpecial,
       is_default: isDefault,
     } = options;
 
-    builder.where(
+    builder.andWhere(
       new Brackets((qb) => {
         qb.where('roles.organization_id = :organizationId', {
           organizationId,
@@ -216,7 +271,7 @@ export class RoleService {
     );
 
     if (isSpecial !== undefined) {
-      builder.where(
+      builder.andWhere(
         new Brackets((qb) => {
           qb.where('roles.is_special = :isSpecial', { isSpecial });
         }),
@@ -224,7 +279,7 @@ export class RoleService {
     }
 
     if (isDefault !== undefined) {
-      builder.where(
+      builder.andWhere(
         new Brackets((qb) => {
           qb.where('roles.is_default = :isDefault', { isDefault });
         }),
@@ -234,12 +289,15 @@ export class RoleService {
     return builder;
   }
 
-  protected makeSearchable(builder: any, { search }: FindAllRoleDto) {
+  protected makeSearchable(
+    builder: SelectQueryBuilder<Role>,
+    { search }: FindAllRoleDto,
+  ) {
     if (search) {
       const params = { search: `%${search}%` };
-      builder.where(
+      builder.andWhere(
         new Brackets((qb) => {
-          qb.where('organizations.name LIKE :search', params).orWhere(
+          qb.where('roles.name LIKE :search', params).orWhere(
             'summary_roles.total_user LIKE :search',
             params,
           );

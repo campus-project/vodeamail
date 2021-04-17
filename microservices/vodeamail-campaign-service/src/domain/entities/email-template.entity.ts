@@ -53,7 +53,4 @@ export class EmailTemplate {
 
   @OneToMany(() => EmailCampaign, (object) => object.email_template)
   email_campaigns: EmailCampaign[];
-
-  @OneToMany(() => EmailCampaignAudience, (object) => object.email_template)
-  email_campaign_audiences: EmailCampaignAudience[];
 }

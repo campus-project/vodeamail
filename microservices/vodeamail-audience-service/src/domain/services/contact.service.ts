@@ -1,9 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
-import { Contact } from '../entities/contact.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { buildFindAllQueryBuilder, buildFindOneQueryBuilder } from 'vnest-core';
+import { buildFindAllQueryBuilder } from 'vnest-core';
+import { RpcException } from '@nestjs/microservices';
+import * as _ from 'lodash';
+
 import {
   CreateContactDto,
   DeleteContactDto,
@@ -11,13 +13,10 @@ import {
   FindOneContactDto,
   UpdateContactDto,
 } from '../../application/dtos/contact.dto';
-import { RpcException } from '@nestjs/microservices';
-import { GroupService } from './group.service';
+import { Contact } from '../entities/contact.entity';
+import { Group } from '../entities/group.entity';
 import { FindAllGroupDto } from '../../application/dtos/group.dto';
 import { ContactGroup } from '../entities/contact-group.entity';
-
-export const existsQuery = <T>(builder: SelectQueryBuilder<T>) =>
-  `exists (${builder.getQuery()})`;
 
 @Injectable()
 export class ContactService {
@@ -26,13 +25,16 @@ export class ContactService {
     private readonly contactRepository: Repository<Contact>,
     @InjectRepository(ContactGroup)
     private readonly contactGroupRepository: Repository<ContactGroup>,
-    @Inject('AUDIENCE_GROUP_SERVICE')
-    private readonly groupService: GroupService,
+    @InjectRepository(Group)
+    private readonly groupRepository: Repository<Group>,
   ) {}
 
   async findAll(options: FindAllContactDto): Promise<Contact[]> {
+    const { relations } = options;
     const qb = this.contactRepository
       .createQueryBuilder('contacts')
+      .select('contacts.*')
+      .addSelect('summary_contacts.total_group', 'total_group')
       .leftJoin(
         'summary_contacts',
         'summary_contacts',
@@ -44,7 +46,45 @@ export class ContactService {
       options,
     );
 
-    return builder.execute();
+    let data = await builder.execute();
+
+    //relations
+    if (relations !== undefined && relations.length) {
+      const contactIds = [];
+
+      const relationValues = {
+        contactGroups: undefined,
+      };
+
+      data.forEach((contact) => {
+        contactIds.push(contact.id);
+      });
+
+      //groups
+      if (relations.indexOf('groups') !== -1) {
+        relationValues.contactGroups = await this.contactGroupRepository.find({
+          where: { contact_id: In([...new Set(contactIds)]) },
+          relations: ['group'],
+        });
+      }
+
+      data = data.map((contact) => {
+        if (relationValues.contactGroups !== undefined) {
+          const groups = [];
+          relationValues.contactGroups.forEach((contactGroup) => {
+            if (contactGroup.contact_id === contact.id) {
+              groups.push(contactGroup.group);
+            }
+          });
+
+          contact.groups = groups;
+        }
+
+        return contact;
+      });
+    }
+
+    return data;
   }
 
   async findAllCount(options: FindAllGroupDto): Promise<number> {
@@ -61,18 +101,13 @@ export class ContactService {
       options,
     );
 
-    return builder.getCount();
+    return await builder.getCount();
   }
 
   async findOne(options: FindOneContactDto): Promise<Contact> {
-    const qb = this.contactRepository.createQueryBuilder('contacts');
+    const data = await this.findAll(options);
 
-    const builder = this.makeSearchable(
-      this.makeFilter(buildFindOneQueryBuilder(qb, options), options),
-      options,
-    );
-
-    return builder.execute();
+    return _.head(data);
   }
 
   @Transactional()
@@ -93,19 +128,12 @@ export class ContactService {
       actor_id: created_by,
     } = createContactDto;
 
-    const groups = await this.groupService.findAll({
-      ids: group_ids,
-      organization_id,
+    const groups = await this.groupRepository.find({
+      where: {
+        id: In([...new Set(group_ids)]),
+        organization_id,
+      },
     });
-
-    const contactGroups = [];
-    for (const group of groups) {
-      contactGroups.push(
-        this.contactGroupRepository.create({
-          group_id: group.id,
-        }),
-      );
-    }
 
     const contact = await this.contactRepository.save(
       this.contactRepository.create({
@@ -120,7 +148,7 @@ export class ContactService {
         province,
         city,
         postal_code,
-        contact_groups: contactGroups,
+        groups,
         created_by,
         updated_by: created_by,
       }),
@@ -150,24 +178,20 @@ export class ContactService {
       actor_id: updated_by,
     } = updateContactDto;
 
-    const contact = await this.findOne({ id, organization_id });
+    const contact = await this.contactRepository.findOne({
+      where: { id, organization_id },
+    });
+
     if (!contact) {
       throw new RpcException(`Could not find resource ${id}.`);
     }
 
-    const groups = await this.groupService.findAll({
-      ids: group_ids,
-      organization_id,
+    const groups = await this.groupRepository.find({
+      where: {
+        id: In([...new Set(group_ids)]),
+        organization_id,
+      },
     });
-
-    const contactGroups = [];
-    for (const group of groups) {
-      contactGroups.push(
-        this.contactGroupRepository.create({
-          group_id: group.id,
-        }),
-      );
-    }
 
     Object.assign(contact, {
       organization_id,
@@ -180,7 +204,7 @@ export class ContactService {
       province,
       city,
       postal_code,
-      contact_groups: contactGroups,
+      groups,
       updated_by,
     });
 
@@ -233,7 +257,7 @@ export class ContactService {
   }
 
   protected makeFilter(
-    builder: any,
+    builder: SelectQueryBuilder<Contact>,
     options: FindOneContactDto | FindAllContactDto,
   ) {
     const {
@@ -243,7 +267,7 @@ export class ContactService {
       group_ids: groupIds,
     } = options;
 
-    builder.where(
+    builder.andWhere(
       new Brackets((qb) => {
         qb.where('contacts.organization_id = :organizationId', {
           organizationId,
@@ -265,25 +289,29 @@ export class ContactService {
     }
 
     if (filterGroupIds.length) {
-      builder.where(
-        existsQuery(
-          this.contactGroupRepository
-            .createQueryBuilder('contact_groups')
-            .where('contact_groups.contact_id = contacts.id')
-            .where({
-              group_id: In(filterGroupIds),
-            }),
-        ),
+      const queryExists = this.contactGroupRepository
+        .createQueryBuilder('contact_groups')
+        .where('contact_groups.contact_id = contacts.id')
+        .andWhere('contact_groups.group_id IN (:...filterGroupIds)', {
+          filterGroupIds,
+        });
+
+      builder.andWhere(
+        `EXISTS (${queryExists.getQuery()})`,
+        queryExists.getParameters(),
       );
     }
 
     return builder;
   }
 
-  protected makeSearchable(builder: any, { search }: FindAllContactDto) {
+  protected makeSearchable(
+    builder: SelectQueryBuilder<Contact>,
+    { search }: FindAllContactDto,
+  ) {
     if (search) {
       const params = { search: `%${search}%` };
-      builder.where(
+      builder.andWhere(
         new Brackets((qb) => {
           qb.where('contacts.email LIKE :search', params)
             .orWhere('contacts.name LIKE :search', params)

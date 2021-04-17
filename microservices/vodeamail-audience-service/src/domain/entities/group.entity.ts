@@ -3,11 +3,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ContactGroup } from './contact-group.entity';
+import { Contact } from './contact.entity';
 
 @Entity('groups')
 export class Group {
@@ -46,4 +49,7 @@ export class Group {
 
   @OneToMany(() => ContactGroup, (object) => object.group)
   contact_groups: ContactGroup[];
+
+  @ManyToMany(() => Contact, (object) => object.groups)
+  contacts: Contact[];
 }

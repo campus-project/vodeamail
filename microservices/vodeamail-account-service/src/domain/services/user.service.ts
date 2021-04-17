@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, In, Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
+import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import {
-  buildFindAllQueryBuilder,
-  buildFindOneQueryBuilder,
-  buildFindOneQueryOption,
-} from 'vnest-core';
+import { buildFindAllQueryBuilder, buildFindOneQueryOption } from 'vnest-core';
+import { RpcException } from '@nestjs/microservices';
+import * as _ from 'lodash';
+
 import {
   CreateUserDto,
   DeleteUserDto,
@@ -16,24 +14,81 @@ import {
   FindOneUserDto,
   UpdateUserDto,
 } from '../../application/dtos/user.dto';
-import { RpcException } from '@nestjs/microservices';
+import { User } from '../entities/user.entity';
+import { Role } from '../entities/role.entity';
+import { Organization } from '../entities/organization.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
   ) {}
 
   async findAll(options: FindAllUserDto): Promise<User[]> {
-    const qb = this.userRepository.createQueryBuilder('users');
+    const { relations } = options;
+    const qb = this.userRepository
+      .createQueryBuilder('users')
+      .select('users.*');
 
     const builder = this.makeSearchable(
       this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
 
-    return builder.execute();
+    let data = await builder.execute();
+
+    //relations
+    if (relations !== undefined && relations.length) {
+      const roleIds = [];
+      const organizationIds = [];
+
+      const relationValues = {
+        roles: undefined,
+        organizations: undefined,
+      };
+
+      data.forEach((user) => {
+        roleIds.push(user.role_id);
+        organizationIds.push(user.organization_id);
+      });
+
+      //organization
+      if (relations.indexOf('organization') !== -1) {
+        relationValues.organizations = await this.organizationRepository.find({
+          id: In([...new Set(organizationIds)]),
+        });
+      }
+
+      //role
+      if (relations.indexOf('role') !== -1) {
+        relationValues.roles = await this.roleRepository.find({
+          id: In([...new Set(roleIds)]),
+        });
+      }
+
+      data = data.map((user) => {
+        if (relationValues.organizations !== undefined) {
+          user.organization = relationValues.organizations.find(
+            (organization) => organization.id === user.organization_id,
+          );
+        }
+
+        if (relationValues.roles !== undefined) {
+          user.role = relationValues.roles.find(
+            (role) => role.id === user.role_id,
+          );
+        }
+
+        return user;
+      });
+    }
+
+    return data;
   }
 
   async findAllCount(options: FindAllUserDto): Promise<number> {
@@ -44,18 +99,13 @@ export class UserService {
       options,
     );
 
-    return builder.getCount();
+    return await builder.getCount();
   }
 
   async findOne(options: FindOneUserDto): Promise<User> {
-    const qb = this.userRepository.createQueryBuilder('users');
+    const data = await this.findAll(options);
 
-    const builder = this.makeSearchable(
-      this.makeFilter(buildFindOneQueryBuilder(qb, options), options),
-      options,
-    );
-
-    return builder.execute();
+    return _.head(data);
   }
 
   async findOneBypassOrganization(
@@ -112,7 +162,10 @@ export class UserService {
       actor_id: updated_by,
     } = updateUserDto;
 
-    const user = await this.findOne({ id, organization_id });
+    const user = await this.userRepository.findOne({
+      where: { id, organization_id },
+    });
+
     if (!user) {
       throw new RpcException(`Count not find resource ${id}`);
     }
@@ -167,10 +220,13 @@ export class UserService {
     return users.length;
   }
 
-  protected makeFilter(builder: any, options: FindOneUserDto | FindAllUserDto) {
+  protected makeFilter(
+    builder: SelectQueryBuilder<User>,
+    options: FindOneUserDto | FindAllUserDto,
+  ) {
     const { organization_id: organizationId, role_id: roleId } = options;
 
-    builder.where(
+    builder.andWhere(
       new Brackets((qb) => {
         qb.where('users.organization_id = :organizationId', {
           organizationId,
@@ -179,7 +235,7 @@ export class UserService {
     );
 
     if (roleId !== undefined) {
-      builder.where(
+      builder.andWhere(
         new Brackets((qb) => {
           qb.where('users.role_id = :roleId', { roleId });
         }),
@@ -189,10 +245,13 @@ export class UserService {
     return builder;
   }
 
-  protected makeSearchable(builder: any, { search }: FindAllUserDto) {
+  protected makeSearchable(
+    builder: SelectQueryBuilder<User>,
+    { search }: FindAllUserDto,
+  ) {
     if (search) {
       const params = { search: `%${search}%` };
-      builder.where(
+      builder.andWhere(
         new Brackets((qb) => {
           qb.where('users.name LIKE :search', params).orWhere(
             'users.email LIKE :search',

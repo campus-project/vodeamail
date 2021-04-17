@@ -113,7 +113,13 @@ const FormPreview: React.FC<FormPreviewProps> = (props) => {
                     {t("pages:email_campaign:field.schedule")}
                   </Typography>
                   <Typography variant={"subtitle2"}>
-                    <DateTime data={data.sent_at || ""} />
+                    {data.is_directly_scheduled ? (
+                      <Typography variant={"subtitle2"}>
+                        {t("pages:email_campaign.text.send_directly")}
+                      </Typography>
+                    ) : (
+                      <DateTime data={data.sent_at || ""} />
+                    )}
                   </Typography>
                 </Grid>
 

@@ -17,12 +17,30 @@ export class FindAllGroupDto extends FindAllWithOrganizationDto {
   @IsOptional()
   @IsBoolean()
   is_visible?: boolean;
+
+  @IsOptional()
+  @IsUUID('4')
+  contact_id?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  contact_ids?: string[];
 }
 
 export class FindOneGroupDto extends FindOneWithOrganizationDto {
   @IsOptional()
   @IsBoolean()
   is_visible?: boolean;
+
+  @IsOptional()
+  @IsUUID('4')
+  contact_id?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  contact_ids?: string[];
 }
 
 export class CreateGroupDto extends ActorOrganizationDto {

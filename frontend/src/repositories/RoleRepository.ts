@@ -2,7 +2,7 @@ import { api, createCancelTokenHandler } from "../utilities/services";
 
 const endPoint = () => process.env.REACT_APP_GATEWAY_ENDPOINT;
 
-const CampaignEmailRepository = {
+const Role = {
   all: function (params: any = null) {
     return api.get(`${endPoint()}/role`, {
       params,
@@ -45,8 +45,6 @@ const CampaignEmailRepository = {
   },
 };
 
-export default CampaignEmailRepository;
+export default Role;
 
-const cancelTokenHandlerObject = createCancelTokenHandler(
-  CampaignEmailRepository
-);
+const cancelTokenHandlerObject = createCancelTokenHandler(Role);

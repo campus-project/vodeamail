@@ -260,7 +260,7 @@ const CampaignForm: React.FC<any> = () => {
           <Box style={step === 2 ? {} : { display: "none" }}>
             <FormPreview
               data={data}
-              onPrevious={() => setStep(0)}
+              onPrevious={() => setStep(1)}
               onNext={onSubmitPreview}
               loading={loading}
             />

@@ -6,6 +6,7 @@ import { ConfigServiceAbstract } from 'vnest-core';
 import { Organization } from '../../domain/entities/organization.entity';
 import { Role } from '../../domain/entities/role.entity';
 import { User } from '../../domain/entities/user.entity';
+import { SummaryRoleView } from '../../domain/views/summary-role.view';
 
 @Injectable()
 export class ConfigService extends ConfigServiceAbstract {
@@ -45,7 +46,7 @@ export class ConfigService extends ConfigServiceAbstract {
       dropSchema: false,
       logging: false,
       namingStrategy: new SnakeNamingStrategy(),
-      entities: [Organization, Role, User],
+      entities: [Organization, Role, User, SummaryRoleView],
       migrations: ['src/infrastructure/database/migrations/**/*.{ts,js}'],
       cli: {
         entitiesDir: 'src',

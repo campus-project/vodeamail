@@ -1,20 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Brackets, In, IsNull, Repository } from 'typeorm';
-import { EmailCampaign } from '../entities/email-campaign.entity';
+import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
+import { buildFindAllQueryBuilder } from 'vnest-core';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import * as _ from 'lodash';
+
 import {
   CreateEmailCampaignDto,
   DeleteEmailCampaignDto,
-  EmailCampaignGroupSyncDto,
   FindAllEmailCampaignDto,
   FindOneEmailCampaignDto,
   UpdateEmailCampaignDto,
 } from '../../application/dtos/email-campaign.dto';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { EmailCampaign } from '../entities/email-campaign.entity';
 import { EmailCampaignGroup } from '../entities/email-campaign-group.entity';
-import * as moment from 'moment';
+import { EmailCampaignAudience } from '../entities/email-campaign-audience.entity';
+import { EmailTemplate } from '../entities/email-template.entity';
 
 @Injectable()
 export class EmailCampaignService {
@@ -23,204 +25,149 @@ export class EmailCampaignService {
     private readonly emailCampaignRepository: Repository<EmailCampaign>,
     @InjectRepository(EmailCampaignGroup)
     private readonly emailCampaignGroupRepository: Repository<EmailCampaignGroup>,
+    @InjectRepository(EmailCampaignAudience)
+    private readonly emailCampaignAudienceRepository: Repository<EmailCampaignAudience>,
+    @InjectRepository(EmailTemplate)
+    private readonly emailTemplateRepository: Repository<EmailTemplate>,
     @Inject('REDIS_TRANSPORT')
     private readonly redisClient: ClientProxy,
   ) {}
 
   async findAll(options: FindAllEmailCampaignDto): Promise<EmailCampaign[]> {
-    const { search, status } = options;
-    const queryBuilder = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+    const { relations } = options;
+    const qb = this.emailCampaignRepository
+      .createQueryBuilder('email_campaigns')
+      .select('email_campaigns.*')
+      .addSelect('summary_email_campaigns.total_group', 'total_group')
+      .addSelect('summary_email_campaigns.total_audience', 'total_audience')
+      .leftJoin(
+        'summary_email_campaigns',
+        'summary_email_campaigns',
+        '(summary_email_campaigns.email_campaign_id = email_campaigns.id)',
+      );
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
 
-    const relationGroupIndex = queryBuilder.relations.indexOf('groups');
-    if (relationGroupIndex !== -1) {
-      queryBuilder.relations.splice(relationGroupIndex, 1);
-      queryBuilder.relations.push('email_campaign_groups');
-    }
+    let data = await builder.execute();
 
-    if (status !== undefined) {
-      Object.assign(queryBuilder.where, {
-        status,
+    //relations
+    if (relations !== undefined && relations.length) {
+      const emailCampaignIds = [];
+      const emailTemplateIds = [];
+
+      const relationValues = {
+        groups: undefined,
+        emailTemplates: undefined,
+      };
+
+      data.forEach((emailCampaign) => {
+        emailCampaignIds.push(emailCampaign.id);
+        emailTemplateIds.push(emailCampaign.email_template_id);
       });
-    }
 
-    if (search) {
-      const whereClause = queryBuilder.where;
-      queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key) => {
-          qb.where({ [key]: whereClause[key] });
-        });
+      const mapEmailCampaignGroups = {};
 
-        qb.andWhere(
-          new Brackets((qb) => {
-            const params = { search: `%${search}%` };
-            qb.where('name LIKE :search', params)
-              .orWhere('subject LIKE :search', params)
-              .orWhere('from LIKE :search', params)
-              .orWhere('email_from LIKE :search', params);
-          }),
+      //email template
+      if (relations.indexOf('email_template') !== -1) {
+        relationValues.emailTemplates = await this.emailTemplateRepository.find(
+          {
+            where: { id: In([...new Set(emailTemplateIds)]) },
+          },
         );
-      });
-    }
+      }
 
-    const emailCampaigns = await this.emailCampaignRepository.find(
-      queryBuilder,
-    );
-
-    //insert groups
-    if (relationGroupIndex !== -1) {
-      const mapEmailCampaignGroups: any = {};
-      const emailCampaignGroups = emailCampaigns.map((emailCampaign) => {
-        const temp = emailCampaign.email_campaign_groups.map((a) => a.group_id);
-        mapEmailCampaignGroups[emailCampaign.id] = temp;
-
-        return temp;
-      });
-
-      const groupIds = Array.prototype.concat.apply([], emailCampaignGroups);
-      const allGroups = await this.redisClient
-        .send('MS_AUDIENCE_FIND_ALL_GROUP', {
-          ids: groupIds,
-          organization_id: options.organization_id,
-        })
-        .toPromise();
-
-      emailCampaigns.map((emailCampaign) => {
-        const mapEmailCampaignGroup = mapEmailCampaignGroups[emailCampaign.id];
-        const groups = allGroups.filter((group) =>
-          mapEmailCampaignGroup.includes(group.id),
+      //groups
+      if (relations.indexOf('groups') !== -1) {
+        const emailCampaignGroups = await this.emailCampaignGroupRepository.find(
+          { where: { email_campaign_id: In(emailCampaignIds) } },
         );
 
-        Object.assign(emailCampaign, {
-          groups,
+        const groupIds = [];
+        emailCampaignGroups.forEach((emailCampaignGroup) => {
+          if (
+            typeof mapEmailCampaignGroups[
+              emailCampaignGroup.email_campaign_id
+            ] === 'undefined'
+          ) {
+            mapEmailCampaignGroups[emailCampaignGroup.email_campaign_id] = [];
+          }
+
+          mapEmailCampaignGroups[emailCampaignGroup.email_campaign_id].push(
+            emailCampaignGroup.group_id,
+          );
+
+          groupIds.push(emailCampaignGroup.group_id);
         });
+
+        relationValues.groups = await this.redisClient
+          .send('MS_AUDIENCE_FIND_ALL_GROUP', {
+            ids: groupIds,
+            organization_id: options.organization_id,
+          })
+          .toPromise();
+      }
+
+      data = data.map((emailCampaign) => {
+        if (relationValues.emailTemplates !== undefined) {
+          emailCampaign.email_template =
+            relationValues.emailTemplates.find(
+              (emailTemplate) =>
+                emailTemplate.id === emailCampaign.email_template_id,
+            ) || null;
+        }
+
+        if (relationValues.groups !== undefined) {
+          const groups = [];
+
+          if (typeof mapEmailCampaignGroups[emailCampaign.id] !== 'undefined') {
+            const listGroupIds = mapEmailCampaignGroups[emailCampaign.id];
+
+            if (Array.isArray(listGroupIds) && listGroupIds.length) {
+              relationValues.groups.forEach((group) => {
+                if (listGroupIds.includes(group.id)) {
+                  groups.push(group);
+                }
+              });
+            }
+          }
+
+          emailCampaign.groups = groups;
+        }
 
         return emailCampaign;
       });
     }
 
-    return emailCampaigns;
+    return data;
   }
 
   async findAllCount(options: FindAllEmailCampaignDto): Promise<number> {
-    const { search, with_deleted: withDeleted, status } = options;
-    const { where, cache, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.emailCampaignRepository
-      .createQueryBuilder('email_campaigns')
-      .where(where)
-      .cache(cache)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (status !== undefined && !isNaN(parseInt(String(status)))) {
-      builder.andWhere('email_campaigns.status = :status', { status });
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('email_campaigns.name LIKE :search', params)
-            .orWhere('email_campaigns.subject LIKE :search', params)
-            .orWhere('email_campaigns.from LIKE :search', params)
-            .orWhere('email_campaigns.email_from LIKE :search', params);
-
-          if (status === undefined) {
-            qb.orWhere('email_campaigns.status = :status', { status });
-          }
-        }),
-      );
-    }
-
-    return builder.getCount();
-  }
-
-  async findAllBuilder(
-    options: FindAllEmailCampaignDto,
-  ): Promise<EmailCampaign[]> {
-    const { search, with_deleted: withDeleted, status } = options;
-    const { where, cache, order, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.emailCampaignRepository
+    const qb = this.emailCampaignRepository
       .createQueryBuilder('email_campaigns')
       .select('email_campaigns.*')
-      .where(where)
-      .cache(cache)
-      .orderBy(order)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (status !== undefined && !isNaN(parseInt(String(status)))) {
-      builder.where('`email_campaigns`.`status` = ' + `"${status}"`);
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('email_campaigns.name LIKE :search', params)
-            .orWhere('email_campaigns.subject LIKE :search', params)
-            .orWhere('email_campaigns.from LIKE :search', params)
-            .orWhere('email_campaigns.email_from LIKE :search', params);
-
-          if (status === undefined) {
-            qb.orWhere('email_campaigns.status = :status', { status });
-          }
-        }),
+      .addSelect('summary_email_campaigns.total_group', 'total_group')
+      .addSelect('summary_email_campaigns.total_audience', 'total_audience')
+      .leftJoin(
+        'summary_email_campaigns',
+        'summary_email_campaigns',
+        '(summary_email_campaigns.email_campaign_id = email_campaigns.id)',
       );
-    }
 
-    return builder.execute();
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
+      options,
+    );
+
+    return await builder.getCount();
   }
 
   async findOne(options: FindOneEmailCampaignDto): Promise<EmailCampaign> {
-    const queryBuilder = this.buildFindQuery(
-      buildFindOneQueryOption({ options }),
-      options,
-    );
+    const data = await this.findAll(options);
 
-    const relationGroupIndex = queryBuilder.relations.indexOf('groups');
-    if (relationGroupIndex !== -1) {
-      queryBuilder.relations.splice(relationGroupIndex, 1);
-      queryBuilder.relations.push('email_campaign_groups');
-    }
-
-    const emailCampaign = await this.emailCampaignRepository.findOne(
-      queryBuilder,
-    );
-
-    //insert groups
-    if (relationGroupIndex !== -1) {
-      const groups = await this.redisClient
-        .send('MS_AUDIENCE_FIND_ALL_GROUP', {
-          ids: (emailCampaign.email_campaign_groups || []).map(
-            (a) => a.group_id,
-          ),
-          organization_id: options.organization_id,
-        })
-        .toPromise();
-
-      Object.assign(emailCampaign, { groups });
-    }
-
-    return emailCampaign;
+    return _.head(data);
   }
 
   @Transactional()
@@ -259,17 +206,45 @@ export class EmailCampaignService {
       }),
     );
 
-    await this.syncGroup({
-      email_campaign_id: emailCampaign.id,
-      group_ids,
-      organization_id,
-    });
+    if (group_ids.length) {
+      const groups = await this.redisClient
+        .send('MS_AUDIENCE_FIND_ALL_GROUP', {
+          ids: group_ids,
+          organization_id,
+        })
+        .toPromise();
 
-    await this.createEmailJobs({
-      email_campaign_id: emailCampaign.id,
-      group_ids,
-      organization_id,
-    });
+      for (const group of groups) {
+        await this.emailCampaignGroupRepository.save(
+          this.emailCampaignGroupRepository.create({
+            group_id: group.id,
+            email_campaign: emailCampaign,
+          }),
+        );
+      }
+
+      const organizationTags = await this.makeOrganizationTag(organization_id);
+
+      const contacts = await this.redisClient
+        .send('MS_AUDIENCE_FIND_ALL_CONTACT', {
+          group_ids,
+          organization_id,
+        })
+        .toPromise();
+
+      for (const contact of contacts) {
+        const contactTags = this.makeContactTag(contact, organizationTags);
+
+        await this.emailCampaignAudienceRepository.save(
+          this.emailCampaignAudienceRepository.create({
+            email: contact.email,
+            email_campaign: emailCampaign,
+            value_tags: JSON.stringify(contactTags),
+            html: this.tagReplace(email_template_html, contactTags),
+          }),
+        );
+      }
+    }
 
     return this.findOne({
       id: emailCampaign.id,
@@ -296,15 +271,18 @@ export class EmailCampaignService {
       actor_id: updated_by,
     } = updateEmailCampaignDto;
 
-    const emailCampaign = await this.findOne({
-      id,
-      organization_id,
-      relations: ['email_campaign_groups'],
+    const emailCampaign = await this.emailCampaignRepository.findOne({
+      where: { id, organization_id },
     });
 
     if (!emailCampaign) {
       throw new RpcException(`Could not find resource ${id}.`);
     }
+
+    await this.emailCampaignGroupRepository.delete({ email_campaign_id: id });
+    await this.emailCampaignAudienceRepository.delete({
+      email_campaign_id: id,
+    });
 
     Object.assign(emailCampaign, {
       organization_id,
@@ -321,17 +299,45 @@ export class EmailCampaignService {
 
     await this.emailCampaignRepository.save(emailCampaign);
 
-    await this.syncGroup({
-      email_campaign_id: emailCampaign.id,
-      group_ids,
-      organization_id,
-    });
+    if (group_ids.length) {
+      const groups = await this.redisClient
+        .send('MS_AUDIENCE_FIND_ALL_GROUP', {
+          ids: group_ids,
+          organization_id,
+        })
+        .toPromise();
 
-    await this.createEmailJobs({
-      email_campaign_id: emailCampaign.id,
-      group_ids,
-      organization_id,
-    });
+      for (const group of groups) {
+        await this.emailCampaignGroupRepository.save(
+          this.emailCampaignGroupRepository.create({
+            group_id: group.id,
+            email_campaign: emailCampaign,
+          }),
+        );
+      }
+
+      const organizationTags = await this.makeOrganizationTag(organization_id);
+
+      const contacts = await this.redisClient
+        .send('MS_AUDIENCE_FIND_ALL_CONTACT', {
+          group_ids,
+          organization_id,
+        })
+        .toPromise();
+
+      for (const contact of contacts) {
+        const contactTags = this.makeContactTag(contact, organizationTags);
+
+        await this.emailCampaignAudienceRepository.save(
+          this.emailCampaignAudienceRepository.create({
+            email: contact.email,
+            email_campaign: emailCampaign,
+            value_tags: JSON.stringify(contactTags),
+            html: this.tagReplace(email_template_html, contactTags),
+          }),
+        );
+      }
+    }
 
     return this.findOne({
       id: emailCampaign.id,
@@ -381,83 +387,110 @@ export class EmailCampaignService {
     return emailCampaigns.length;
   }
 
-  protected async syncGroup(
-    emailCampaignGroupSyncDto: EmailCampaignGroupSyncDto,
-  ) {
-    const {
-      email_campaign_id,
-      organization_id,
-      group_ids,
-    } = emailCampaignGroupSyncDto;
+  protected async makeOrganizationTag(organizationId: string) {
+    const organization = await this.redisClient
+      .send('MS_ACCOUNT_FIND_ONE_ORGANIZATION', {
+        id: organizationId,
+      })
+      .toPromise();
 
-    const emailCampaign = await this.findOne({
-      id: email_campaign_id,
-      organization_id,
-      relations: ['email_campaign_groups'],
-    });
-
-    if (!emailCampaign) {
-      throw new RpcException(`Could not find resource ${email_campaign_id}.`);
+    if (!organization) {
+      throw new RpcException(`Could not find organization ${organizationId}.`);
     }
 
-    const existsGroupIds = [];
-    for (const emailCampaignGroup of emailCampaign.email_campaign_groups) {
-      if (group_ids.includes(emailCampaignGroup.id)) {
-        existsGroupIds.push(emailCampaignGroup.id);
-      } else {
-        await this.emailCampaignGroupRepository.delete(emailCampaignGroup);
-      }
-    }
-
-    for (const group_id of group_ids) {
-      if (!existsGroupIds.includes(group_id)) {
-        await this.emailCampaignGroupRepository.save(
-          this.emailCampaignGroupRepository.create({
-            email_campaign_id,
-            group_id: group_id,
-          }),
-        );
-      }
-    }
+    return {
+      org_name: organization.name,
+      org_address: organization.address,
+      org_telephone: organization.telephone,
+      org_fax: organization.fax,
+    };
   }
 
-  protected async createEmailJobs(
-    emailCampaignGroupSyncDto: EmailCampaignGroupSyncDto,
-  ) {
-    const {
-      email_campaign_id,
-      organization_id,
-      group_ids,
-    } = emailCampaignGroupSyncDto;
+  protected makeContactTag(contact, organizationTags) {
+    const contactTags = {
+      email: contact.email,
+      name: contact.name,
+      mobile_phone: contact.mobile_phone,
+      address_line_1: contact.address_line_1,
+      address_line_2: contact.address_line_2,
+      country: contact.country,
+      province: contact.province,
+      city: contact.city,
+      postal_code: contact.postal_code,
+    };
 
-    const emailCampaign = await this.findOne({
-      id: email_campaign_id,
-      organization_id,
-      relations: ['email_campaign_groups'],
-    });
+    Object.assign(contactTags, organizationTags);
 
-    if (!emailCampaign) {
-      throw new RpcException(`Could not find resource ${email_campaign_id}.`);
-    }
-
-    const now = moment();
-    const sentAt = moment(emailCampaign.sent_at);
-    if (now.diff(sentAt, 'days', true) < 0) {
-      return;
-    }
-
-    //todo:get contact by group ids
-    console.log(group_ids);
+    return contactTags;
   }
 
-  protected buildFindQuery(
-    queryBuilder,
+  protected tagReplace(templateHtml: string, search) {
+    Object.keys(search).forEach((key) => {
+      templateHtml = templateHtml.replace(
+        new RegExp('{{ ' + key + ' }}'),
+        search[key],
+      );
+    });
+
+    return templateHtml;
+  }
+
+  protected makeFilter(
+    builder: SelectQueryBuilder<EmailCampaign>,
     options: FindOneEmailCampaignDto | FindAllEmailCampaignDto,
   ) {
-    Object.assign(queryBuilder.where, {
-      organization_id: options.organization_id || IsNull(),
-    });
+    const {
+      organization_id: organizationId,
+      group_id: groupId,
+      group_ids: groupIds,
+    } = options;
 
-    return queryBuilder;
+    builder.andWhere(
+      new Brackets((qb) => {
+        qb.where('email_campaigns.organization_id = :organizationId', {
+          organizationId,
+        }).orWhere('email_campaigns.organization_id IS NULL');
+      }),
+    );
+
+    const filterGroupIds = groupId === undefined ? [] : [groupId];
+    if (groupIds !== undefined) {
+      filterGroupIds.push(...groupIds);
+    }
+
+    if (filterGroupIds.length) {
+      const queryExists = this.emailCampaignGroupRepository
+        .createQueryBuilder('email_campaign_groups')
+        .where('email_campaign_groups.email_campaign_id = email_campaigns.id')
+        .andWhere('email_campaign_groups.group_id IN (:...filterGroupIds)', {
+          filterGroupIds,
+        });
+
+      builder.andWhere(
+        `EXISTS (${queryExists.getQuery()})`,
+        queryExists.getParameters(),
+      );
+    }
+
+    return builder;
+  }
+
+  protected makeSearchable(
+    builder: SelectQueryBuilder<EmailCampaign>,
+    { search }: FindAllEmailCampaignDto,
+  ) {
+    if (search) {
+      const params = { search: `%${search}%` };
+      builder.andWhere(
+        new Brackets((qb) => {
+          qb.where('email_campaigns.name LIKE :search', params)
+            .orWhere('email_campaigns.subject LIKE :search', params)
+            .orWhere('email_campaigns.from LIKE :search', params)
+            .orWhere('email_campaigns.email_from LIKE :search', params);
+        }),
+      );
+    }
+
+    return builder;
   }
 }

@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, In, IsNull, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { EmailTemplate } from '../entities/email-template.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
-import { buildFindAllQueryOption, buildFindOneQueryOption } from 'vnest-core';
 import {
   CreateEmailTemplateDto,
   DeleteEmailTemplateDto,
@@ -12,6 +11,8 @@ import {
   UpdateEmailTemplateDto,
 } from '../../application/dtos/email-template.dto';
 import { RpcException } from '@nestjs/microservices';
+import { buildFindAllQueryBuilder, buildFindOneQueryBuilder } from 'vnest-core';
+import * as _ from 'lodash';
 
 @Injectable()
 export class EmailTemplateService {
@@ -21,102 +22,35 @@ export class EmailTemplateService {
   ) {}
 
   async findAll(options: FindAllEmailTemplateDto): Promise<EmailTemplate[]> {
-    const { search } = options;
-    const queryBuilder = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+    const qb = this.emailTemplateRepository
+      .createQueryBuilder('email_templates')
+      .select('email_templates.*');
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
 
-    if (search) {
-      const whereClause = queryBuilder.where;
-      queryBuilder.where = new Brackets((qb) => {
-        Object.keys(whereClause).forEach((key) => {
-          qb.where({ [key]: whereClause[key] });
-        });
-
-        qb.andWhere(
-          new Brackets((qb) => {
-            const params = { search: `%${search}%` };
-            qb.where('name LIKE :search', params);
-          }),
-        );
-      });
-    }
-
-    return await this.emailTemplateRepository.find(queryBuilder);
+    return await builder.execute();
   }
 
   async findAllCount(options: FindAllEmailTemplateDto): Promise<number> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
+    const qb = this.emailTemplateRepository.createQueryBuilder(
+      'email_templates',
+    );
+
+    const builder = this.makeSearchable(
+      this.makeFilter(buildFindAllQueryBuilder(qb, options), options),
       options,
     );
 
-    const builder = await this.emailTemplateRepository
-      .createQueryBuilder('email_templates')
-      .where(where)
-      .cache(cache)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('email_templates.name LIKE :search', params);
-        }),
-      );
-    }
-
-    return builder.getCount();
-  }
-
-  async findAllBuilder(
-    options: FindAllEmailTemplateDto,
-  ): Promise<EmailTemplate[]> {
-    const { search, with_deleted: withDeleted } = options;
-    const { where, cache, order, take, skip } = this.buildFindQuery(
-      buildFindAllQueryOption({ options }),
-      options,
-    );
-
-    const builder = await this.emailTemplateRepository
-      .createQueryBuilder('email_templates')
-      .select('email_templates.*')
-      .where(where)
-      .cache(cache)
-      .orderBy(order)
-      .take(take)
-      .skip(skip);
-
-    if (withDeleted) {
-      builder.withDeleted();
-    }
-
-    if (search) {
-      const params = { search: `%${search}%` };
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where('email_templates.name LIKE :search', params);
-        }),
-      );
-    }
-
-    return builder.execute();
+    return await builder.getCount();
   }
 
   async findOne(options: FindOneEmailTemplateDto): Promise<EmailTemplate> {
-    const queryBuilder = this.buildFindQuery(
-      buildFindOneQueryOption({ options }),
-      options,
-    );
+    const data = await this.findAll(options);
 
-    return await this.emailTemplateRepository.findOne(queryBuilder);
+    return _.head(data);
   }
 
   @Transactional()
@@ -234,14 +168,33 @@ export class EmailTemplateService {
     return emailTemplates.length;
   }
 
-  protected buildFindQuery(
-    queryBuilder,
+  protected makeFilter(
+    builder: any,
     options: FindOneEmailTemplateDto | FindAllEmailTemplateDto,
   ) {
-    Object.assign(queryBuilder.where, {
-      organization_id: options.organization_id || IsNull(),
-    });
+    const { organization_id: organizationId } = options;
 
-    return queryBuilder;
+    builder.andWhere(
+      new Brackets((qb) => {
+        qb.where('email_templates.organization_id = :organizationId', {
+          organizationId,
+        }).orWhere('email_templates.organization_id IS NULL');
+      }),
+    );
+
+    return builder;
+  }
+
+  protected makeSearchable(builder: any, { search }: FindAllEmailTemplateDto) {
+    if (search) {
+      const params = { search: `%${search}%` };
+      builder.andWhere(
+        new Brackets((qb) => {
+          qb.where('email_templates.name LIKE :search', params);
+        }),
+      );
+    }
+
+    return builder;
   }
 }

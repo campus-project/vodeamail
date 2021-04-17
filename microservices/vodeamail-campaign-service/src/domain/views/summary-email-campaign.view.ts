@@ -1,30 +1,40 @@
-import { OneToOne, ViewColumn, ViewEntity } from 'typeorm';
-import { Contact } from '../entities/contact.entity';
-import { JoinColumn } from 'typeorm/browser';
+import { ViewColumn, ViewEntity } from 'typeorm';
 
 @ViewEntity({
-  name: 'summary_contacts',
+  name: 'summary_email_campaigns',
   expression: `
     SELECT
-      contacts.id contact_id,
-      COALESCE ( contact_groups.total_group, 0 ) total_group 
+      email_campaigns.id email_campaign_id,
+      COALESCE ( email_campaign_groups.total_group, 0 ) total_group,
+      COALESCE ( email_campaign_audiences.total_audience, 0 ) total_audience  
     FROM
-      contacts
+      email_campaigns
     LEFT JOIN ( 
       SELECT 
-        contact_groups.contact_id, 
-        COUNT( DISTINCT contact_groups.group_id ) AS total_group 
+        email_campaign_groups.email_campaign_id, 
+        COUNT( DISTINCT email_campaign_groups.group_id ) AS total_group 
       FROM
-        contact_groups
-        JOIN groups ON groups.id = contact_groups.group_id AND groups.deleted_at IS NULL
+        email_campaign_groups
       GROUP BY 
-        contact_groups.contact_id 
-    ) contact_groups ON contact_groups.contact_id = contacts.id`,
+        email_campaign_groups.email_campaign_id 
+    ) email_campaign_groups ON email_campaign_groups.email_campaign_id = email_campaigns.id
+    LEFT JOIN ( 
+      SELECT 
+        email_campaign_audiences.email_campaign_id, 
+        COUNT( DISTINCT email_campaign_audiences.email ) AS total_audience 
+      FROM
+        email_campaign_audiences
+      GROUP BY 
+        email_campaign_audiences.email_campaign_id 
+    ) email_campaign_audiences ON email_campaign_audiences.email_campaign_id = email_campaigns.id`,
 })
-export class SummaryContactView {
+export class SummaryEmailCampaignView {
   @ViewColumn()
-  contact_id: string;
+  email_campaign_id: string;
 
   @ViewColumn()
   total_group: number;
+
+  @ViewColumn()
+  total_audience: number;
 }

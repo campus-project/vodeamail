@@ -21,12 +21,30 @@ export class FindAllEmailCampaignDto extends FindAllWithOrganizationDto {
   @IsOptional()
   @IsNumber()
   status?: number;
+
+  @IsOptional()
+  @IsUUID('4')
+  group_id?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  group_ids?: string[];
 }
 
 export class FindOneEmailCampaignDto extends FindOneWithOrganizationDto {
   @IsOptional()
   @IsNumber()
   status?: number;
+
+  @IsOptional()
+  @IsUUID('4')
+  group_id?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  group_ids?: string[];
 }
 
 export class CreateEmailCampaignDto extends ActorOrganizationDto {
@@ -79,25 +97,3 @@ export class UpdateEmailCampaignDto extends CreateEmailCampaignDto {
 }
 
 export class DeleteEmailCampaignDto extends ActorDeleteWithOrganizationDto {}
-
-export class EmailCampaignGroupSyncDto extends OrganizationDto {
-  @IsNotEmpty()
-  @IsUUID()
-  email_campaign_id: string;
-
-  @IsNotEmpty()
-  @IsArray()
-  @IsUUID('4', { each: true })
-  group_ids: string[];
-}
-
-export class EmailCampaignCreateEmailJobDto extends OrganizationDto {
-  @IsNotEmpty()
-  @IsUUID()
-  email_campaign_id: string;
-
-  @IsNotEmpty()
-  @IsArray()
-  @IsUUID('4', { each: true })
-  group_ids: string[];
-}

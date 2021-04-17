@@ -48,6 +48,9 @@
       "group": "Group",
       "draft": "Draft",
       "or_create_design": "Or create your own design"
+    },
+    "text": {
+      "send_directly": "Directly"
     }
   },
   "email_template": {

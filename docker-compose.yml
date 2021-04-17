@@ -5,6 +5,9 @@ services:
 #    image: "vodeamail-api-gateway:dev"
 #    build:
 #      context: ./api-gateway
+#      dockerfile: dev.dockerfile
+#    volumes:
+#      - ./api-gateway:/app
 #    container_name: vodeamail-api-gateway
 #    restart: "on-failure"
 #    ports:
@@ -40,6 +43,9 @@ services:
 #    image: "vodeamail-account-service:dev"
 #    build:
 #      context: ./microservices/vodeamail-account-service
+#      dockerfile: dev.dockerfile
+#    volumes:
+#      - ./microservices/vodeamail-account-service:/app
 #    container_name: vodeamail-account-service
 #    restart: "on-failure"
 #    environment:
@@ -60,6 +66,9 @@ services:
 #    image: "vodeamail-audience-service:dev"
 #    build:
 #      context: ./microservices/vodeamail-audience-service
+#      dockerfile: dev.dockerfile
+#    volumes:
+#      - ./microservices/vodeamail-audience-service:/app
 #    container_name: vodeamail-audience-service
 #    restart: "on-failure"
 #    environment:
@@ -80,6 +89,9 @@ services:
 #    image: "vodeamail-campaign-service:dev"
 #    build:
 #      context: ./microservices/vodeamail-campaign-service
+#      dockerfile: dev.dockerfile
+#    volumes:
+#      - ./microservices/vodeamail-campaign-service:/app
 #    container_name: vodeamail-campaign-service
 #    restart: "on-failure"
 #    environment:

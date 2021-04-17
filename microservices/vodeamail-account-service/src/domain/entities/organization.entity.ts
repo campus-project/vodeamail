@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Role } from './role.entity';
 import { User } from './user.entity';
 
 @Entity('organizations')
@@ -46,4 +47,7 @@ export class Organization {
 
   @OneToMany(() => User, (object) => object.organization)
   users: User[];
+
+  @OneToMany(() => Role, (object) => object.organization)
+  roles: Role[];
 }

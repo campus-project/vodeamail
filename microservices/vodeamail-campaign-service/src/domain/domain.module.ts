@@ -8,6 +8,7 @@ import { EmailTemplate } from './entities/email-template.entity';
 import { EmailTemplateService } from './services/email-template.service';
 import { ClientProxyFactory } from '@nestjs/microservices';
 import { ConfigService } from '../infrastructure/config/config.service';
+import { EmailCampaignAudience } from './entities/email-campaign-audience.entity';
 
 const providers: Provider[] = [
   {
@@ -32,6 +33,7 @@ const providers: Provider[] = [
     TypeOrmModule.forFeature([
       EmailCampaign,
       EmailCampaignGroup,
+      EmailCampaignAudience,
       EmailTemplate,
     ]),
   ],
