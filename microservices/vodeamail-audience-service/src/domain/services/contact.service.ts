@@ -128,13 +128,6 @@ export class ContactService {
       actor_id: created_by,
     } = createContactDto;
 
-    const groups = await this.groupRepository.find({
-      where: {
-        id: In([...new Set(group_ids)]),
-        organization_id,
-      },
-    });
-
     const contact = await this.contactRepository.save(
       this.contactRepository.create({
         id,
@@ -148,11 +141,28 @@ export class ContactService {
         province,
         city,
         postal_code,
-        groups,
         created_by,
         updated_by: created_by,
       }),
     );
+
+    if (group_ids.length) {
+      const groups = await this.groupRepository.find({
+        where: {
+          id: In([...new Set(group_ids)]),
+          organization_id,
+        },
+      });
+
+      for (const group of groups) {
+        await this.contactGroupRepository.save(
+          this.contactGroupRepository.create({
+            group_id: group.id,
+            contact: contact,
+          }),
+        );
+      }
+    }
 
     return this.findOne({
       id: contact.id,
@@ -186,12 +196,7 @@ export class ContactService {
       throw new RpcException(`Could not find resource ${id}.`);
     }
 
-    const groups = await this.groupRepository.find({
-      where: {
-        id: In([...new Set(group_ids)]),
-        organization_id,
-      },
-    });
+    await this.contactGroupRepository.delete({ contact_id: id });
 
     Object.assign(contact, {
       organization_id,
@@ -204,11 +209,28 @@ export class ContactService {
       province,
       city,
       postal_code,
-      groups,
       updated_by,
     });
 
     await this.contactRepository.save(contact);
+
+    if (group_ids.length) {
+      const groups = await this.groupRepository.find({
+        where: {
+          id: In([...new Set(group_ids)]),
+          organization_id,
+        },
+      });
+
+      for (const group of groups) {
+        await this.contactGroupRepository.save(
+          this.contactGroupRepository.create({
+            group_id: group.id,
+            contact: contact,
+          }),
+        );
+      }
+    }
 
     return this.findOne({
       id: contact.id,

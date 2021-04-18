@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinTable,
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -49,7 +48,4 @@ export class Group {
 
   @OneToMany(() => ContactGroup, (object) => object.group)
   contact_groups: ContactGroup[];
-
-  @ManyToMany(() => Contact, (object) => object.groups)
-  contacts: Contact[];
 }

@@ -121,13 +121,6 @@ export class GroupService {
       actor_id: created_by,
     } = createGroupDto;
 
-    const contacts = await this.contactRepository.find({
-      where: {
-        id: In([...new Set(contact_ids)]),
-        organization_id,
-      },
-    });
-
     const group = await this.groupRepository.save(
       this.groupRepository.create({
         id,
@@ -135,11 +128,28 @@ export class GroupService {
         name,
         description,
         is_visible,
-        contacts,
         created_by,
         updated_by: created_by,
       }),
     );
+
+    if (contact_ids.length) {
+      const contacts = await this.contactRepository.find({
+        where: {
+          id: In([...new Set(contact_ids)]),
+          organization_id,
+        },
+      });
+
+      for (const contact of contacts) {
+        await this.contactGroupRepository.save(
+          this.contactGroupRepository.create({
+            contact_id: contact.id,
+            group: group,
+          }),
+        );
+      }
+    }
 
     return this.findOne({
       id: group.id,
@@ -167,23 +177,35 @@ export class GroupService {
       throw new RpcException(`Count not find resource ${id}`);
     }
 
-    const contacts = await this.contactRepository.find({
-      where: {
-        id: In([...new Set(contact_ids)]),
-        organization_id,
-      },
-    });
+    await this.contactGroupRepository.delete({ group_id: id });
 
     Object.assign(group, {
       organization_id,
       name,
       description,
       is_visible,
-      contacts,
       updated_by,
     });
 
     await this.groupRepository.save(group);
+
+    if (contact_ids.length) {
+      const contacts = await this.contactRepository.find({
+        where: {
+          id: In([...new Set(contact_ids)]),
+          organization_id,
+        },
+      });
+
+      for (const contact of contacts) {
+        await this.contactGroupRepository.save(
+          this.contactGroupRepository.create({
+            contact_id: contact.id,
+            group: group,
+          }),
+        );
+      }
+    }
 
     return this.findOne({
       id: group.id,

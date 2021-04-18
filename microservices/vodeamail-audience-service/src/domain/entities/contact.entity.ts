@@ -70,16 +70,4 @@ export class Contact {
 
   @OneToMany(() => ContactGroup, (object) => object.contact)
   contact_groups: ContactGroup[];
-
-  @ManyToMany(() => Group, (object) => object.contacts)
-  @JoinTable({
-    name: 'contact_groups',
-    joinColumn: {
-      name: 'contact_id',
-    },
-    inverseJoinColumn: {
-      name: 'group_id',
-    },
-  })
-  groups: Group[];
 }
