@@ -38,6 +38,7 @@ export class EmailCampaignService {
     const qb = this.emailCampaignRepository
       .createQueryBuilder('email_campaigns')
       .select('email_campaigns.*')
+      .addSelect('summary_email_campaigns.status', 'status')
       .addSelect('summary_email_campaigns.total_group', 'total_group')
       .addSelect('summary_email_campaigns.total_audience', 'total_audience')
       .leftJoin(
@@ -206,45 +207,7 @@ export class EmailCampaignService {
       }),
     );
 
-    if (group_ids.length) {
-      const groups = await this.redisClient
-        .send('MS_AUDIENCE_FIND_ALL_GROUP', {
-          ids: group_ids,
-          organization_id,
-        })
-        .toPromise();
-
-      for (const group of groups) {
-        await this.emailCampaignGroupRepository.save(
-          this.emailCampaignGroupRepository.create({
-            group_id: group.id,
-            email_campaign: emailCampaign,
-          }),
-        );
-      }
-
-      const organizationTags = await this.makeOrganizationTag(organization_id);
-
-      const contacts = await this.redisClient
-        .send('MS_AUDIENCE_FIND_ALL_CONTACT', {
-          group_ids,
-          organization_id,
-        })
-        .toPromise();
-
-      for (const contact of contacts) {
-        const contactTags = this.makeContactTag(contact, organizationTags);
-
-        await this.emailCampaignAudienceRepository.save(
-          this.emailCampaignAudienceRepository.create({
-            email: contact.email,
-            email_campaign: emailCampaign,
-            value_tags: JSON.stringify(contactTags),
-            html: this.tagReplace(email_template_html, contactTags),
-          }),
-        );
-      }
-    }
+    await this.syncEmailCampaignGroup(emailCampaign, group_ids);
 
     return this.findOne({
       id: emailCampaign.id,
@@ -279,11 +242,6 @@ export class EmailCampaignService {
       throw new RpcException(`Could not find resource ${id}.`);
     }
 
-    await this.emailCampaignGroupRepository.delete({ email_campaign_id: id });
-    await this.emailCampaignAudienceRepository.delete({
-      email_campaign_id: id,
-    });
-
     Object.assign(emailCampaign, {
       organization_id,
       name,
@@ -299,45 +257,7 @@ export class EmailCampaignService {
 
     await this.emailCampaignRepository.save(emailCampaign);
 
-    if (group_ids.length) {
-      const groups = await this.redisClient
-        .send('MS_AUDIENCE_FIND_ALL_GROUP', {
-          ids: group_ids,
-          organization_id,
-        })
-        .toPromise();
-
-      for (const group of groups) {
-        await this.emailCampaignGroupRepository.save(
-          this.emailCampaignGroupRepository.create({
-            group_id: group.id,
-            email_campaign: emailCampaign,
-          }),
-        );
-      }
-
-      const organizationTags = await this.makeOrganizationTag(organization_id);
-
-      const contacts = await this.redisClient
-        .send('MS_AUDIENCE_FIND_ALL_CONTACT', {
-          group_ids,
-          organization_id,
-        })
-        .toPromise();
-
-      for (const contact of contacts) {
-        const contactTags = this.makeContactTag(contact, organizationTags);
-
-        await this.emailCampaignAudienceRepository.save(
-          this.emailCampaignAudienceRepository.create({
-            email: contact.email,
-            email_campaign: emailCampaign,
-            value_tags: JSON.stringify(contactTags),
-            html: this.tagReplace(email_template_html, contactTags),
-          }),
-        );
-      }
-    }
+    await this.syncEmailCampaignGroup(emailCampaign, group_ids);
 
     return this.findOne({
       id: emailCampaign.id,
@@ -385,6 +305,100 @@ export class EmailCampaignService {
     }
 
     return emailCampaigns.length;
+  }
+
+  protected async syncEmailCampaignGroup(
+    emailCampaign: EmailCampaign,
+    groupIds: string[],
+  ) {
+    const groups = groupIds.length
+      ? await this.redisClient
+          .send('MS_AUDIENCE_FIND_ALL_GROUP', {
+            ids: groupIds,
+            organization_id: emailCampaign.organization_id,
+          })
+          .toPromise()
+      : [];
+
+    const realGroupIds = groups.map((group) => group.id);
+
+    const currentEmailCampaignGroups = await this.emailCampaignGroupRepository.find(
+      {
+        where: { email_campaign_id: emailCampaign.id },
+      },
+    );
+
+    await this.emailCampaignGroupRepository.remove(
+      currentEmailCampaignGroups.filter(
+        (emailCampaignGroup) =>
+          !realGroupIds.includes(emailCampaignGroup.group_id),
+      ),
+    );
+
+    for (const group of groups) {
+      if (
+        currentEmailCampaignGroups.findIndex(
+          (emailCampaignGroup) => emailCampaignGroup.group_id === group.id,
+        ) === -1
+      )
+        await this.emailCampaignGroupRepository.save(
+          this.emailCampaignGroupRepository.create({
+            group_id: group.id,
+            email_campaign: emailCampaign,
+          }),
+        );
+    }
+
+    const contacts = realGroupIds.length
+      ? await this.redisClient
+          .send('MS_AUDIENCE_FIND_ALL_CONTACT', {
+            group_ids: realGroupIds,
+            organization_id: emailCampaign.organization_id,
+          })
+          .toPromise()
+      : [];
+
+    const realContactIds = contacts.map((contact) => contact.id);
+    const currentEmailCampaignAudiences = await this.emailCampaignAudienceRepository.find(
+      {
+        where: { email_campaign_id: emailCampaign.id },
+      },
+    );
+
+    await this.emailCampaignAudienceRepository.remove(
+      currentEmailCampaignAudiences.filter(
+        (emailCampaignAudience) =>
+          !realContactIds.includes(emailCampaignAudience.contact_id),
+      ),
+    );
+
+    const organizationTags = await this.makeOrganizationTag(
+      emailCampaign.organization_id,
+    );
+
+    for (const contact of contacts) {
+      if (
+        currentEmailCampaignAudiences.findIndex(
+          (emailCampaignAudience) =>
+            emailCampaignAudience.contact_id === contact.id,
+        ) === -1
+      ) {
+        const contactTags = this.makeContactTag(contact, organizationTags);
+
+        await this.emailCampaignAudienceRepository.save(
+          this.emailCampaignAudienceRepository.create({
+            contact_id: contact.id,
+            email: contact.email,
+            email_campaign: emailCampaign,
+            value_tags: JSON.stringify(contactTags),
+            html: this.tagReplace(
+              emailCampaign.email_template_html,
+              contactTags,
+            ),
+          }),
+        );
+      }
+    }
   }
 
   protected async makeOrganizationTag(organizationId: string) {

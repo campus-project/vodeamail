@@ -20,6 +20,7 @@ import AntTab from "../../../../components/ui/tabs/AntTab";
 import EmailCampaignRepository from "../../../../repositories/EmailCampaignRepository";
 import _ from "lodash";
 import DateTime from "../../../../components/data/DateTime";
+import { equalNumberString } from "../../../../utilities/helpers";
 
 const EmailCampaign: React.FC<any> = () => {
   const classes = useStyles();
@@ -78,11 +79,11 @@ const EmailCampaign: React.FC<any> = () => {
           <Alert
             className={classes.status}
             icon={false}
-            severity={value === 1 ? "success" : "warning"}
+            severity={equalNumberString(value, 1) ? "success" : "warning"}
           >
             <Typography variant={"caption"}>
-              {value === 0 ? t("common:scheduled") : null}
-              {value === 1 ? t("common:completed") : null}
+              {equalNumberString(value, 0) ? t("common:scheduled") : null}
+              {equalNumberString(value, 1) ? t("common:completed") : null}
             </Typography>
           </Alert>
         ),

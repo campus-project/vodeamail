@@ -6,10 +6,10 @@ export class EmailCampaignGroup {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid', length: 36 })
+  @Column({ type: 'uuid' })
   email_campaign_id: string;
 
-  @Column({ type: 'uuid', length: 36 })
+  @Column({ type: 'uuid' })
   group_id: string;
 
   @ManyToOne(() => EmailCampaign, (object) => object.email_campaign_groups)

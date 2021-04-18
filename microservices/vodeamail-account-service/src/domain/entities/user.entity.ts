@@ -21,10 +21,10 @@ export class User {
   @Column({ type: 'varchar' })
   email: string;
 
-  @Column({ type: 'uuid', length: 36 })
+  @Column({ type: 'uuid' })
   organization_id: string;
 
-  @Column({ type: 'uuid', length: 36 })
+  @Column({ type: 'uuid' })
   role_id: string;
 
   @Column({ type: 'datetime', nullable: true })

@@ -32,20 +32,17 @@ export class EmailCampaign {
   @Column({ type: 'varchar' })
   email_from: string;
 
-  @Column({ type: 'uuid', length: 36 })
+  @Column({ type: 'uuid' })
   email_template_id: string;
 
   @Column({ type: 'text' })
   email_template_html: string;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamp' })
   sent_at: string;
 
   @Column({ type: 'tinyint', default: 0 })
   is_directly_scheduled: boolean;
-
-  @Column({ type: 'tinyint', default: 0 })
-  status: number;
 
   @CreateDateColumn()
   created_at: string;

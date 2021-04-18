@@ -5,8 +5,13 @@ import { ViewColumn, ViewEntity } from 'typeorm';
   expression: `
     SELECT
       email_campaigns.id email_campaign_id,
+      CASE
+        WHEN email_campaigns.is_directly_scheduled THEN 1
+        WHEN email_campaigns.sent_at <= NOW() THEN 1
+        ELSE 0
+      END AS 'status',
       COALESCE ( email_campaign_groups.total_group, 0 ) total_group,
-      COALESCE ( email_campaign_audiences.total_audience, 0 ) total_audience  
+      COALESCE ( email_campaign_audiences.total_audience, 0 ) total_audience
     FROM
       email_campaigns
     LEFT JOIN ( 
