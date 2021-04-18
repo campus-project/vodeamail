@@ -52,13 +52,6 @@ const initialState = {
       icon: "vicon-graph",
       permissions: "any",
       otherUrls: ["/apps/analytic/email", "/apps/analytic/email/:slug"],
-      children: [
-        {
-          label: "sidebar:menu.email_analytic",
-          href: "/apps/analytic/email",
-          otherUrls: ["/apps/analytic/email/:slug"],
-        },
-      ],
     },
     {
       label: "sidebar:menu.preference",
