@@ -5,6 +5,7 @@ import { HealthController } from './controllers/health.controller';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { EmailCampaignController } from './controllers/email-campaign.controller';
 import { EmailTemplateController } from './controllers/email-template.controller';
+import { EmailCampaignAudienceController } from './controllers/email-campaign-audience.controller';
 
 @Module({
   imports: [TerminusModule, DomainModule, InfrastructureModule],
@@ -12,6 +13,7 @@ import { EmailTemplateController } from './controllers/email-template.controller
     HealthController,
     EmailCampaignController,
     EmailTemplateController,
+    EmailCampaignAudienceController,
   ],
 })
 export class ApplicationModule {}

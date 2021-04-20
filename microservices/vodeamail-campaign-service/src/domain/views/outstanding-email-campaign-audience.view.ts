@@ -22,7 +22,8 @@ import {
       email_campaign_audiences
       JOIN email_campaigns ON email_campaigns.id = email_campaign_audiences.email_campaign_id 
     WHERE
-      email_campaign_audiences.accepted IS NULL 
+      email_campaign_audiences.accepted IS NULL
+      AND email_campaign_audiences.failed IS NULL
       AND email_campaigns.sent_at <= NOW() 
     UNION(
       SELECT
@@ -40,6 +41,7 @@ import {
           JOIN email_campaigns ON email_campaigns.id = email_campaign_audiences.email_campaign_id 
       WHERE
           email_campaign_audiences.accepted IS NOT NULL 
+          AND email_campaign_audiences.failed IS NULL
           AND email_campaign_audiences.delivered IS NULL 
           AND TIME_TO_SEC(TIMEDIFF( NOW(), email_campaign_audiences.accepted )) >= 300 )`,
 })

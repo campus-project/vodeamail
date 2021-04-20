@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+import * as moment from 'moment';
 
 import {
   SetAcceptedEmailCampaignAudienceDto,
@@ -23,13 +24,12 @@ export class EmailCampaignAudienceService {
     private readonly redisClient: ClientProxy,
   ) {}
 
-  @Cron('*/15 * * * * *')
+  @Cron('*/3 * * * * *')
   async sendEmailToService() {
     const emailCampaignAudiences = await this.outstandingEmailCampaignAudienceViewRepository.find();
 
     for (const emailCampaignAudience of emailCampaignAudiences) {
-      console.log(emailCampaignAudience);
-      const response = await this.redisClient
+      await this.redisClient
         .send('MS_MAILER_CREATE_EMAIL_CAMPAIGN', {
           organization_id: emailCampaignAudience.organization_id,
           subject: emailCampaignAudience.subject,
@@ -38,10 +38,15 @@ export class EmailCampaignAudienceService {
           to: emailCampaignAudience.to,
           email_to: emailCampaignAudience.email_to,
           content: emailCampaignAudience.html,
+          subject_id: emailCampaignAudience.id,
+          callback_accepted_message:
+            'MS_CAMPAIGN_SET_ACCEPTED_EMAIL_CAMPAIGN_AUDIENCE',
+          callback_delivered_message:
+            'MS_CAMPAIGN_SET_DELIVERED_EMAIL_CAMPAIGN_AUDIENCE',
+          callback_failed_message:
+            'MS_CAMPAIGN_SET_FAILED_EMAIL_CAMPAIGN_AUDIENCE',
         })
         .toPromise();
-
-      console.log(response);
     }
   }
 

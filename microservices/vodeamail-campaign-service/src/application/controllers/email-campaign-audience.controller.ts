@@ -22,7 +22,7 @@ export class EmailCampaignAudienceController {
     return this.emailCampaign.setAccepted(setAcceptedEmailCampaignAudienceDto);
   }
 
-  @MessagePattern('MS_CAMPAIGN_SET_ACCEPTED_EMAIL_CAMPAIGN_AUDIENCE')
+  @MessagePattern('MS_CAMPAIGN_SET_DELIVERED_EMAIL_CAMPAIGN_AUDIENCE')
   setDelivered(
     @Payload()
     setDeliveredEmailCampaignAudienceDto: SetDeliveredEmailCampaignAudienceDto,
