@@ -37,4 +37,20 @@ export class CreateSentEmailDto extends OrganizationDto {
   @IsNotEmpty()
   @IsString()
   content: string;
+
+  @IsOptional()
+  @IsString()
+  subject_id: string;
+
+  @IsOptional()
+  @IsString()
+  callback_accepted_message?: string;
+
+  @IsOptional()
+  @IsString()
+  callback_delivered_message?: string;
+
+  @IsOptional()
+  @IsString()
+  callback_failed_message?: string;
 }

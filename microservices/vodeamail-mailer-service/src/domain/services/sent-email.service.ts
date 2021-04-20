@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
 import { buildFindAllQueryBuilder } from 'vnest-core';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 
 import {
   CreateSentEmailDto,
@@ -13,6 +14,7 @@ import {
 import { SentEmail } from '../entities/sent-email.entity';
 import { SentEmailClick } from '../entities/sent-email-click.entity';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class SentEmailService {
@@ -22,6 +24,8 @@ export class SentEmailService {
     @InjectRepository(SentEmailClick)
     private readonly sentEmailClickRepository: Repository<SentEmailClick>,
     private readonly mailerService: MailerService,
+    @Inject('REDIS_TRANSPORT')
+    private readonly redisClient: ClientProxy,
   ) {}
 
   async findAll(options: FindAllSentEmailDto): Promise<SentEmail[]> {
@@ -99,37 +103,77 @@ export class SentEmailService {
       to,
       email_to,
       content,
+
+      subject_id: subjectId,
+      callback_accepted_message: callbackAcceptedMessage,
+      callback_delivered_message: callbackDeliveredMessage,
+      callback_failed_message: callbackFailedMessage,
     } = createSentEmailDto;
 
-    const hash = await this.generateHash();
+    if (subjectId && callbackAcceptedMessage) {
+      await this.redisClient
+        .emit(callbackAcceptedMessage, {
+          id: subjectId,
+          timestamp: moment().format(),
+        })
+        .toPromise();
+    }
 
-    const sentEmail = await this.sentEmailRepository.save(
-      this.sentEmailRepository.create({
-        id,
-        organization_id,
-        hash,
-        subject,
-        from,
-        email_from,
-        to,
-        email_to,
-        content,
-      }),
-    );
+    const hash = await this.generateHash();
+    const headers = {
+      'X-Mailer-Hash': hash,
+    };
+
+    let sentEmail = null;
 
     this.mailerService
       .sendMail({
-        from: sentEmail.from
-          ? `${sentEmail.from} <${sentEmail.email_from}>`
-          : sentEmail.email_from,
-        to: sentEmail.to
-          ? `${sentEmail.to} <${sentEmail.email_to}>`
-          : sentEmail.email_to,
-        subject: sentEmail.subject,
-        html: sentEmail.content,
+        from: from ? `${from} <${email_from}>` : email_from,
+        to: to ? `${to} <${email_to}>` : email_to,
+        subject: subject,
+        html: content,
+        headers,
       })
-      .then(() => {})
-      .catch(() => {});
+      .then(async () => {
+        sentEmail = await this.sentEmailRepository.save(
+          this.sentEmailRepository.create({
+            id,
+            organization_id,
+            hash,
+            subject,
+            from,
+            email_from,
+            to,
+            email_to,
+            content,
+            headers: JSON.stringify(headers),
+          }),
+        );
+
+        if (subjectId && callbackDeliveredMessage) {
+          await this.redisClient
+            .emit(callbackDeliveredMessage, {
+              id: subjectId,
+              timestamp: moment().format(),
+            })
+            .toPromise();
+        }
+      })
+      .catch(async (e) => {
+        if (subjectId && callbackFailedMessage) {
+          await this.redisClient
+            .emit(callbackFailedMessage, {
+              id: subjectId,
+              timestamp: moment().format(),
+              failed_message: JSON.stringify(e),
+            })
+            .toPromise();
+        }
+      });
+
+    if (!sentEmail) {
+      return null;
+    }
 
     return this.findOne({
       id: sentEmail.id,
