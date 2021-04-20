@@ -3,13 +3,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Group } from './group.entity';
 import { ContactGroup } from './contact-group.entity';
 
 @Entity('contacts')
@@ -68,6 +65,8 @@ export class Contact {
   @Column({ type: 'uuid', nullable: true })
   deleted_by?: string;
 
-  @OneToMany(() => ContactGroup, (object) => object.contact)
+  @OneToMany(() => ContactGroup, (object) => object.contact, {
+    onUpdate: 'CASCADE',
+  })
   contact_groups: ContactGroup[];
 }

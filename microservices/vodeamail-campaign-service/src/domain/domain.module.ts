@@ -9,6 +9,12 @@ import { EmailTemplateService } from './services/email-template.service';
 import { ClientProxyFactory } from '@nestjs/microservices';
 import { ConfigService } from '../infrastructure/config/config.service';
 import { EmailCampaignAudience } from './entities/email-campaign-audience.entity';
+import { EmailCampaignAnalytic } from './entities/email-campaign-analytic.entity';
+import { SummaryEmailCampaignAnalyticView } from './views/summary-email-campaign-analytic.view';
+import { SummaryEmailCampaignView } from './views/summary-email-campaign.view';
+import { EmailCampaignAudienceService } from './services/email-campaign-audience.service';
+import { EmailCampaignAnalyticService } from './services/email-campaign-analytic.service';
+import { OutstandingEmailCampaignAudienceView } from './views/outstanding-email-campaign-audience.view';
 
 const providers: Provider[] = [
   {
@@ -25,6 +31,14 @@ const providers: Provider[] = [
     provide: 'CAMPAIGN_EMAIL_TEMPLATE_SERVICE',
     useClass: EmailTemplateService,
   },
+  {
+    provide: 'CAMPAIGN_EMAIL_CAMPAIGN_ANALYTIC_SERVICE',
+    useClass: EmailCampaignAnalyticService,
+  },
+  {
+    provide: 'CAMPAIGN_EMAIL_CAMPAIGN_AUDIENCE_SERVICE',
+    useClass: EmailCampaignAudienceService,
+  },
 ];
 
 @Module({
@@ -34,7 +48,11 @@ const providers: Provider[] = [
       EmailCampaign,
       EmailCampaignGroup,
       EmailCampaignAudience,
+      EmailCampaignAnalytic,
       EmailTemplate,
+      SummaryEmailCampaignView,
+      SummaryEmailCampaignAnalyticView,
+      OutstandingEmailCampaignAudienceView,
     ]),
   ],
   providers: [...providers],

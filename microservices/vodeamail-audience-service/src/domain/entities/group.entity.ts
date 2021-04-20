@@ -46,6 +46,9 @@ export class Group {
   @Column({ type: 'uuid', nullable: true })
   deleted_by?: string;
 
-  @OneToMany(() => ContactGroup, (object) => object.group)
+  @OneToMany(() => ContactGroup, (object) => object.group, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
   contact_groups: ContactGroup[];
 }

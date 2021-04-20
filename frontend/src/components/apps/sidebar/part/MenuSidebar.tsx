@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import _ from "lodash";
 import { useLocation } from "react-router";
-import { setSidebarClose } from "../../../../store/actions/setting";
+import { setSidebarClose } from "../../../../store/actions";
 
 const CreateCampaign: React.FC<any> = () => {
   const { t } = useTranslation();
@@ -24,24 +24,11 @@ const CreateCampaign: React.FC<any> = () => {
   });
 
   const isLinkActive = (menu: any): boolean => {
-    const activePath = makeActivePath(menu);
-    if (activePath.includes(pathname)) {
-      return true;
-    }
-
-    const routesWithSlug = activePath.filter((a) => a.match(/:slug|:id/g));
-    if (routesWithSlug.length) {
-      //todo: make navigation class active by slug url
-      // routesWithSlug.forEach((route) => {
-      //   const matched = 0;
-      //   const totalSlug = route.split("/").filter((a) => a.match(/:slug|:id/g))
-      //     .length;
-      //   console.log(totalSlug);
-      // });
-      // console.log(pathname);
-    }
-
-    return makeActivePath(menu).includes(pathname);
+    return (
+      makeActivePath(menu).filter(
+        (p) => p === pathname || new RegExp(p).test(pathname)
+      ).length > 0
+    );
   };
 
   const makeActivePath = (menu: any): string[] => {

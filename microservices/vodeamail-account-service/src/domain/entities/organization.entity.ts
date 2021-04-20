@@ -45,9 +45,15 @@ export class Organization {
   @Column({ type: 'uuid', nullable: true })
   deleted_by?: string;
 
-  @OneToMany(() => User, (object) => object.organization)
+  @OneToMany(() => User, (object) => object.organization, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
   users: User[];
 
-  @OneToMany(() => Role, (object) => object.organization)
+  @OneToMany(() => Role, (object) => object.organization, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
   roles: Role[];
 }

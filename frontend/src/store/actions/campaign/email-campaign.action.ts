@@ -1,4 +1,4 @@
-import { EmailTemplate } from "../../../models/EmailTemplate";
+import { EmailTemplate } from "../../../models";
 import EmailTemplateRepository from "../../../repositories/EmailTemplateRepository";
 import { AxiosResponse } from "axios";
 import { Resource } from "../../../contracts";

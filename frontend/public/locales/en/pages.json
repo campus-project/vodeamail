@@ -132,6 +132,20 @@
   },
   "email_analytic": {
     "title": "Analytic",
+    "section": {
+      "delivered": "Delivered",
+      "engagement": "Engagement",
+      "opened": "Opened",
+      "unsubscribed": "Unsubscribed",
+      "summary": "Summary",
+      "audience": "Audience",
+      "performance": "Performance",
+      "subject": "Subject",
+      "sent_at": "Sent at",
+      "last_opened": "Last Open",
+      "last_clicked": "Last Engagement",
+      "avg_open_duration": "Average Open Duration"
+    },
     "datatable": {
       "columns": {
         "name": "Name",
@@ -140,6 +154,12 @@
         "email_from": "Email From",
         "sent_at": "Sent At",
         "updated": "Updated At"
+      }
+    },
+    "datatable_group": {
+      "columns": {
+        "name": "Name",
+        "audience": "Audience"
       }
     }
   },

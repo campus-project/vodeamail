@@ -199,7 +199,7 @@ const ContactForm: React.FC<any> = () => {
           </MuiButtonIconRounded>
         </Box>
         <Typography variant={"h5"}>
-          {t("common:create_label", {
+          {t(id ? "common:update_label" : "common:create_label", {
             label: t("pages:contact.title"),
           })}
         </Typography>

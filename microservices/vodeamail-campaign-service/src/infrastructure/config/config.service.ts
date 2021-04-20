@@ -7,7 +7,10 @@ import { EmailTemplate } from '../../domain/entities/email-template.entity';
 import { EmailCampaign } from '../../domain/entities/email-campaign.entity';
 import { EmailCampaignGroup } from '../../domain/entities/email-campaign-group.entity';
 import { EmailCampaignAudience } from '../../domain/entities/email-campaign-audience.entity';
+import { EmailCampaignAnalytic } from '../../domain/entities/email-campaign-analytic.entity';
 import { SummaryEmailCampaignView } from '../../domain/views/summary-email-campaign.view';
+import { SummaryEmailCampaignAnalyticView } from '../../domain/views/summary-email-campaign-analytic.view';
+import { OutstandingEmailCampaignAudienceView } from '../../domain/views/outstanding-email-campaign-audience.view';
 
 @Injectable()
 export class ConfigService extends ConfigServiceAbstract {
@@ -52,7 +55,10 @@ export class ConfigService extends ConfigServiceAbstract {
         EmailCampaign,
         EmailCampaignGroup,
         EmailCampaignAudience,
+        EmailCampaignAnalytic,
         SummaryEmailCampaignView,
+        SummaryEmailCampaignAnalyticView,
+        OutstandingEmailCampaignAudienceView,
       ],
       migrations: ['src/infrastructure/database/migrations/**/*.{ts,js}'],
       cli: {

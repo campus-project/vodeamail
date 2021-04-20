@@ -107,6 +107,29 @@ services:
 #    depends_on:
 #      - mysql
 #      - redis
+#
+#  mailer-service:
+#    image: "vodeamail-mailer-service:dev"
+#    build:
+#      context: ./microservices/vodeamail-mailer-service
+#      dockerfile: dev.dockerfile
+#    volumes:
+#      - ./microservices/vodeamail-mailer-service:/app
+#    container_name: vodeamail-mailer-service
+#    restart: "on-failure"
+#    environment:
+#      APP_ENV: "local"
+#      DB_HOST: "mysql"
+#      DB_PORT: "3306"
+#      DB_DATABASE: "vodeamail-mailer-service"
+#      DB_USERNAME: "homestead"
+#      DB_PASSWORD: "secret"
+#      REDIS_URL: "redis://redis:6379"
+#    networks:
+#      - infrastrucuture
+#    depends_on:
+#      - mysql
+#      - redis
 
   docs:
     image: "swaggerapi/swagger-ui:v3.25.0"

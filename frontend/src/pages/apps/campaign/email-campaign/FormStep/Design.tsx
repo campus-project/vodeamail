@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useEffect } from "react";
-import { EmailCampaign } from "../../../../../models/EmailCampaign";
+import { EmailCampaign, EmailTemplate } from "../../../../../models";
 import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -24,7 +24,6 @@ import FormAction from "../../../../../components/ui/form/MuiFormAction";
 import useStyles from "../style";
 import { Alert } from "@material-ui/lab";
 import { NavLink } from "react-router-dom";
-import { EmailTemplate } from "../../../../../models/EmailTemplate";
 import { useSelector } from "react-redux";
 import MuiTextField from "../../../../../components/ui/form/MuiTextField";
 

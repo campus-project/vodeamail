@@ -7,7 +7,7 @@ import {
   changeSidebarVariant,
   setSidebarClose,
   setSidebarOpen,
-} from "../../../store/actions/setting";
+} from "../../../store/actions";
 import { useIsMounted, useWindowSize } from "../../../utilities/hooks";
 import { useStyles } from "./style";
 import EmailUsageStatistic from "./part/EmailUsageStatistic";

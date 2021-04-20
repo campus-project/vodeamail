@@ -6,12 +6,18 @@ import { ViewColumn, ViewEntity } from 'typeorm';
     SELECT
       email_campaigns.id email_campaign_id,
       CASE
-        WHEN email_campaigns.is_directly_scheduled THEN 1
         WHEN email_campaigns.sent_at <= NOW() THEN 1
         ELSE 0
       END AS 'status',
       COALESCE ( email_campaign_groups.total_group, 0 ) total_group,
-      COALESCE ( email_campaign_audiences.total_audience, 0 ) total_audience
+      COALESCE ( email_campaign_audiences.total_audience, 0 ) total_audience,
+      COALESCE ( email_campaign_audiences.total_delivered, 0 ) total_delivered,
+      COALESCE ( email_campaign_audiences.total_clicked, 0 ) total_clicked,
+      COALESCE ( email_campaign_audiences.total_opened, 0 ) total_opened,
+      COALESCE ( email_campaign_audiences.total_unsubscribe, 0 ) total_unsubscribe,
+      (SELECT max(timestamp) FROM email_campaign_analytics t1 where t1.email_campaign_id = email_campaigns.id AND t1.type = '0') as last_opened,
+      (SELECT max(timestamp) FROM email_campaign_analytics t1 where t1.email_campaign_id = email_campaigns.id AND t1.type = '1') as last_clicked,
+      open_rate_email_campaigns.avg_open_duration
     FROM
       email_campaigns
     LEFT JOIN ( 
@@ -23,10 +29,26 @@ import { ViewColumn, ViewEntity } from 'typeorm';
       GROUP BY 
         email_campaign_groups.email_campaign_id 
     ) email_campaign_groups ON email_campaign_groups.email_campaign_id = email_campaigns.id
+    LEFT JOIN (
+      SELECT
+        email_campaign_audiences.email_campaign_id,
+        CEIL(AVG(TIMESTAMPDIFF( MINUTE, t1.sent_at, email_campaign_audiences.opened ))) AS avg_open_duration 
+      FROM
+        email_campaign_audiences
+        JOIN email_campaigns AS t1 ON t1.id = email_campaign_audiences.email_campaign_id 
+      WHERE
+        email_campaign_audiences.opened IS NOT NULL 
+      GROUP BY
+        email_campaign_id
+    ) open_rate_email_campaigns ON open_rate_email_campaigns.email_campaign_id = email_campaigns.id 
     LEFT JOIN ( 
       SELECT 
         email_campaign_audiences.email_campaign_id, 
-        COUNT( DISTINCT email_campaign_audiences.email ) AS total_audience 
+        COUNT( email_campaign_audiences.contact_id ) AS total_audience,
+        SUM(IF (email_campaign_audiences.delivered IS NULL, 0, 1)) AS total_delivered,
+        SUM(IF (email_campaign_audiences.clicked IS NULL, 0, 1)) AS total_clicked,
+        SUM(IF (email_campaign_audiences.opened IS NULL, 0, 1)) AS total_opened,
+        SUM(IF (email_campaign_audiences.is_unsubscribe < 1, 0, 1)) AS total_unsubscribe
       FROM
         email_campaign_audiences
       GROUP BY 
@@ -38,8 +60,32 @@ export class SummaryEmailCampaignView {
   email_campaign_id: string;
 
   @ViewColumn()
+  status: number;
+
+  @ViewColumn()
   total_group: number;
 
   @ViewColumn()
   total_audience: number;
+
+  @ViewColumn()
+  total_delivered: number;
+
+  @ViewColumn()
+  total_clicked: number;
+
+  @ViewColumn()
+  total_opened: number;
+
+  @ViewColumn()
+  total_unsubscribe: number;
+
+  @ViewColumn()
+  last_opened: string;
+
+  @ViewColumn()
+  last_clicked: string;
+
+  @ViewColumn()
+  avg_open_duration: number;
 }

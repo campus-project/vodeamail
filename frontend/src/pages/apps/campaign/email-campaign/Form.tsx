@@ -18,7 +18,7 @@ import { useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useIsMounted } from "../../../../utilities/hooks";
 import { useSnackbar } from "notistack";
-import { EmailCampaign } from "../../../../models/EmailCampaign";
+import { EmailCampaign } from "../../../../models";
 import Loading from "../../../../components/ui/Loading";
 import FormSetting, { EmailCampaignSettingData } from "./FormStep/Setting";
 import FormDesign, { EmailCampaignDesignData } from "./FormStep/Design";
@@ -51,7 +51,6 @@ const defaultValues: EmailCampaign = {
   send_date_at: new Date(),
   send_time_at: new Date(),
   is_directly_scheduled: 0,
-  status: 1,
   group_ids: [],
 };
 
@@ -211,7 +210,7 @@ const CampaignForm: React.FC<any> = () => {
           </MuiButtonIconRounded>
         </Box>
         <Typography variant={"h5"}>
-          {t("common:create_label", {
+          {t(id ? "common:update_label" : "common:create_label", {
             label: t("pages:email_campaign.title"),
           })}
         </Typography>

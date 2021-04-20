@@ -8,7 +8,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { EmailCampaign } from './email-campaign.entity';
-import { EmailCampaignAudience } from './email-campaign-audience.entity';
 
 @Entity('email_templates')
 export class EmailTemplate {
@@ -51,6 +50,9 @@ export class EmailTemplate {
   @Column({ type: 'uuid', nullable: true })
   deleted_by?: string;
 
-  @OneToMany(() => EmailCampaign, (object) => object.email_template)
+  @OneToMany(() => EmailCampaign, (object) => object.email_template, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
   email_campaigns: EmailCampaign[];
 }

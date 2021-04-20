@@ -23,7 +23,8 @@
     "api-gateway:start": "scripts/api-gateway-start.sh",
     "ms:account:start": "scripts/ms-account-start.sh",
     "ms:audience:start": "scripts/ms-audience-start.sh",
-    "ms:campaign:start": "scripts/ms-campaign-start.sh"
+    "ms:campaign:start": "scripts/ms-campaign-start.sh",
+    "ms:mailer:start": "scripts/ms-mailer-start.sh"
   },
   "repository": {
     "type": "git",

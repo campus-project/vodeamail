@@ -14,7 +14,6 @@ import {
   ActorOrganizationDto,
   FindAllWithOrganizationDto,
   FindOneWithOrganizationDto,
-  OrganizationDto,
 } from 'vnest-core';
 
 export class FindAllEmailCampaignDto extends FindAllWithOrganizationDto {

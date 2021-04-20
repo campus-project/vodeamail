@@ -9,14 +9,14 @@ import { AxiosResponse } from "axios";
 import { State, useState } from "@hookstate/core";
 import { MUIDataTableColumn } from "mui-datatables";
 import ActionCell from "../../../../components/datatable/ActionCell";
-import { EditOutlined } from "@material-ui/icons";
+import { AssessmentOutlined } from "@material-ui/icons";
 import { useIsMounted } from "../../../../utilities/hooks";
 import MuiCard from "../../../../components/ui/card/MuiCard";
 import _ from "lodash";
 import DateTime from "../../../../components/data/DateTime";
 import EmailCampaignRepository from "../../../../repositories/EmailCampaignRepository";
 
-const Emailanalytic: React.FC<any> = () => {
+const EmailAnalytic: React.FC<any> = () => {
   const isMounted = useIsMounted();
   const { t } = useTranslation();
 
@@ -68,9 +68,9 @@ const Emailanalytic: React.FC<any> = () => {
             <ActionCell>
               <IconButton
                 component={LinkDom}
-                to={`/apps/analytic/email-analytic/${value}`}
+                to={`/apps/analytic/email/${value}`}
               >
-                <EditOutlined />
+                <AssessmentOutlined />
               </IconButton>
             </ActionCell>
           );
@@ -161,4 +161,4 @@ const Emailanalytic: React.FC<any> = () => {
   );
 };
 
-export default Emailanalytic;
+export default EmailAnalytic;

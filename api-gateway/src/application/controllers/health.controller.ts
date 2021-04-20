@@ -49,4 +49,15 @@ export class HealthController {
 
     return { data };
   }
+
+  @Public()
+  @Get('/ms-mailer')
+  async heathCheckMsMailer() {
+    const data = await this.redisClient
+      .send('MS_MAILER_HEALTH_CHECK', {})
+      .toPromise()
+      .catch(clientProxyException);
+
+    return { data };
+  }
 }

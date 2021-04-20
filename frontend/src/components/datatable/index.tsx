@@ -31,6 +31,7 @@ export interface IMuiDatatable extends Omit<MUIDataTableProps, "title"> {
   //datatable
   onTableChange?: MUIDataTableOptions["onTableChange"];
   selectableRows?: MUIDataTableOptions["selectableRows"];
+  disableServerSide?: boolean;
 }
 
 export interface IMuiDatatableColumn extends MUIDataTableColumn {
@@ -50,6 +51,8 @@ const MuiDatatable: React.FC<IMuiDatatable> = (props) => {
     options,
     onTableChange,
     selectableRows,
+    disableServerSide = false,
+
     ...other
   } = props;
 
@@ -109,6 +112,11 @@ const MuiDatatable: React.FC<IMuiDatatable> = (props) => {
     }
   };
 
+  const muiDatatableOption = defaultMuiDatatableOption;
+  if (disableServerSide) {
+    muiDatatableOption.serverSide = false;
+  }
+
   return (
     <>
       {inputSearch ? (
@@ -127,7 +135,7 @@ const MuiDatatable: React.FC<IMuiDatatable> = (props) => {
         columns={columns}
         options={{
           ...(options ?? {}),
-          ...defaultMuiDatatableOption,
+          ...muiDatatableOption,
           onTableChange: handleTableChange,
           selectableRows: selectableRows || "none",
           responsive: "simple",

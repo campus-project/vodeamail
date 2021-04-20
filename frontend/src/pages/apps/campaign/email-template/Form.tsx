@@ -28,7 +28,7 @@ import {
   axiosErrorLoadDataHandler,
   axiosErrorSaveHandler,
 } from "../../../../utilities/helpers";
-import { EmailTemplate } from "../../../../models/EmailTemplate";
+import { EmailTemplate } from "../../../../models";
 import EmailTemplateRepository from "../../../../repositories/EmailTemplateRepository";
 import { Resource } from "../../../../contracts";
 import Loading from "../../../../components/ui/Loading";

@@ -1,5 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { EmailCampaign } from './email-campaign.entity';
+import { EmailCampaignAnalytic } from './email-campaign-analytic.entity';
 
 @Entity('email_campaign_audiences')
 export class EmailCampaignAudience {
@@ -12,8 +19,11 @@ export class EmailCampaignAudience {
   @Column({ type: 'uuid' })
   contact_id: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  to?: string;
+
   @Column({ type: 'varchar' })
-  email: string;
+  email_to: string;
 
   @Column({ type: 'text' })
   value_tags: string;
@@ -31,6 +41,12 @@ export class EmailCampaignAudience {
   delivered: string;
 
   @Column({ type: 'timestamp', nullable: true })
+  opened: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  clicked: string;
+
+  @Column({ type: 'timestamp', nullable: true })
   failed: string;
 
   @Column({ type: 'text', nullable: true })
@@ -38,4 +54,14 @@ export class EmailCampaignAudience {
 
   @ManyToOne(() => EmailCampaign, (object) => object.email_campaign_audiences)
   email_campaign: EmailCampaign;
+
+  @OneToMany(
+    () => EmailCampaignAnalytic,
+    (object) => object.email_campaign_audience,
+    {
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    },
+  )
+  email_campaign_analytics: EmailCampaignAnalytic[];
 }

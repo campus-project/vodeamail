@@ -4,6 +4,10 @@ import { ClientOptions, Transport } from '@nestjs/microservices';
 import { ConfigServiceAbstract } from 'vnest-core';
 
 import { RefreshToken } from '../../domain/entities/refresh-token.entity';
+import { Permission } from '../../domain/entities/permission.entity';
+import { Transaction } from '../../domain/entities/transaction.entity';
+import { GateSetting } from '../../domain/entities/gate-setting.entity';
+import { GateSettingPermission } from '../../domain/entities/gate-setting-permission.entity';
 
 @Injectable()
 export class ConfigService extends ConfigServiceAbstract {
@@ -79,7 +83,13 @@ export class ConfigService extends ConfigServiceAbstract {
       dropSchema: false,
       logging: false,
       namingStrategy: new SnakeNamingStrategy(),
-      entities: [RefreshToken],
+      entities: [
+        RefreshToken,
+        Transaction,
+        Permission,
+        GateSetting,
+        GateSettingPermission,
+      ],
       migrations: ['src/infrastructure/database/migrations/**/*.{ts,js}'],
       cli: {
         entitiesDir: 'src',

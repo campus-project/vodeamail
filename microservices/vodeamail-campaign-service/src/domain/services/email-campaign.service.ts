@@ -17,6 +17,7 @@ import { EmailCampaign } from '../entities/email-campaign.entity';
 import { EmailCampaignGroup } from '../entities/email-campaign-group.entity';
 import { EmailCampaignAudience } from '../entities/email-campaign-audience.entity';
 import { EmailTemplate } from '../entities/email-template.entity';
+import { SummaryEmailCampaignAnalyticView } from '../views/summary-email-campaign-analytic.view';
 
 @Injectable()
 export class EmailCampaignService {
@@ -29,6 +30,8 @@ export class EmailCampaignService {
     private readonly emailCampaignAudienceRepository: Repository<EmailCampaignAudience>,
     @InjectRepository(EmailTemplate)
     private readonly emailTemplateRepository: Repository<EmailTemplate>,
+    @InjectRepository(SummaryEmailCampaignAnalyticView)
+    private readonly summaryEmailCampaignAnalyticRepository: Repository<SummaryEmailCampaignAnalyticView>,
     @Inject('REDIS_TRANSPORT')
     private readonly redisClient: ClientProxy,
   ) {}
@@ -40,7 +43,20 @@ export class EmailCampaignService {
       .select('email_campaigns.*')
       .addSelect('summary_email_campaigns.status', 'status')
       .addSelect('summary_email_campaigns.total_group', 'total_group')
+      .addSelect('summary_email_campaigns.total_delivered', 'total_delivered')
       .addSelect('summary_email_campaigns.total_audience', 'total_audience')
+      .addSelect('summary_email_campaigns.total_clicked', 'total_clicked')
+      .addSelect('summary_email_campaigns.total_opened', 'total_opened')
+      .addSelect('summary_email_campaigns.last_opened', 'last_opened')
+      .addSelect('summary_email_campaigns.last_clicked', 'last_clicked')
+      .addSelect(
+        'summary_email_campaigns.avg_open_duration',
+        'avg_open_duration',
+      )
+      .addSelect(
+        'summary_email_campaigns.total_unsubscribe',
+        'total_unsubscribe',
+      )
       .leftJoin(
         'summary_email_campaigns',
         'summary_email_campaigns',
@@ -62,6 +78,7 @@ export class EmailCampaignService {
       const relationValues = {
         groups: undefined,
         emailTemplates: undefined,
+        summaryEmailCampaignAnalytics: undefined,
       };
 
       data.forEach((emailCampaign) => {
@@ -111,6 +128,13 @@ export class EmailCampaignService {
           .toPromise();
       }
 
+      //summary email campaign analytic
+      if (relations.indexOf('summary_email_campaign_analytics') !== -1) {
+        relationValues.summaryEmailCampaignAnalytics = await this.summaryEmailCampaignAnalyticRepository.find(
+          { where: { email_campaign_id: In(emailCampaignIds) } },
+        );
+      }
+
       data = data.map((emailCampaign) => {
         if (relationValues.emailTemplates !== undefined) {
           emailCampaign.email_template =
@@ -138,6 +162,15 @@ export class EmailCampaignService {
           emailCampaign.groups = groups;
         }
 
+        if (relationValues.summaryEmailCampaignAnalytics !== undefined) {
+          emailCampaign.summary_email_campaign_analytics =
+            relationValues.summaryEmailCampaignAnalytics.filter(
+              (summaryEmailCampaignAnalytic) =>
+                summaryEmailCampaignAnalytic.email_campaign_id ===
+                emailCampaign.id,
+            ) || [];
+        }
+
         return emailCampaign;
       });
     }
@@ -149,8 +182,6 @@ export class EmailCampaignService {
     const qb = this.emailCampaignRepository
       .createQueryBuilder('email_campaigns')
       .select('email_campaigns.*')
-      .addSelect('summary_email_campaigns.total_group', 'total_group')
-      .addSelect('summary_email_campaigns.total_audience', 'total_audience')
       .leftJoin(
         'summary_email_campaigns',
         'summary_email_campaigns',
@@ -321,12 +352,7 @@ export class EmailCampaignService {
       : [];
 
     const realGroupIds = groups.map((group) => group.id);
-
-    const currentEmailCampaignGroups = await this.emailCampaignGroupRepository.find(
-      {
-        where: { email_campaign_id: emailCampaign.id },
-      },
-    );
+    const currentEmailCampaignGroups = await emailCampaign.email_campaign_groups;
 
     await this.emailCampaignGroupRepository.remove(
       currentEmailCampaignGroups.filter(
@@ -345,6 +371,7 @@ export class EmailCampaignService {
           this.emailCampaignGroupRepository.create({
             group_id: group.id,
             email_campaign: emailCampaign,
+            total_contact: group.total_contact || 0,
           }),
         );
     }
@@ -359,11 +386,7 @@ export class EmailCampaignService {
       : [];
 
     const realContactIds = contacts.map((contact) => contact.id);
-    const currentEmailCampaignAudiences = await this.emailCampaignAudienceRepository.find(
-      {
-        where: { email_campaign_id: emailCampaign.id },
-      },
-    );
+    const currentEmailCampaignAudiences = await emailCampaign.email_campaign_audiences;
 
     await this.emailCampaignAudienceRepository.remove(
       currentEmailCampaignAudiences.filter(
@@ -383,20 +406,23 @@ export class EmailCampaignService {
             emailCampaignAudience.contact_id === contact.id,
         ) === -1
       ) {
-        const contactTags = this.makeContactTag(contact, organizationTags);
+        if (contact.is_subscribed) {
+          const contactTags = this.makeContactTag(contact, organizationTags);
 
-        await this.emailCampaignAudienceRepository.save(
-          this.emailCampaignAudienceRepository.create({
-            contact_id: contact.id,
-            email: contact.email,
-            email_campaign: emailCampaign,
-            value_tags: JSON.stringify(contactTags),
-            html: this.tagReplace(
-              emailCampaign.email_template_html,
-              contactTags,
-            ),
-          }),
-        );
+          await this.emailCampaignAudienceRepository.save(
+            this.emailCampaignAudienceRepository.create({
+              contact_id: contact.id,
+              to: contact.name,
+              email_to: contact.email,
+              email_campaign: emailCampaign,
+              value_tags: JSON.stringify(contactTags),
+              html: this.tagReplace(
+                emailCampaign.email_template_html,
+                contactTags,
+              ),
+            }),
+          );
+        }
       }
     }
   }
