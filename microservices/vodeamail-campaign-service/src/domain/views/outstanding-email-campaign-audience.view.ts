@@ -1,9 +1,4 @@
-import {
-  Column,
-  PrimaryGeneratedColumn,
-  ViewColumn,
-  ViewEntity,
-} from 'typeorm';
+import { ViewColumn, ViewEntity } from 'typeorm';
 
 @ViewEntity({
   name: 'outstanding_email_campaign_audiences',
@@ -25,6 +20,7 @@ import {
       email_campaign_audiences.accepted IS NULL
       AND email_campaign_audiences.failed IS NULL
       AND email_campaigns.sent_at <= NOW() 
+      AND email_campaigns.deleted_at IS NULL
     UNION(
       SELECT
         email_campaign_audiences.id,
@@ -42,7 +38,8 @@ import {
       WHERE
           email_campaign_audiences.accepted IS NOT NULL 
           AND email_campaign_audiences.failed IS NULL
-          AND email_campaign_audiences.delivered IS NULL 
+          AND email_campaign_audiences.delivered IS NULL
+          AND email_campaigns.deleted_at IS NULL
           AND TIME_TO_SEC(TIMEDIFF( NOW(), email_campaign_audiences.accepted )) >= 300 )`,
 })
 export class OutstandingEmailCampaignAudienceView {

@@ -14,6 +14,12 @@ export class SetAcceptedEmailCampaignAudienceDto extends BaseTimestampEmailCampa
 
 export class SetDeliveredEmailCampaignAudienceDto extends BaseTimestampEmailCampaignAudienceDto {}
 
+export class SetOpenedEmailCampaignAudienceDto extends BaseTimestampEmailCampaignAudienceDto {}
+
+export class SetClickedEmailCampaignAudienceDto extends BaseTimestampEmailCampaignAudienceDto {}
+
+export class SetUnsubscribedEmailCampaignAudienceDto extends BaseTimestampEmailCampaignAudienceDto {}
+
 export class SetFailedEmailCampaignAudienceDto extends BaseTimestampEmailCampaignAudienceDto {
   @IsNotEmpty()
   @IsString()

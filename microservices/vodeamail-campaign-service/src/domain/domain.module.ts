@@ -13,8 +13,10 @@ import { EmailCampaignAnalytic } from './entities/email-campaign-analytic.entity
 import { SummaryEmailCampaignAnalyticView } from './views/summary-email-campaign-analytic.view';
 import { SummaryEmailCampaignView } from './views/summary-email-campaign.view';
 import { EmailCampaignAudienceService } from './services/email-campaign-audience.service';
-import { EmailCampaignAnalyticService } from './services/email-campaign-analytic.service';
 import { OutstandingEmailCampaignAudienceView } from './views/outstanding-email-campaign-audience.view';
+import { WidgetService } from './services/widget.service';
+import { DashboardWidgetView } from './views/dashboard-widget.view';
+import { ChartDashboardWidgetView } from './views/chart-dashboard-widget.view';
 
 const providers: Provider[] = [
   {
@@ -32,12 +34,12 @@ const providers: Provider[] = [
     useClass: EmailTemplateService,
   },
   {
-    provide: 'CAMPAIGN_EMAIL_CAMPAIGN_ANALYTIC_SERVICE',
-    useClass: EmailCampaignAnalyticService,
-  },
-  {
     provide: 'CAMPAIGN_EMAIL_CAMPAIGN_AUDIENCE_SERVICE',
     useClass: EmailCampaignAudienceService,
+  },
+  {
+    provide: 'CAMPAIGN_WIDGET_SERVICE',
+    useClass: WidgetService,
   },
 ];
 
@@ -53,6 +55,8 @@ const providers: Provider[] = [
       SummaryEmailCampaignView,
       SummaryEmailCampaignAnalyticView,
       OutstandingEmailCampaignAudienceView,
+      DashboardWidgetView,
+      ChartDashboardWidgetView,
     ]),
   ],
   providers: [...providers],

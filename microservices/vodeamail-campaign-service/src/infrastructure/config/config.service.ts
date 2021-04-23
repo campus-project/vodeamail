@@ -11,6 +11,8 @@ import { EmailCampaignAnalytic } from '../../domain/entities/email-campaign-anal
 import { SummaryEmailCampaignView } from '../../domain/views/summary-email-campaign.view';
 import { SummaryEmailCampaignAnalyticView } from '../../domain/views/summary-email-campaign-analytic.view';
 import { OutstandingEmailCampaignAudienceView } from '../../domain/views/outstanding-email-campaign-audience.view';
+import { DashboardWidgetView } from '../../domain/views/dashboard-widget.view';
+import { ChartDashboardWidgetView } from '../../domain/views/chart-dashboard-widget.view';
 
 @Injectable()
 export class ConfigService extends ConfigServiceAbstract {
@@ -59,6 +61,8 @@ export class ConfigService extends ConfigServiceAbstract {
         SummaryEmailCampaignView,
         SummaryEmailCampaignAnalyticView,
         OutstandingEmailCampaignAudienceView,
+        DashboardWidgetView,
+        ChartDashboardWidgetView,
       ],
       migrations: ['src/infrastructure/database/migrations/**/*.{ts,js}'],
       cli: {

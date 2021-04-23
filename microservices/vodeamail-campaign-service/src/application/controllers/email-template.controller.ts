@@ -13,36 +13,36 @@ import {
 export class EmailTemplateController {
   constructor(
     @Inject('CAMPAIGN_EMAIL_TEMPLATE_SERVICE')
-    private readonly emailTemplate: EmailTemplateService,
+    private readonly emailTemplateService: EmailTemplateService,
   ) {}
 
   @MessagePattern('MS_CAMPAIGN_CREATE_EMAIL_TEMPLATE')
   create(@Payload() createEmailTemplateDto: CreateEmailTemplateDto) {
-    return this.emailTemplate.create(createEmailTemplateDto);
+    return this.emailTemplateService.create(createEmailTemplateDto);
   }
 
   @MessagePattern('MS_CAMPAIGN_FIND_ALL_EMAIL_TEMPLATE')
   findAll(@Payload() findAllEmailTemplateDto: FindAllEmailTemplateDto) {
-    return this.emailTemplate.findAll(findAllEmailTemplateDto);
+    return this.emailTemplateService.findAll(findAllEmailTemplateDto);
   }
 
   @MessagePattern('MS_CAMPAIGN_FIND_ALL_COUNT_EMAIL_TEMPLATE')
   findAllCount(@Payload() findAllEmailTemplateDto: FindAllEmailTemplateDto) {
-    return this.emailTemplate.findAllCount(findAllEmailTemplateDto);
+    return this.emailTemplateService.findAllCount(findAllEmailTemplateDto);
   }
 
   @MessagePattern('MS_CAMPAIGN_FIND_ONE_EMAIL_TEMPLATE')
   findOne(@Payload() findOneEmailTemplateDto: FindOneEmailTemplateDto) {
-    return this.emailTemplate.findOne(findOneEmailTemplateDto);
+    return this.emailTemplateService.findOne(findOneEmailTemplateDto);
   }
 
   @MessagePattern('MS_CAMPAIGN_UPDATE_EMAIL_TEMPLATE')
   update(@Payload() updateEmailTemplateDto: UpdateEmailTemplateDto) {
-    return this.emailTemplate.update(updateEmailTemplateDto);
+    return this.emailTemplateService.update(updateEmailTemplateDto);
   }
 
   @MessagePattern('MS_CAMPAIGN_REMOVE_EMAIL_TEMPLATE')
   remove(@Payload() deleteEmailTemplateDto: DeleteEmailTemplateDto) {
-    return this.emailTemplate.remove(deleteEmailTemplateDto);
+    return this.emailTemplateService.remove(deleteEmailTemplateDto);
   }
 }

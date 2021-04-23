@@ -5,6 +5,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked';
 import { buildFindAllQueryBuilder } from 'vnest-core';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import * as _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   CreateEmailCampaignDto,
@@ -341,7 +342,7 @@ export class EmailCampaignService {
   protected async syncEmailCampaignGroup(
     emailCampaign: EmailCampaign,
     groupIds: string[],
-  ) {
+  ): Promise<void> {
     const groups = groupIds.length
       ? await this.redisClient
           .send('MS_AUDIENCE_FIND_ALL_GROUP', {
@@ -395,7 +396,7 @@ export class EmailCampaignService {
       ),
     );
 
-    const organizationTags = await this.makeOrganizationTag(
+    let valueTags = await this.makeOrganizationTag(
       emailCampaign.organization_id,
     );
 
@@ -407,18 +408,22 @@ export class EmailCampaignService {
         ) === -1
       ) {
         if (contact.is_subscribed) {
-          const contactTags = this.makeContactTag(contact, organizationTags);
+          const emailCampaignAudienceId = uuidv4();
+
+          valueTags = this.makeContactTag(contact, valueTags);
+          valueTags = this.makeSettingTag(emailCampaignAudienceId, valueTags);
 
           await this.emailCampaignAudienceRepository.save(
             this.emailCampaignAudienceRepository.create({
+              id: emailCampaignAudienceId,
               contact_id: contact.id,
               to: contact.name,
               email_to: contact.email,
               email_campaign: emailCampaign,
-              value_tags: JSON.stringify(contactTags),
+              value_tags: JSON.stringify(valueTags),
               html: this.tagReplace(
                 emailCampaign.email_template_html,
-                contactTags,
+                valueTags,
               ),
             }),
           );
@@ -427,7 +432,7 @@ export class EmailCampaignService {
     }
   }
 
-  protected async makeOrganizationTag(organizationId: string) {
+  protected async makeOrganizationTag(organizationId: string): Promise<any> {
     const organization = await this.redisClient
       .send('MS_ACCOUNT_FIND_ONE_ORGANIZATION', {
         id: organizationId,
@@ -446,7 +451,7 @@ export class EmailCampaignService {
     };
   }
 
-  protected makeContactTag(contact, organizationTags) {
+  protected makeContactTag(contact, valueTags): any {
     const contactTags = {
       email: contact.email,
       name: contact.name,
@@ -459,15 +464,27 @@ export class EmailCampaignService {
       postal_code: contact.postal_code,
     };
 
-    Object.assign(contactTags, organizationTags);
+    Object.assign(contactTags, valueTags);
 
     return contactTags;
   }
 
-  protected tagReplace(templateHtml: string, search) {
+  protected makeSettingTag(emailCampaignAudienceId, valueTags): any {
+    const settingTags = {
+      unsubscribe_url: `<a href="http://localhost:3010/a/u?ref=${encodeURIComponent(
+        emailCampaignAudienceId,
+      )}">Unsubscribe</a>`,
+    };
+
+    Object.assign(settingTags, valueTags);
+
+    return settingTags;
+  }
+
+  protected tagReplace(templateHtml: string, search): string {
     Object.keys(search).forEach((key) => {
       templateHtml = templateHtml.replace(
-        new RegExp('{{ ' + key + ' }}'),
+        new RegExp('{{ ' + key + ' }}', 'mg'),
         search[key],
       );
     });
@@ -478,7 +495,7 @@ export class EmailCampaignService {
   protected makeFilter(
     builder: SelectQueryBuilder<EmailCampaign>,
     options: FindOneEmailCampaignDto | FindAllEmailCampaignDto,
-  ) {
+  ): SelectQueryBuilder<EmailCampaign> {
     const {
       organization_id: organizationId,
       group_id: groupId,
@@ -518,7 +535,7 @@ export class EmailCampaignService {
   protected makeSearchable(
     builder: SelectQueryBuilder<EmailCampaign>,
     { search }: FindAllEmailCampaignDto,
-  ) {
+  ): SelectQueryBuilder<EmailCampaign> {
     if (search) {
       const params = { search: `%${search}%` };
       builder.andWhere(

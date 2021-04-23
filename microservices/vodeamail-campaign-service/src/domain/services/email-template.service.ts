@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, In, Repository } from 'typeorm';
+import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { EmailTemplate } from '../entities/email-template.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
@@ -11,7 +11,7 @@ import {
   UpdateEmailTemplateDto,
 } from '../../application/dtos/email-template.dto';
 import { RpcException } from '@nestjs/microservices';
-import { buildFindAllQueryBuilder, buildFindOneQueryBuilder } from 'vnest-core';
+import { buildFindAllQueryBuilder } from 'vnest-core';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -169,9 +169,9 @@ export class EmailTemplateService {
   }
 
   protected makeFilter(
-    builder: any,
+    builder: SelectQueryBuilder<EmailTemplate>,
     options: FindOneEmailTemplateDto | FindAllEmailTemplateDto,
-  ) {
+  ): SelectQueryBuilder<EmailTemplate> {
     const { organization_id: organizationId } = options;
 
     builder.andWhere(
@@ -185,7 +185,10 @@ export class EmailTemplateService {
     return builder;
   }
 
-  protected makeSearchable(builder: any, { search }: FindAllEmailTemplateDto) {
+  protected makeSearchable(
+    builder: SelectQueryBuilder<EmailTemplate>,
+    { search }: FindAllEmailTemplateDto,
+  ): SelectQueryBuilder<EmailTemplate> {
     if (search) {
       const params = { search: `%${search}%` };
       builder.andWhere(

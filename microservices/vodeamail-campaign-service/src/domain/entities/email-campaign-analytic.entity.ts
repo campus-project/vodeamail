@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { EmailCampaign } from './email-campaign.entity';
 import { EmailCampaignAudience } from './email-campaign-audience.entity';
 
-enum EmailCampaignAnalyticType {
+export enum EmailCampaignAnalyticType {
   'OPENED',
   'CLICKED',
   'UNSUBSCRIBED',

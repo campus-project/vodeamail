@@ -3,15 +3,18 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { EmailCampaignAudienceService } from '../../domain/services/email-campaign-audience.service';
 import {
   SetAcceptedEmailCampaignAudienceDto,
+  SetClickedEmailCampaignAudienceDto,
   SetDeliveredEmailCampaignAudienceDto,
   SetFailedEmailCampaignAudienceDto,
+  SetOpenedEmailCampaignAudienceDto,
+  SetUnsubscribedEmailCampaignAudienceDto,
 } from '../dtos/email-campaign-audience.dto';
 
 @Controller()
 export class EmailCampaignAudienceController {
   constructor(
     @Inject('CAMPAIGN_EMAIL_CAMPAIGN_AUDIENCE_SERVICE')
-    private readonly emailCampaign: EmailCampaignAudienceService,
+    private readonly emailCampaignAudienceService: EmailCampaignAudienceService,
   ) {}
 
   @MessagePattern('MS_CAMPAIGN_SET_ACCEPTED_EMAIL_CAMPAIGN_AUDIENCE')
@@ -19,7 +22,9 @@ export class EmailCampaignAudienceController {
     @Payload()
     setAcceptedEmailCampaignAudienceDto: SetAcceptedEmailCampaignAudienceDto,
   ) {
-    return this.emailCampaign.setAccepted(setAcceptedEmailCampaignAudienceDto);
+    return this.emailCampaignAudienceService.setAccepted(
+      setAcceptedEmailCampaignAudienceDto,
+    );
   }
 
   @MessagePattern('MS_CAMPAIGN_SET_DELIVERED_EMAIL_CAMPAIGN_AUDIENCE')
@@ -27,7 +32,7 @@ export class EmailCampaignAudienceController {
     @Payload()
     setDeliveredEmailCampaignAudienceDto: SetDeliveredEmailCampaignAudienceDto,
   ) {
-    return this.emailCampaign.setDelivered(
+    return this.emailCampaignAudienceService.setDelivered(
       setDeliveredEmailCampaignAudienceDto,
     );
   }
@@ -37,6 +42,38 @@ export class EmailCampaignAudienceController {
     @Payload()
     setFailedEmailCampaignAudienceDto: SetFailedEmailCampaignAudienceDto,
   ) {
-    return this.emailCampaign.setFailed(setFailedEmailCampaignAudienceDto);
+    return this.emailCampaignAudienceService.setFailed(
+      setFailedEmailCampaignAudienceDto,
+    );
+  }
+
+  @MessagePattern('MS_CAMPAIGN_SET_OPENED_EMAIL_CAMPAIGN_AUDIENCE')
+  setOpened(
+    @Payload()
+    setOpenedEmailCampaignAudienceDto: SetOpenedEmailCampaignAudienceDto,
+  ) {
+    return this.emailCampaignAudienceService.setOpened(
+      setOpenedEmailCampaignAudienceDto,
+    );
+  }
+
+  @MessagePattern('MS_CAMPAIGN_SET_CLICKED_EMAIL_CAMPAIGN_AUDIENCE')
+  setClicked(
+    @Payload()
+    setClickedEmailCampaignAudienceDto: SetClickedEmailCampaignAudienceDto,
+  ) {
+    return this.emailCampaignAudienceService.setClicked(
+      setClickedEmailCampaignAudienceDto,
+    );
+  }
+
+  @MessagePattern('MS_CAMPAIGN_SET_UNSUBSCRIBED_EMAIL_CAMPAIGN_AUDIENCE')
+  setUnsubscribed(
+    @Payload()
+    setUnsubscribedEmailCampaignAudienceDto: SetUnsubscribedEmailCampaignAudienceDto,
+  ) {
+    return this.emailCampaignAudienceService.setUnsubscribed(
+      setUnsubscribedEmailCampaignAudienceDto,
+    );
   }
 }
