@@ -4,10 +4,8 @@ import { User } from 'vnest-core';
 
 @Controller('account')
 export class AccountController {
-  constructor(
-    @Inject('AUTH_REFRESH_TOKEN_SERVICE')
-    private readonly refreshTokenService: RefreshTokenService,
-  ) {}
+  @Inject('AUTH_REFRESH_TOKEN_SERVICE')
+  private readonly refreshTokenService: RefreshTokenService;
 
   @Get()
   account(@User() user) {

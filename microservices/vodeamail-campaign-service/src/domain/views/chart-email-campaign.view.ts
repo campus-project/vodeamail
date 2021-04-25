@@ -18,7 +18,7 @@ import { ViewColumn, ViewEntity } from 'typeorm';
       email_campaigns.organization_id,
       date`,
 })
-export class ChartDashboardWidgetView {
+export class ChartEmailCampaignView {
   @ViewColumn()
   organization_id: string;
 

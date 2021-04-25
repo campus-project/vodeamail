@@ -15,6 +15,9 @@ import { OrganizationController } from './controllers/microservices/organization
 import { UserController } from './controllers/microservices/user.controller';
 import { EmailCampaignController } from './controllers/microservices/email-campaign.controller';
 import { EmailTemplateController } from './controllers/microservices/email-template.controller';
+import { EmailCampaignAnalyticController } from './controllers/microservices/email-campaign-analytic.controller';
+import { TransactionController } from './controllers/transaction.controller';
+import { GateSettingController } from './controllers/gate-setting.controller';
 
 @Module({
   imports: [TerminusModule, DomainModule, InfrastructureModule],
@@ -22,6 +25,8 @@ import { EmailTemplateController } from './controllers/microservices/email-templ
     HealthController,
     AuthController,
     AccountController,
+    TransactionController,
+    GateSettingController,
 
     // ms account
     OrganizationController,
@@ -31,8 +36,11 @@ import { EmailTemplateController } from './controllers/microservices/email-templ
     // ms audience
     ContactController,
     GroupController,
+
+    // ms campaign
     EmailCampaignController,
     EmailTemplateController,
+    EmailCampaignAnalyticController,
   ],
   providers: [
     JwtStrategy,

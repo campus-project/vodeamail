@@ -9,6 +9,8 @@ import { Transaction } from '../../domain/entities/transaction.entity';
 import { GateSetting } from '../../domain/entities/gate-setting.entity';
 import { GateSettingPermission } from '../../domain/entities/gate-setting-permission.entity';
 
+import { RolePermissionView } from '../../domain/views/role-permission.view';
+
 @Injectable()
 export class ConfigService extends ConfigServiceAbstract {
   constructor() {
@@ -89,6 +91,8 @@ export class ConfigService extends ConfigServiceAbstract {
         Permission,
         GateSetting,
         GateSettingPermission,
+
+        RolePermissionView,
       ],
       migrations: ['src/infrastructure/database/migrations/**/*.{ts,js}'],
       cli: {

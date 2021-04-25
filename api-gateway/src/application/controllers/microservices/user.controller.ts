@@ -25,10 +25,8 @@ import {
 
 @Controller('user')
 export class UserController {
-  constructor(
-    @Inject('REDIS_TRANSPORT')
-    private readonly redisClient: ClientProxy,
-  ) {}
+  @Inject('REDIS_TRANSPORT')
+  private readonly redisClient: ClientProxy;
 
   @Get()
   async findAll(
@@ -79,7 +77,7 @@ export class UserController {
     return { data };
   }
 
-  @Post()
+  /*@Post()
   async create(
     @User('id') userId: string,
     @User('organization_id') organizationId: string,
@@ -95,7 +93,7 @@ export class UserController {
       .catch(clientProxyException);
 
     return { data };
-  }
+  }*/
 
   @Put(':id')
   async update(
@@ -117,7 +115,7 @@ export class UserController {
     return { data };
   }
 
-  @Delete(':id')
+  /*@Delete(':id')
   async remove(
     @User('id') userId: string,
     @User('organization_id') organizationId: string,
@@ -133,5 +131,5 @@ export class UserController {
       .catch(clientProxyException);
 
     return { data };
-  }
+  }*/
 }

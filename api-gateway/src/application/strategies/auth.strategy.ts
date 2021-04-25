@@ -2,11 +2,31 @@ import { AuthGuard } from '@nestjs/passport';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY, PERMISSION_KEY } from 'vnest-core';
+import { ForbiddenException } from '@nestjs/common';
 
 @Injectable()
 export class AuthStrategy extends AuthGuard('jwt') {
+  private permission;
+
   constructor(private reflector: Reflector) {
     super();
+  }
+
+  authenticate() {
+    console.log('asd');
+  }
+
+  handleRequest(err, user) {
+    if (!this.permission || user?.role?.is_special) {
+      return user;
+    }
+
+    const userPermissions = user?.permissions || [];
+    if (userPermissions.includes(this.permission)) {
+      return user;
+    }
+
+    throw new ForbiddenException();
   }
 
   canActivate(context: ExecutionContext) {
@@ -25,8 +45,7 @@ export class AuthStrategy extends AuthGuard('jwt') {
     );
 
     if (permission) {
-      //todo: validate permission
-      return permission;
+      this.permission = permission;
     }
 
     return super.canActivate(context);

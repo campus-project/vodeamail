@@ -10,9 +10,10 @@ import { clientProxyException, Public } from 'vnest-core';
 
 @Controller('health')
 export class HealthController {
+  @Inject('REDIS_TRANSPORT')
+  private readonly redisClient: ClientProxy;
+
   constructor(
-    @Inject('REDIS_TRANSPORT')
-    private readonly redisClient: ClientProxy,
     private readonly health: HealthCheckService,
     private readonly http: HttpHealthIndicator,
     private readonly db: TypeOrmHealthIndicator,

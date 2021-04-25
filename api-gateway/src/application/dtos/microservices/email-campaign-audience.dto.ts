@@ -1,13 +1,11 @@
-import { FindAllQueryDto, FindOneQueryDto } from 'vnest-core';
-
-export class FindAllEmailCampaignQueryDto extends FindAllQueryDto {
-  status: string;
-  group_id: string;
-  group_ids: string[];
+export class BaseEmailCampaignAudienceDto {
+  ref: string;
 }
 
-export class FindOneEmailCampaignQueryDto extends FindOneQueryDto {
-  status: string;
-  group_id: string;
-  group_ids: string[];
+export class setOpenedEmailCampaignAudience extends BaseEmailCampaignAudienceDto {
+  r: string;
 }
+
+export class setClickedEmailCampaignAudience extends BaseEmailCampaignAudienceDto {}
+
+export class setUnsubscribedEmailCampaignAudience extends BaseEmailCampaignAudienceDto {}

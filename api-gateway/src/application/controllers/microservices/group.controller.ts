@@ -25,10 +25,8 @@ import {
 
 @Controller('group')
 export class GroupController {
-  constructor(
-    @Inject('REDIS_TRANSPORT')
-    private readonly redisClient: ClientProxy,
-  ) {}
+  @Inject('REDIS_TRANSPORT')
+  private readonly redisClient: ClientProxy;
 
   @Get()
   async findAll(

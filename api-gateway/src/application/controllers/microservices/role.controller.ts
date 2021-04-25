@@ -25,10 +25,8 @@ import {
 
 @Controller('role')
 export class RoleController {
-  constructor(
-    @Inject('REDIS_TRANSPORT')
-    private readonly redisClient: ClientProxy,
-  ) {}
+  @Inject('REDIS_TRANSPORT')
+  private readonly redisClient: ClientProxy;
 
   @Get()
   async findAll(

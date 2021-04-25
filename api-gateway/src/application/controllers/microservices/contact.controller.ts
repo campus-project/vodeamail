@@ -25,10 +25,8 @@ import {
 
 @Controller('contact')
 export class ContactController {
-  constructor(
-    @Inject('REDIS_TRANSPORT')
-    private readonly redisClient: ClientProxy,
-  ) {}
+  @Inject('REDIS_TRANSPORT')
+  private readonly redisClient: ClientProxy;
 
   @Get()
   async findAll(

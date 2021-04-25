@@ -7,12 +7,11 @@ import { Public } from 'vnest-core';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    @Inject('VODEA_CLOUD_SERVICE')
-    private readonly vodeaCloudService: VodeaCloudService,
-    @Inject('JWT_SERVICE')
-    private readonly jwtService: JwtService,
-  ) {}
+  @Inject('VODEA_CLOUD_SERVICE')
+  private readonly vodeaCloudService: VodeaCloudService;
+
+  @Inject('JWT_SERVICE')
+  private readonly jwtService: JwtService;
 
   @Public()
   @Post('vodea-cloud')

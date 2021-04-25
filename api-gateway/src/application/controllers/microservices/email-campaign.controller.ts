@@ -22,13 +22,12 @@ import {
   FindAllEmailCampaignQueryDto,
   FindOneEmailCampaignQueryDto,
 } from '../../dtos/microservices/email-campaign.dto';
+import { FindAllOrganizationQueryDto } from '../../dtos/microservices/organization.dto';
 
 @Controller('email-campaign')
 export class EmailCampaignController {
-  constructor(
-    @Inject('REDIS_TRANSPORT')
-    private readonly redisClient: ClientProxy,
-  ) {}
+  @Inject('REDIS_TRANSPORT')
+  private readonly redisClient: ClientProxy;
 
   @Get()
   async findAll(
@@ -135,6 +134,40 @@ export class EmailCampaignController {
         organization_id: organizationId,
         id,
       })
+      .toPromise()
+      .catch(clientProxyException);
+
+    return { data };
+  }
+
+  @Get('view/widget')
+  async widget(
+    @User('organization_id') organizationId: string,
+    @Query() query: FindAllOrganizationQueryDto,
+  ) {
+    const payload = buildFindAllPayload(query, {
+      organization_id: organizationId,
+    });
+
+    const data = await this.redisClient
+      .send('MS_CAMPAIGN_WIDGET_EMAIL_CAMPAIGN', payload)
+      .toPromise()
+      .catch(clientProxyException);
+
+    return { data };
+  }
+
+  @Get('view/chart')
+  async chart(
+    @User('organization_id') organizationId: string,
+    @Query() query: FindAllOrganizationQueryDto,
+  ) {
+    const payload = buildFindAllPayload(query, {
+      organization_id: organizationId,
+    });
+
+    const data = await this.redisClient
+      .send('MS_CAMPAIGN_CHART_EMAIL_CAMPAIGN', payload)
       .toPromise()
       .catch(clientProxyException);
 

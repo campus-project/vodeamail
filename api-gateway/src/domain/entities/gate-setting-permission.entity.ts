@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { GateSetting } from './gate-setting.entity';
+import { Permission } from './permission.entity';
 
 @Entity('gate_setting_permissions')
 export class GateSettingPermission {
@@ -14,4 +15,7 @@ export class GateSettingPermission {
 
   @ManyToOne(() => GateSetting, (object) => object.gate_setting_permissions)
   gate_setting: GateSetting;
+
+  @ManyToOne(() => Permission, (object) => object.gate_setting_permissions)
+  permission: Permission;
 }

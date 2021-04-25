@@ -2,9 +2,9 @@ import { api, createCancelTokenHandler } from "../utilities/services";
 
 const endPoint = () => process.env.REACT_APP_GATEWAY_ENDPOINT;
 
-const GroupRepository = {
+const Role = {
   all: function (params: any = null) {
-    return api.get(`${endPoint()}/group`, {
+    return api.get(`${endPoint()}/role`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.all.name
@@ -12,7 +12,7 @@ const GroupRepository = {
     });
   },
   show: function (id: number | string, params: any = null) {
-    return api.get(`${endPoint()}/group/${id}`, {
+    return api.get(`${endPoint()}/role/${id}`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.show.name
@@ -20,7 +20,7 @@ const GroupRepository = {
     });
   },
   create: function (payload: any, params: any = null) {
-    return api.post(`${endPoint()}/group`, payload, {
+    return api.post(`${endPoint()}/role`, payload, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.create.name
@@ -28,7 +28,7 @@ const GroupRepository = {
     });
   },
   update: function (id: number | string, payload: any, params: any = null) {
-    return api.put(`${endPoint()}/group/${id}`, payload, {
+    return api.put(`${endPoint()}/role/${id}`, payload, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.update.name
@@ -36,7 +36,7 @@ const GroupRepository = {
     });
   },
   delete: function (id: number | string, params: any = null) {
-    return api.delete(`${endPoint()}/group/${id}`, {
+    return api.delete(`${endPoint()}/role/${id}`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.delete.name
@@ -45,6 +45,6 @@ const GroupRepository = {
   },
 };
 
-export default GroupRepository;
+export default Role;
 
-const cancelTokenHandlerObject = createCancelTokenHandler(GroupRepository);
+const cancelTokenHandlerObject = createCancelTokenHandler(Role);
