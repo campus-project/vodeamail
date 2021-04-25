@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React from "react";
 import {
   Box,
@@ -30,7 +32,7 @@ const EmailUsageStatistic: React.FC<any> = () => {
 
   return (
     <Box>
-      <Divider variant={"middle"} />
+      {/*<Divider variant={"middle"} />
       <Box p={2} pb={1}>
         <Box>
           <span>{t("sidebar:usage.campaign")}</span>
@@ -58,7 +60,7 @@ const EmailUsageStatistic: React.FC<any> = () => {
         <Button component={LinkDom} to={"/apps/usage"} color={"primary"}>
           {t("sidebar:usage.see_detail")}
         </Button>
-      </Box>
+      </Box>*/}
     </Box>
   );
 };

@@ -1,6 +1,6 @@
 import { Group } from "./Group";
 import { EmailTemplate } from "./EmailTemplate";
-import { SummaryEmailCampaignAnalytic } from "./SummaryEmailCampaignAnalytic";
+import { SummaryEmailCampaignAnalytic } from "./views";
 
 export interface EmailCampaign {
   id?: string;

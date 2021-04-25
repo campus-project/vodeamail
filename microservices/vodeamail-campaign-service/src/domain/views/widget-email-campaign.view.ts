@@ -1,7 +1,7 @@
 import { ViewColumn, ViewEntity } from 'typeorm';
 
 @ViewEntity({
-  name: 'dashboard_widgets',
+  name: 'widget_email_campaigns',
   expression: `
     SELECT 
       email_campaigns.organization_id,
@@ -16,7 +16,7 @@ import { ViewColumn, ViewEntity } from 'typeorm';
     GROUP BY 
       organization_id`,
 })
-export class DashboardWidgetView {
+export class WidgetEmailCampaignView {
   @ViewColumn()
   organization_id: string;
 

@@ -19,14 +19,15 @@ import { Contact } from '../entities/contact.entity';
 
 @Injectable()
 export class GroupService {
-  constructor(
-    @InjectRepository(Group)
-    private readonly groupRepository: Repository<Group>,
-    @InjectRepository(ContactGroup)
-    private readonly contactGroupRepository: Repository<ContactGroup>,
-    @InjectRepository(Contact)
-    private readonly contactRepository: Repository<Contact>,
-  ) {}
+  //entity
+  @InjectRepository(Group)
+  private readonly groupRepository: Repository<Group>;
+
+  @InjectRepository(ContactGroup)
+  private readonly contactGroupRepository: Repository<ContactGroup>;
+
+  @InjectRepository(Contact)
+  private readonly contactRepository: Repository<Contact>;
 
   async findAll(options: FindAllGroupDto): Promise<Group[]> {
     const { relations } = options;
@@ -256,7 +257,7 @@ export class GroupService {
   protected makeFilter(
     builder: SelectQueryBuilder<Group>,
     options: FindOneGroupDto | FindAllGroupDto,
-  ) {
+  ): SelectQueryBuilder<Group> {
     const {
       organization_id: organizationId,
       is_visible: isVisible,
@@ -305,7 +306,7 @@ export class GroupService {
   protected makeSearchable(
     builder: SelectQueryBuilder<Group>,
     { search }: FindAllGroupDto,
-  ) {
+  ): SelectQueryBuilder<Group> {
     if (search) {
       const params = { search: `%${search}%` };
       builder.andWhere(

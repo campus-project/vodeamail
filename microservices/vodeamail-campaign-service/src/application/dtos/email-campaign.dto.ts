@@ -14,6 +14,7 @@ import {
   ActorOrganizationDto,
   FindAllWithOrganizationDto,
   FindOneWithOrganizationDto,
+  OrganizationDto,
 } from 'vnest-core';
 
 export class FindAllEmailCampaignDto extends FindAllWithOrganizationDto {
@@ -96,3 +97,7 @@ export class UpdateEmailCampaignDto extends CreateEmailCampaignDto {
 }
 
 export class DeleteEmailCampaignDto extends ActorDeleteWithOrganizationDto {}
+
+export class WidgetEmailCampaignDto extends OrganizationDto {}
+
+export class ChartEmailCampaignDto extends OrganizationDto {}

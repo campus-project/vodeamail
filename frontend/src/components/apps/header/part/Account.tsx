@@ -5,6 +5,7 @@ import {
   Button,
   Divider,
   IconButton,
+  Link,
   Menu,
   MenuItem,
   Typography,
@@ -13,6 +14,8 @@ import { useSelector } from "react-redux";
 import { useStyles } from "../style";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { LaunchOutlined } from "@material-ui/icons";
+import { profileUrl } from "../../../../utilities/helpers";
 
 const Account: React.FC<any> = () => {
   const { t } = useTranslation();
@@ -82,15 +85,26 @@ const Account: React.FC<any> = () => {
 
         <Box py={1}>
           <MenuItem
-            component={NavLink}
-            to={"/apps/profile"}
+            component={Link}
+            href={profileUrl()}
+            target={"_blank"}
             onClick={handleClose}
           >
-            <Typography variant={"subtitle2"}>{t("common:profile")}</Typography>
+            <Box
+              display={"flex"}
+              justifyContent={"space-between"}
+              style={{ width: "100%" }}
+            >
+              <Typography variant={"subtitle2"}>
+                {t("common:profile")}
+              </Typography>
+              <LaunchOutlined />
+            </Box>
           </MenuItem>
+
           <MenuItem
             component={NavLink}
-            to={"/apps/setting"}
+            to={"/apps/preference"}
             onClick={handleClose}
           >
             <Typography variant={"subtitle2"}>{t("common:setting")}</Typography>

@@ -30,7 +30,7 @@ import MuiDatePicker from "../../../../../components/ui/form/MuiDatePicker";
 import moment from "moment";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { EmailCampaign } from "../../../../../models/EmailCampaign";
+import { EmailCampaign } from "../../../../../models";
 import FormAction from "../../../../../components/ui/form/MuiFormAction";
 import MuiTimePicker from "../../../../../components/ui/form/MuiTimePicker";
 import { useSelector } from "react-redux";
@@ -326,6 +326,7 @@ const FormSetting: React.FC<FormSettingProps> = (props) => {
                               {...others}
                               inputRef={ref}
                               onChange={onChange}
+                              margin={"normal"}
                               label={t("pages:email_campaign.field.date")}
                               error={hasError("send_date_at")}
                               helperText={getError("send_date_at.message")}
@@ -340,6 +341,7 @@ const FormSetting: React.FC<FormSettingProps> = (props) => {
                             <MuiTimePicker
                               {...others}
                               inputRef={ref}
+                              margin={"normal"}
                               onChange={onChange}
                               label={t("pages:email_campaign.field.time")}
                               error={hasError("send_time_at")}

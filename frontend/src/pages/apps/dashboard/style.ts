@@ -22,7 +22,6 @@ const useStyles = makeStyles((theme) => ({
   cardSummaryItem: {
     display: "flex",
     flexDirection: "row",
-    padding: theme.spacing(1.5),
 
     "& .card-summary-icon-box": {
       display: "grid",

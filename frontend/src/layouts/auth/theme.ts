@@ -10,6 +10,16 @@ export const theme = createMuiTheme({
     },
   },
   overrides: {
+    MuiPaper: {
+      elevation1: {
+        boxShadow: "0px 2px 8px #0000001a",
+      },
+    },
+    MuiOutlinedInput: {
+      root: {
+        borderRadius: 8,
+      },
+    },
     MuiMenuItem: {
       root: {
         fontSize: "0.8rem",
@@ -21,6 +31,14 @@ export const theme = createMuiTheme({
     MuiButton: {
       root: {
         padding: "8px 16px",
+      },
+    },
+    MuiTableCell: {
+      body: {
+        borderBottom: "1px solid #f4f4f4",
+      },
+      footer: {
+        border: "unset",
       },
     },
   },
@@ -35,6 +53,9 @@ export const theme = createMuiTheme({
       light: "#5c83ab",
       main: "#346497",
       dark: "#244669",
+    },
+    error: {
+      main: "#DB1D1D",
     },
     text: {
       primary: "#383838",

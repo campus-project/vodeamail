@@ -22,6 +22,10 @@ const example = [
       { name: "Fax", value: "{{ org_fax }}" },
     ],
   },
+  {
+    name: "Setting",
+    mergeTags: [{ name: "Unsubscribe Url", value: "{{ unsubscribe_url }}" }],
+  },
 ];
 
 export default example;

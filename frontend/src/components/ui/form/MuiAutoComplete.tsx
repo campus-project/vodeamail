@@ -99,7 +99,7 @@ const MuiAutoComplete = withStyles((theme: Theme) =>
   return (
     <Autocomplete
       {...others}
-      value={value}
+      {...(isKeepClear ? { value } : {})}
       loading={loading}
       options={$cloneState(options)}
       onOpen={onOpen}

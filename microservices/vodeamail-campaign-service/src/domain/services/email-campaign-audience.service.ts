@@ -21,16 +21,19 @@ import {
 
 @Injectable()
 export class EmailCampaignAudienceService {
-  constructor(
-    @InjectRepository(EmailCampaignAudience)
-    private readonly emailCampaignAudienceRepository: Repository<EmailCampaignAudience>,
-    @InjectRepository(EmailCampaignAnalytic)
-    private readonly emailCampaignAnalyticRepository: Repository<EmailCampaignAnalytic>,
-    @InjectRepository(OutstandingEmailCampaignAudienceView)
-    private readonly outstandingEmailCampaignAudienceViewRepository: Repository<OutstandingEmailCampaignAudienceView>,
-    @Inject('REDIS_TRANSPORT')
-    private readonly redisClient: ClientProxy,
-  ) {}
+  @Inject('REDIS_TRANSPORT')
+  private readonly redisClient: ClientProxy;
+
+  //entity
+  @InjectRepository(EmailCampaignAudience)
+  private readonly emailCampaignAudienceRepository: Repository<EmailCampaignAudience>;
+
+  @InjectRepository(EmailCampaignAnalytic)
+  private readonly emailCampaignAnalyticRepository: Repository<EmailCampaignAnalytic>;
+
+  //view
+  @InjectRepository(OutstandingEmailCampaignAudienceView)
+  private readonly outstandingEmailCampaignAudienceViewRepository: Repository<OutstandingEmailCampaignAudienceView>;
 
   @Cron('*/3 * * * * *')
   async sendEmailToService() {

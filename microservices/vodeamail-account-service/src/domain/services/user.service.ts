@@ -20,14 +20,15 @@ import { Organization } from '../entities/organization.entity';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
-    @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
-  ) {}
+  //entity
+  @InjectRepository(User)
+  private readonly userRepository: Repository<User>;
+
+  @InjectRepository(Role)
+  private readonly roleRepository: Repository<Role>;
+
+  @InjectRepository(Organization)
+  private readonly organizationRepository: Repository<Organization>;
 
   async findAll(options: FindAllUserDto): Promise<User[]> {
     const { relations } = options;
@@ -223,7 +224,7 @@ export class UserService {
   protected makeFilter(
     builder: SelectQueryBuilder<User>,
     options: FindOneUserDto | FindAllUserDto,
-  ) {
+  ): SelectQueryBuilder<User> {
     const { organization_id: organizationId, role_id: roleId } = options;
 
     builder.andWhere(
@@ -248,7 +249,7 @@ export class UserService {
   protected makeSearchable(
     builder: SelectQueryBuilder<User>,
     { search }: FindAllUserDto,
-  ) {
+  ): SelectQueryBuilder<User> {
     if (search) {
       const params = { search: `%${search}%` };
       builder.andWhere(

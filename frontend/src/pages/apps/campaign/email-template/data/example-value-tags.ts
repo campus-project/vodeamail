@@ -13,6 +13,8 @@ const example = {
   org_address: "23546 Leffler Gateway Suite 707 Zionton, NE 42553-7754",
   org_telephone: "+1 (463) 703-3125",
   org_fax: "(240) 296-2050",
+
+  unsubscribe_url: `<a href="https://example.com">Unsubscribe</a>`,
 };
 
 export default example;

@@ -11,10 +11,8 @@ import {
 
 @Controller()
 export class GroupController {
-  constructor(
-    @Inject('AUDIENCE_GROUP_SERVICE')
-    private readonly groupService: GroupService,
-  ) {}
+  @Inject('AUDIENCE_GROUP_SERVICE')
+  private readonly groupService: GroupService;
 
   @MessagePattern('MS_AUDIENCE_CREATE_GROUP')
   create(@Payload() createGroupDto: CreateGroupDto) {

@@ -9,10 +9,8 @@ import {
 
 @Controller()
 export class SentEmailController {
-  constructor(
-    @Inject('MAILER_SENT_EMAIL_SERVICE')
-    private readonly sentEmailService: SentEmailService,
-  ) {}
+  @Inject('MAILER_SENT_EMAIL_SERVICE')
+  private readonly sentEmailService: SentEmailService;
 
   @MessagePattern('MS_MAILER_CREATE_EMAIL_CAMPAIGN')
   create(@Payload() createEmailCampaignDto: CreateSentEmailDto) {

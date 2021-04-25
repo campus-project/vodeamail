@@ -11,10 +11,8 @@ import { RoleService } from '../../domain/services/role.service';
 
 @Controller()
 export class RoleController {
-  constructor(
-    @Inject('ACCOUNT_ROLE_SERVICE')
-    private readonly roleService: RoleService,
-  ) {}
+  @Inject('ACCOUNT_ROLE_SERVICE')
+  private readonly roleService: RoleService;
 
   @MessagePattern('MS_ACCOUNT_CREATE_ROLE')
   create(@Payload() createRoleDto: CreateRoleDto) {

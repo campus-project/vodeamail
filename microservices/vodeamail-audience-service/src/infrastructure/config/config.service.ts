@@ -5,9 +5,10 @@ import { ConfigServiceAbstract } from 'vnest-core';
 
 import { Contact } from '../../domain/entities/contact.entity';
 import { Group } from '../../domain/entities/group.entity';
+import { ContactGroup } from '../../domain/entities/contact-group.entity';
+
 import { SummaryContactView } from '../../domain/views/summary-contact.view';
 import { SummaryGroupView } from '../../domain/views/summary-group.view';
-import { ContactGroup } from '../../domain/entities/contact-group.entity';
 
 @Injectable()
 export class ConfigService extends ConfigServiceAbstract {

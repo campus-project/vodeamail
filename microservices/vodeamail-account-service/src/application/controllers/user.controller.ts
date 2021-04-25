@@ -12,10 +12,8 @@ import { UserService } from '../../domain/services/user.service';
 
 @Controller()
 export class UserController {
-  constructor(
-    @Inject('ACCOUNT_USER_SERVICE')
-    private readonly userService: UserService,
-  ) {}
+  @Inject('ACCOUNT_USER_SERVICE')
+  private readonly userService: UserService;
 
   @MessagePattern('MS_ACCOUNT_CREATE_USER')
   create(@Payload() createUserDto: CreateUserDto) {

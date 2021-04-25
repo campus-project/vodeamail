@@ -246,6 +246,7 @@ const CardSummary: React.FC<ICardSummary> = (props) => {
     <MuiCard
       className={clsx([classes.cardSummaryItem, danger ? "danger" : ""])}
       style={style}
+      p={1.5}
     >
       <Box className={"card-summary-icon-box"}>
         <i className={icon} />
@@ -286,16 +287,17 @@ interface IEmailCampaignSummary {
 const EmailCampaignSummary: React.FC<IEmailCampaignSummary> = (props) => {
   const { subject, sentAt, lastOpened, lastClicked, avgOpenDuration } = props;
   const { t } = useTranslation();
+  const classes = useStyles();
 
   return (
     <MuiCard>
-      <Box px={2} mb={1}>
+      <MuiCardHead borderless={1}>
         <Typography variant={"h6"}>
           {t("pages:email_analytic.section.summary")}
         </Typography>
-      </Box>
+      </MuiCardHead>
 
-      <Table aria-label="summary table">
+      <Table aria-label="summary table" className={classes.summaryTable}>
         <TableBody>
           <TableRow>
             <TableCell align={"left"}>
@@ -385,24 +387,11 @@ const EmailCampaignPerformance: React.FC<IEmailCampaignPerformance> = (
   const { t } = useTranslation();
 
   const options = {
+    responsive: true,
+    hoverMode: "index",
+    stacked: false,
     scales: {
-      yAxes: [
-        {
-          type: "linear",
-          display: true,
-          position: "left",
-          id: "y-axis-1",
-        },
-        {
-          type: "linear",
-          display: true,
-          position: "right",
-          id: "y-axis-2",
-          gridLines: {
-            drawOnArea: false,
-          },
-        },
-      ],
+      yAxes: [],
     },
   };
 
@@ -410,7 +399,7 @@ const EmailCampaignPerformance: React.FC<IEmailCampaignPerformance> = (
     labels: string[];
     datasets: any[];
   }>({
-    labels: ["1", "2", "3", "4", "5", "6"],
+    labels: [],
     datasets: [],
   });
 
@@ -427,20 +416,18 @@ const EmailCampaignPerformance: React.FC<IEmailCampaignPerformance> = (
 
     const valueDataSets: any[] = [
       {
-        label: "Open Rate",
+        label: "Open",
         data: [],
         fill: false,
-        backgroundColor: "#027d04",
-        borderColor: "#5cab5d",
-        yAxisID: "y-axis-1",
+        backgroundColor: "rgb(75, 192, 192)",
+        borderColor: "rgb(75, 192, 192)",
       },
       {
-        label: "Engagement Rate",
+        label: "Engagement",
         data: [],
         fill: false,
-        backgroundColor: "#023E7D",
-        borderColor: "#5c83ab",
-        yAxisID: "y-axis-2",
+        backgroundColor: "rgb(54, 162, 235)",
+        borderColor: "rgb(54, 162, 235)",
       },
     ];
 

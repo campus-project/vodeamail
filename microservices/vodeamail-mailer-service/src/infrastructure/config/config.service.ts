@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { ClientOptions, Transport } from '@nestjs/microservices';
 import { ConfigServiceAbstract } from 'vnest-core';
+import { MailerOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
 
 import { SentEmail } from '../../domain/entities/sent-email.entity';
 import { SentEmailClick } from '../../domain/entities/sent-email-click.entity';
-import { MailerOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
 
 @Injectable()
 export class ConfigService extends ConfigServiceAbstract {

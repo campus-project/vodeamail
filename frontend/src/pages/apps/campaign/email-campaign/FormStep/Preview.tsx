@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useEffect } from "react";
-import { EmailCampaign } from "../../../../../models/EmailCampaign";
+import { EmailCampaign } from "../../../../../models";
 import { useTranslation } from "react-i18next";
 import { Grid, Typography } from "@material-ui/core";
 import MuiCard from "../../../../../components/ui/card/MuiCard";

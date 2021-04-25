@@ -43,6 +43,22 @@ const EmailCampaignRepository = {
       ].handleRequestCancellation().token,
     });
   },
+  widget: function (params: any = null) {
+    return api.get(`${endPoint()}/email-campaign/view/widget`, {
+      params,
+      cancelToken: cancelTokenHandlerObject[
+        this.widget.name
+      ].handleRequestCancellation().token,
+    });
+  },
+  chart: function (params: any = null) {
+    return api.get(`${endPoint()}/email-campaign/view/chart`, {
+      params,
+      cancelToken: cancelTokenHandlerObject[
+        this.chart.name
+      ].handleRequestCancellation().token,
+    });
+  },
 };
 
 export default EmailCampaignRepository;

@@ -1,60 +1,44 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useCallback, useMemo } from "react";
-import { ChartEmailCampaign } from "../../../models/ChartEmailCampaign";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
-import moment from "moment";
-import MuiCard from "../../../components/ui/card/MuiCard";
-import MuiCardHead from "../../../components/ui/card/MuiCardHead";
-import { Box, Typography } from "@material-ui/core";
-import { Line } from "react-chartjs-2";
+import { Box } from "@material-ui/core";
 import { AxiosResponse } from "axios";
 import { Resource } from "../../../contracts";
 import { axiosErrorLoadDataHandler } from "../../../utilities/helpers";
 import { useIsMounted } from "../../../utilities/hooks";
 import { useSnackbar } from "notistack";
 import EmailCampaignRepository from "../../../repositories/EmailCampaignRepository";
+import { WidgetEmailCampaign } from "../../../models";
+import CardSummary from "./CardSummary";
+import PercentageDifferent from "../../../components/data/PercentageDifferent";
+import useStyles from "../analytic/email/style";
 
-interface ICardChart {}
+interface ICardEmailCampaignWidget {}
 
-const chartOptions = {
-  responsive: true,
-  hoverMode: "index",
-  stacked: false,
-  scales: {
-    yAxes: [],
-  },
+const defaultDashboardWidget: WidgetEmailCampaign = {
+  total_delivered: 0,
+  total_opened: 0,
+  total_clicked: 0,
+  total_active: 0,
 };
 
-const CardEmailCampaignChart: React.FC<ICardChart> = () => {
+const CardEmailCampaignChart: React.FC<ICardEmailCampaignWidget> = () => {
+  const classes = useStyles();
   const { t } = useTranslation();
   const isMounted = useIsMounted();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { date } = useSelector(({ setting }: any) => {
-    return {
-      date: setting.format.date,
-    };
-  });
+  const [
+    widgetEmailCampaign,
+    setWidgetEmailCampaign,
+  ] = React.useState<WidgetEmailCampaign>(defaultDashboardWidget);
 
-  const [chartEmailCampaigns, setChartEmailCampaigns] = React.useState<
-    ChartEmailCampaign[]
-  >([]);
-
-  const [dataSets, setDataSets] = React.useState<{
-    labels: string[];
-    datasets: any[];
-  }>({
-    labels: [],
-    datasets: [],
-  });
-
-  const loadChartEmailCampaigns = useCallback(async () => {
-    await EmailCampaignRepository.chart()
-      .then((resp: AxiosResponse<Resource<ChartEmailCampaign[]>>) => {
+  const loadDashboardWidget = useCallback(async () => {
+    await EmailCampaignRepository.widget()
+      .then((resp: AxiosResponse<Resource<WidgetEmailCampaign>>) => {
         if (isMounted.current) {
-          setChartEmailCampaigns(resp.data.data);
+          setWidgetEmailCampaign(resp.data.data);
         }
       })
       .catch((e: any) => {
@@ -65,76 +49,47 @@ const CardEmailCampaignChart: React.FC<ICardChart> = () => {
   }, [false]);
 
   useMemo(() => {
-    loadChartEmailCampaigns().then();
+    loadDashboardWidget().then();
   }, []);
 
-  useMemo(() => {
-    const valueLabels = chartEmailCampaigns.length
-      ? []
-      : [moment().format(date)];
-
-    const valueDataSets: any[] = [
-      {
-        label: "Delivered",
-        data: [],
-        fill: false,
-        backgroundColor: "rgb(75, 192, 192)",
-        borderColor: "rgb(75, 192, 192)",
-      },
-      {
-        label: "Opened",
-        data: [],
-        fill: false,
-        backgroundColor: "rgb(54, 162, 235)",
-        borderColor: "rgb(54, 162, 235)",
-      },
-      {
-        label: "Engagement",
-        data: [],
-        fill: false,
-        backgroundColor: "rgb(201, 203, 207)",
-        borderColor: "rgb(201, 203, 207)",
-      },
-    ];
-
-    chartEmailCampaigns.forEach((chartDashboardWidget, index) => {
-      if (index === 0 && chartEmailCampaigns.length === 1) {
-        valueLabels.push(
-          moment(chartDashboardWidget.date)
-            .startOf("day")
-            .subtract(1, "day")
-            .format(date)
-        );
-
-        valueDataSets[0].data.push(0);
-        valueDataSets[1].data.push(0);
-        valueDataSets[2].data.push(0);
-      }
-
-      valueLabels.push(moment(chartDashboardWidget.date).format(date));
-      valueDataSets[0].data.push(chartDashboardWidget.total_delivered);
-      valueDataSets[1].data.push(chartDashboardWidget.total_opened);
-      valueDataSets[2].data.push(chartDashboardWidget.total_clicked);
-    });
-
-    setDataSets({
-      labels: valueLabels,
-      datasets: valueDataSets,
-    });
-  }, [chartEmailCampaigns]);
-
   return (
-    <MuiCard>
-      <MuiCardHead borderless={1}>
-        <Typography variant={"h6"}>
-          {t("pages:dashboard.section.performance")}
-        </Typography>
-      </MuiCardHead>
+    <Box className={classes.cardSummaryContainer}>
+      <CardSummary
+        icon={"vicon-people"}
+        title={t("pages:dashboard.section.opened")}
+        value={() => (
+          <PercentageDifferent
+            defaultValue={0}
+            v1={widgetEmailCampaign?.total_opened || 0}
+            v2={widgetEmailCampaign?.total_delivered || 0}
+          />
+        )}
+      />
 
-      <Box px={4} py={1}>
-        <Line data={dataSets} options={chartOptions} />
-      </Box>
-    </MuiCard>
+      <CardSummary
+        icon={"vicon-people"}
+        title={t("pages:dashboard.section.engagement")}
+        value={() => (
+          <PercentageDifferent
+            defaultValue={0}
+            v1={widgetEmailCampaign?.total_clicked || 0}
+            v2={widgetEmailCampaign?.total_delivered || 0}
+          />
+        )}
+      />
+
+      <CardSummary
+        icon={"vicon-people"}
+        title={t("pages:dashboard.section.active")}
+        value={widgetEmailCampaign?.total_active || 0}
+      />
+
+      <CardSummary
+        icon={"vicon-people"}
+        title={t("pages:dashboard.section.delivered")}
+        value={widgetEmailCampaign?.total_delivered || 0}
+      />
+    </Box>
   );
 };
 

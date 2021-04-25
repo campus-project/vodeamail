@@ -16,10 +16,9 @@ import * as _ from 'lodash';
 
 @Injectable()
 export class EmailTemplateService {
-  constructor(
-    @InjectRepository(EmailTemplate)
-    private readonly emailTemplateRepository: Repository<EmailTemplate>,
-  ) {}
+  //entity
+  @InjectRepository(EmailTemplate)
+  private readonly emailTemplateRepository: Repository<EmailTemplate>;
 
   async findAll(options: FindAllEmailTemplateDto): Promise<EmailTemplate[]> {
     const qb = this.emailTemplateRepository

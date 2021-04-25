@@ -33,13 +33,14 @@ const AnalyticEmailDetail = lazy(
 
 //preference
 const Preference = lazy(() => import("../pages/apps/preference"));
-const Organization = lazy(
-  () => import("../pages/apps/preference/organization")
-);
 const Role = lazy(() => import("../pages/apps/preference/role"));
 const RoleForm = lazy(() => import("../pages/apps/preference/role/Form"));
+const User = lazy(() => import("../pages/apps/preference/user"));
+const UserForm = lazy(() => import("../pages/apps/preference/user/Form"));
 const GateSetting = lazy(() => import("../pages/apps/preference/gate-setting"));
-const Profile = lazy(() => import("../pages/apps/Profile"));
+const GateSettingForm = lazy(
+  () => import("../pages/apps/preference/gate-setting/Form")
+);
 const Setting = lazy(() => import("../pages/apps/Setting"));
 
 const routes = [
@@ -84,15 +85,22 @@ const routes = [
       },
 
       { path: "preference", element: <Preference /> },
-      { path: "preference/organization", element: <Organization /> },
 
       { path: "preference/role", element: <Role /> },
       { path: "preference/role/create", element: <RoleForm /> },
       { path: "preference/role/:id/edit", element: <RoleForm /> },
 
-      { path: "preference/gate-setting", element: <GateSetting /> },
+      { path: "preference/user", element: <User /> },
+      { path: "preference/user/:id/edit", element: <UserForm /> },
 
-      { path: "profile", element: <Profile /> },
+      { path: "preference/gate-setting", element: <GateSetting /> },
+      { path: "preference/gate-setting/create", element: <GateSettingForm /> },
+      {
+        path: "preference/gate-setting/:id/edit",
+        element: <GateSettingForm />,
+      },
+
+      //temporary for change i18n
       { path: "setting", element: <Setting /> },
     ],
   },

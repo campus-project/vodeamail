@@ -1,18 +1,13 @@
-import { Group } from "./Group";
+import { Role } from "./Role";
+import { Permission } from "./Permission";
 
-export interface Contact {
+export interface GateSetting {
   id?: string;
-  email: string;
-  name?: string | null;
-  mobile_phone?: string | null;
-  address_line_1?: string | null;
-  address_line_2?: string | null;
-  country?: string | null;
-  province?: string | null;
-  city?: string | null;
-  postal_code?: string | null;
-  is_subscribed?: boolean;
+  name: string;
+  valid_from: string | Date;
+  role_id: string | Role | null;
+  permission_ids: string[] | Permission[] | null;
 
-  groups?: Group[];
-  group_ids: Group[];
+  role?: Role;
+  permissions?: Permission[];
 }

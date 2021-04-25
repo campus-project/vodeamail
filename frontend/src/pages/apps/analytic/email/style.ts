@@ -1,6 +1,11 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
+  emailCampaignStatus: {
+    display: "inline-block !important",
+    padding: `0 ${theme.spacing(1)}px !important`,
+  },
+
   cardSummaryContainer: {
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",
@@ -22,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   cardSummaryItem: {
     display: "flex",
     flexDirection: "row",
-    padding: theme.spacing(1.5),
+    padding: `${theme.spacing(1.5)}px !important`,
 
     "& .card-summary-icon-box": {
       display: "grid",
@@ -56,6 +61,13 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "auto",
         color: theme.palette.error.main,
       },
+    },
+  },
+
+  summaryTable: {
+    "& td, th": {
+      paddingLeft: theme.spacing(3),
+      paddingRight: theme.spacing(3),
     },
   },
 }));

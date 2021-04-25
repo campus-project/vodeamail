@@ -2,7 +2,7 @@ import React from "react";
 
 interface IPercentage {
   data: string | number;
-  defaultValue?: string;
+  defaultValue?: string | number;
 }
 
 const Percentage: React.FC<IPercentage> = ({ data, defaultValue = "" }) => {

@@ -124,7 +124,6 @@ const EmailCampaign: React.FC<any> = () => {
 
     await EmailCampaignRepository.all({
       ...params,
-      using: "builder",
     })
       .then((resp: AxiosResponse<any>) => {
         if (isMounted.current) {

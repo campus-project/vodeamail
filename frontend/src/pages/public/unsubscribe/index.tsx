@@ -1,11 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 import React, { useCallback, useMemo } from "react";
 import { useDocumentTitle, useQuerySearch } from "../../../utilities/hooks";
 import { Box, Typography } from "@material-ui/core";
 import useStyles from "./style";
 import axios from "axios";
 import validator from "validator";
-
-const unsubscribeURI = () => process.env.REACT_APP_VODEA_CLOUD_UNSUBSCRIBE_URL;
+import { unsubscribeUrl } from "../../../utilities/helpers";
 
 const Unsubscribe: React.FC<any> = () => {
   useDocumentTitle("Unsubscribe Mailing - VodeaMail");
@@ -18,7 +19,7 @@ const Unsubscribe: React.FC<any> = () => {
       return false;
     }
 
-    const url = unsubscribeURI();
+    const url = unsubscribeUrl();
     if (url !== undefined) {
       await axios.post(url, { ref });
     }

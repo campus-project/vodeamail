@@ -1,10 +1,6 @@
-import { User } from "react-email-editor";
-
-export interface Role {
+export interface Permission {
   id?: string;
+  transaction_id: string;
   name: string;
-  is_special: boolean;
-  is_default: boolean;
-
-  users?: User[];
+  ability: string;
 }

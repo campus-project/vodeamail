@@ -1,6 +1,14 @@
 {
   "dashboard": {
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "section": {
+      "opened": "Opened",
+      "engagement": "Engagement",
+      "active": "Active",
+      "delivered": "Delivered",
+      "performance": "Performance",
+      "newest_campaign": "Newest Campaign"
+    }
   },
   "email_campaign": {
     "title": "Email Campaign",
@@ -66,7 +74,7 @@
     },
     "text": {
       "dialog_title": "Setting",
-      "dialog_description": "To identify the email template, please enter your template name here."
+      "dialog_description": "To identify the email template, enter your template name."
     }
   },
   "audience": {
@@ -178,9 +186,9 @@
         "title": "Permission",
         "description": "Configure your role access for application"
       },
-      "team": {
-        "title": "Team Up",
-        "description": "Create or update your team of business"
+      "people": {
+        "title": "People",
+        "description": "Setting or update your team role of business"
       }
     }
   },
@@ -198,6 +206,42 @@
         "name": "Name",
         "total_user": "Total User",
         "default": "Default",
+        "updated": "Updated At"
+      }
+    }
+  },
+  "user": {
+    "title": "User",
+    "section": {
+      "information": "Information"
+    },
+    "field": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role"
+    },
+    "datatable": {
+      "columns": {
+        "name": "Name",
+        "updated": "Updated At"
+      }
+    }
+  },
+  "gate_setting": {
+    "title": "Gate Setting",
+    "section": {
+      "information": "Information",
+      "permission": "Permission Ability"
+    },
+    "field": {
+      "name": "Name",
+      "valid_from": "Valid From",
+      "role": "Role",
+      "ability": "Ability"
+    },
+    "datatable": {
+      "columns": {
+        "name": "Name",
         "updated": "Updated At"
       }
     }

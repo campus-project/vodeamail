@@ -12,6 +12,7 @@ import {
   FindAllContactDto,
   FindOneContactDto,
   UpdateContactDto,
+  UpdateSubscriptionContactDto,
 } from '../../application/dtos/contact.dto';
 import { Contact } from '../entities/contact.entity';
 import { Group } from '../entities/group.entity';
@@ -20,14 +21,15 @@ import { ContactGroup } from '../entities/contact-group.entity';
 
 @Injectable()
 export class ContactService {
-  constructor(
-    @InjectRepository(Contact)
-    private readonly contactRepository: Repository<Contact>,
-    @InjectRepository(ContactGroup)
-    private readonly contactGroupRepository: Repository<ContactGroup>,
-    @InjectRepository(Group)
-    private readonly groupRepository: Repository<Group>,
-  ) {}
+  //entity
+  @InjectRepository(Contact)
+  private readonly contactRepository: Repository<Contact>;
+
+  @InjectRepository(ContactGroup)
+  private readonly contactGroupRepository: Repository<ContactGroup>;
+
+  @InjectRepository(Group)
+  private readonly groupRepository: Repository<Group>;
 
   async findAll(options: FindAllContactDto): Promise<Contact[]> {
     const { relations } = options;
@@ -239,6 +241,39 @@ export class ContactService {
   }
 
   @Transactional()
+  async updateSubscription(
+    updateSubscriptionContactDto: UpdateSubscriptionContactDto,
+  ): Promise<Contact> {
+    const {
+      id,
+      organization_id,
+      is_subscribed,
+      actor_id: updated_by,
+    } = updateSubscriptionContactDto;
+
+    const contact = await this.contactRepository.findOne({
+      where: { id, organization_id },
+    });
+
+    if (!contact) {
+      throw new RpcException(`Could not find resource ${id}.`);
+    }
+
+    Object.assign(contact, {
+      organization_id,
+      is_subscribed,
+      updated_by,
+    });
+
+    await this.contactRepository.save(contact);
+
+    return this.findOne({
+      id: contact.id,
+      organization_id,
+    });
+  }
+
+  @Transactional()
   async remove(deleteContactDto: DeleteContactDto): Promise<number> {
     const {
       id,
@@ -281,7 +316,7 @@ export class ContactService {
   protected makeFilter(
     builder: SelectQueryBuilder<Contact>,
     options: FindOneContactDto | FindAllContactDto,
-  ) {
+  ): SelectQueryBuilder<Contact> {
     const {
       organization_id: organizationId,
       is_subscribed: isSubscribed,
@@ -330,7 +365,7 @@ export class ContactService {
   protected makeSearchable(
     builder: SelectQueryBuilder<Contact>,
     { search }: FindAllContactDto,
-  ) {
+  ): SelectQueryBuilder<Contact> {
     if (search) {
       const params = { search: `%${search}%` };
       builder.andWhere(

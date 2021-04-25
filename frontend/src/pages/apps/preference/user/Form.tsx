@@ -1,13 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useCallback, useEffect, useMemo } from "react";
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  Typography,
-} from "@material-ui/core";
+import { Box, Grid, Typography } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { NavigateBefore } from "@material-ui/icons";
 import { useNavigate, useParams } from "react-router";
@@ -21,32 +15,34 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import FormAction from "../../../../components/ui/form/MuiFormAction";
 import _ from "lodash";
-import RoleRepository from "../../../../repositories/RoleRepository";
+import UserRepository from "../../../../repositories/UserRepository";
 import { useIsMounted } from "../../../../utilities/hooks";
 import {
   axiosErrorLoadDataHandler,
   axiosErrorSaveHandler,
 } from "../../../../utilities/helpers";
 import { useSnackbar } from "notistack";
-import { Role } from "../../../../models";
+import { User } from "../../../../models";
 import { AxiosResponse } from "axios";
 import { Resource } from "../../../../contracts";
 import Loading from "../../../../components/ui/Loading";
+import MuiAutoComplete from "../../../../components/ui/form/MuiAutoComplete";
+import RoleRepository from "../../../../repositories/RoleRepository";
 
-const defaultValues: Role = {
+const defaultValues: User = {
   name: "",
-  is_special: false,
-  is_default: false,
+  email: "",
+  role_id: null,
 };
 
-const RoleForm: React.FC<any> = () => {
+const UserForm: React.FC<any> = () => {
   const { id } = useParams();
   const { t } = useTranslation();
   const isMounted = useIsMounted();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [data, setData] = React.useState<Role>(defaultValues);
+  const [data, setData] = React.useState<User>(defaultValues);
   const [onFetchData, setOnFetchData] = React.useState<boolean>(Boolean(id));
   const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -59,17 +55,17 @@ const RoleForm: React.FC<any> = () => {
       setOnFetchData(true);
     }
 
-    await RoleRepository.show(id, {
-      relations: ["contacts"],
+    await UserRepository.show(id, {
+      relations: ["role"],
     })
-      .then((resp: AxiosResponse<Resource<Role>>) => {
-        const { data: role } = resp.data;
+      .then((resp: AxiosResponse<Resource<User>>) => {
+        const { data: user } = resp.data;
 
-        Object.assign(data, {
-          is_default: Boolean(data.is_default),
+        Object.assign(user, {
+          role_id: user.role,
         });
 
-        setData(role);
+        setData(user);
 
         if (isMounted.current) {
           setOnFetchData(false);
@@ -84,12 +80,11 @@ const RoleForm: React.FC<any> = () => {
       });
   }, [false]);
 
-  const { handleSubmit, errors, setError, control, reset } = useForm<Role>({
+  const { handleSubmit, errors, setError, control, reset } = useForm<User>({
     mode: "onChange",
     resolver: yupResolver(
       yup.object().shape({
-        name: yup.string().required(),
-        is_default: yup.boolean().nullable(true),
+        role_id: yup.mixed().required(),
       })
     ),
     defaultValues: useMemo(() => {
@@ -105,28 +100,30 @@ const RoleForm: React.FC<any> = () => {
     reset(data);
   }, [data]);
 
-  const onSubmit = async (formData: Role) => {
+  const onSubmit = async (formData: User) => {
     setLoading(true);
 
-    await (id
-      ? RoleRepository.update(id, formData)
-      : RoleRepository.create(formData)
-    )
+    formData.role_id = _.get(formData, "role_id.id");
+
+    await UserRepository.update(id, formData)
       .then(() => {
         if (isMounted.current) {
           setLoading(false);
         }
 
         enqueueSnackbar(
-          t("common:successfully_created", {
-            label: t("pages:role.title"),
-          }),
+          t(
+            id ? "common:successfully_updated" : "common:successfully_created",
+            {
+              label: t("pages:user.title"),
+            }
+          ),
           {
             variant: "success",
           }
         );
 
-        navigate("/apps/preference/role");
+        navigate("/apps/preference/user");
       })
       .catch((e: any) => {
         if (isMounted.current) {
@@ -149,14 +146,14 @@ const RoleForm: React.FC<any> = () => {
       >
         <Box mr={1.5}>
           <MuiButtonIconRounded
-            onClick={() => navigate("/apps/preference/role")}
+            onClick={() => navigate("/apps/preference/user")}
           >
             <NavigateBefore />
           </MuiButtonIconRounded>
         </Box>
         <Typography variant={"h5"}>
-          {t("common:create_label", {
-            label: t("pages:role.title"),
+          {t(id ? "common:update_label" : "common:create_label", {
+            label: t("pages:user.title"),
           })}
         </Typography>
       </Box>
@@ -168,7 +165,7 @@ const RoleForm: React.FC<any> = () => {
               <MuiCard>
                 <MuiCardHead>
                   <Typography variant={"h6"}>
-                    {t("pages:role.section.information")}
+                    {t("pages:user.section.information")}
                   </Typography>
                 </MuiCardHead>
 
@@ -183,9 +180,12 @@ const RoleForm: React.FC<any> = () => {
                             <MuiTextField
                               {...others}
                               inputRef={ref}
-                              label={t("pages:role.field.name")}
+                              label={t("pages:user.field.name")}
                               error={_.has(errors, "name")}
                               helperText={_.get(errors, "name.message")}
+                              InputProps={{
+                                readOnly: true,
+                              }}
                             />
                           )}
                         />
@@ -194,14 +194,38 @@ const RoleForm: React.FC<any> = () => {
                       <Grid item xs={12}>
                         <Controller
                           control={control}
-                          name={"is_default"}
-                          render={({ value, onChange }) => (
-                            <FormControlLabel
-                              onChange={(event, value) => onChange(value)}
-                              label={t("pages:role.field.default")}
-                              control={<Checkbox checked={Boolean(value)} />}
+                          name={"email"}
+                          render={({ ref, ...others }) => (
+                            <MuiTextField
+                              {...others}
+                              inputRef={ref}
+                              label={t("pages:user.field.email")}
+                              error={_.has(errors, "email")}
+                              helperText={_.get(errors, "email.message")}
+                              InputProps={{
+                                readOnly: true,
+                              }}
                             />
                           )}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <Controller
+                          control={control}
+                          name={"role_id"}
+                          render={({ value, onChange }) => {
+                            return (
+                              <MuiAutoComplete
+                                value={value}
+                                repository={RoleRepository}
+                                onSelected={(value) => onChange(value)}
+                                muiTextField={{
+                                  label: t("pages:user.field.role"),
+                                }}
+                              />
+                            );
+                          }}
                         />
                       </Grid>
                     </Grid>
@@ -217,7 +241,7 @@ const RoleForm: React.FC<any> = () => {
             title={t("common:save_changes")}
             cancel={t("common:cancel")}
             save={t("common:save")}
-            onCancel={() => navigate("/apps/preference/role")}
+            onCancel={() => navigate("/apps/preference/user")}
             onSave={handleSubmit(onSubmit)}
             saveDisable={loading}
             saveLoading={loading}
@@ -228,4 +252,4 @@ const RoleForm: React.FC<any> = () => {
   );
 };
 
-export default RoleForm;
+export default UserForm;

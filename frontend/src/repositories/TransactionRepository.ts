@@ -4,7 +4,7 @@ const endPoint = () => process.env.REACT_APP_GATEWAY_ENDPOINT;
 
 const Permission = {
   all: function (params: any = null) {
-    return api.get(`${endPoint()}/permission`, {
+    return api.get(`${endPoint()}/transaction`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.all.name
@@ -12,7 +12,7 @@ const Permission = {
     });
   },
   show: function (id: number | string, params: any = null) {
-    return api.get(`${endPoint()}/permission/${id}`, {
+    return api.get(`${endPoint()}/transaction/${id}`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.show.name

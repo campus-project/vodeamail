@@ -113,7 +113,6 @@ const Role: React.FC<any> = () => {
 
     await RoleRepository.all({
       ...params,
-      using: "builder",
     })
       .then((resp: AxiosResponse<any>) => {
         if (isMounted.current) {

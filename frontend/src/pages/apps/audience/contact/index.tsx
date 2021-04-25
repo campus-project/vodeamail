@@ -108,7 +108,6 @@ const Group: React.FC<any> = () => {
 
     await ContactRepository.all({
       ...params,
-      using: "builder",
     })
       .then((resp: AxiosResponse<any>) => {
         if (isMounted.current) {

@@ -4,29 +4,26 @@ import React, { useCallback, useMemo } from "react";
 import { Box, Button, IconButton, Typography } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Link as LinkDom } from "react-router-dom";
-import useStyles from "./style";
-import { useDeleteResource, useIsMounted } from "../../../../utilities/hooks";
+import { useIsMounted } from "../../../../utilities/hooks";
 import { useState } from "@hookstate/core";
-import { People as IPeople } from "../../../../models";
+import { User as IUser } from "../../../../models";
 import UserRepository from "../../../../repositories/UserRepository";
 import MuiDatatable, {
   IMuiDatatableColumn,
 } from "../../../../components/datatable";
-import { Alert } from "@material-ui/lab";
 import ActionCell from "../../../../components/datatable/ActionCell";
-import { DeleteOutlined, EditOutlined } from "@material-ui/icons";
+import { EditOutlined } from "@material-ui/icons";
 import { AxiosResponse } from "axios";
 import _ from "lodash";
 import MuiCard from "../../../../components/ui/card/MuiCard";
-import Number from "../../../../components/data/Number";
 import DateTime from "../../../../components/data/DateTime";
+import { createUserUrl } from "../../../../utilities/helpers";
 
-const People: React.FC<any> = () => {
+const User: React.FC<any> = () => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const isMounted = useIsMounted();
 
-  const data = useState<IPeople[]>([]);
+  const data = useState<IUser[]>([]);
   const [totalData, setTotalData] = React.useState<number>(0);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [dataQuery, setDataQuery] = React.useState<any>({
@@ -34,43 +31,16 @@ const People: React.FC<any> = () => {
     per_page: 5,
   });
 
-  const { handleDelete } = useDeleteResource(UserRepository);
-
   const columns: IMuiDatatableColumn[] = [
     {
-      label: t("pages:role.datatable.columns.name"),
+      label: t("pages:user.datatable.columns.name"),
       name: "name",
     },
     {
-      label: t("pages:role.datatable.columns.total_user"),
-      name: "total_user",
-      columnName: "summary_roles.total_user",
-      options: {
-        customBodyRender: (value) => <Number data={value} />,
-      },
-    },
-    {
-      label: t("pages:role.datatable.columns.updated"),
+      label: t("pages:user.datatable.columns.updated"),
       name: "updated_at",
       options: {
         customBodyRender: (value) => <DateTime data={value} />,
-      },
-    },
-    {
-      label: t("pages:role.datatable.columns.default"),
-      name: "is_default",
-      options: {
-        customBodyRender: (value) => (
-          <Alert
-            className={classes.status}
-            icon={false}
-            severity={value ? "success" : "error"}
-          >
-            <Typography variant={"caption"}>
-              {value ? t("common:active") : t("common:in_active")}
-            </Typography>
-          </Alert>
-        ),
       },
     },
     {
@@ -78,27 +48,14 @@ const People: React.FC<any> = () => {
       name: "id",
       options: {
         customBodyRender: (value, metaData) => {
-          const rowData = data[metaData.rowIndex].value;
-          const canDelete = data.value.length > 1 && !rowData.is_special;
-
           return (
             <ActionCell>
               <IconButton
                 component={LinkDom}
-                to={`/apps/preference/role/${value}/edit`}
+                to={`/apps/preference/user/${value}/edit`}
               >
                 <EditOutlined />
               </IconButton>
-
-              {canDelete ? (
-                <IconButton
-                  onClick={() => {
-                    handleDelete(value).then(() => loadData());
-                  }}
-                >
-                  <DeleteOutlined />
-                </IconButton>
-              ) : null}
             </ActionCell>
           );
         },
@@ -113,7 +70,6 @@ const People: React.FC<any> = () => {
 
     await UserRepository.all({
       ...params,
-      using: "builder",
     })
       .then((resp: AxiosResponse<any>) => {
         if (isMounted.current) {
@@ -163,16 +119,16 @@ const People: React.FC<any> = () => {
   return (
     <>
       <Box display={"flex"} justifyContent={"space-between"}>
-        <Typography variant={"h5"}>{t("pages:role.title")}</Typography>
+        <Typography variant={"h5"}>{t("pages:user.title")}</Typography>
 
         <Button
-          component={LinkDom}
-          to={"/apps/preference/role/create"}
           variant={"contained"}
           color={"primary"}
+          href={createUserUrl()}
+          target={"_blank"}
         >
           {t("common:create_label", {
-            label: t("pages:role.title"),
+            label: t("pages:user.title"),
           })}
         </Button>
       </Box>
@@ -197,4 +153,4 @@ const People: React.FC<any> = () => {
   );
 };
 
-export default People;
+export default User;

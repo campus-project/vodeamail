@@ -1,12 +1,15 @@
 import { Module, Provider } from '@nestjs/common';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Organization } from './entities/organization.entity';
-import { Role } from './entities/role.entity';
-import { User } from './entities/user.entity';
 import { UserService } from './services/user.service';
 import { OrganizationService } from './services/organization.service';
 import { RoleService } from './services/role.service';
+
+import { Organization } from './entities/organization.entity';
+import { Role } from './entities/role.entity';
+import { User } from './entities/user.entity';
+
+import { SummaryRoleView } from './views/summary-role.view';
 
 const providers: Provider[] = [
   {
@@ -26,7 +29,7 @@ const providers: Provider[] = [
 @Module({
   imports: [
     InfrastructureModule,
-    TypeOrmModule.forFeature([Organization, Role, User]),
+    TypeOrmModule.forFeature([Organization, Role, User, SummaryRoleView]),
   ],
   providers: [...providers],
   exports: [...providers],

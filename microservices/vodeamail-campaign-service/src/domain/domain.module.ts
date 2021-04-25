@@ -8,15 +8,16 @@ import { EmailTemplate } from './entities/email-template.entity';
 import { EmailTemplateService } from './services/email-template.service';
 import { ClientProxyFactory } from '@nestjs/microservices';
 import { ConfigService } from '../infrastructure/config/config.service';
+
 import { EmailCampaignAudience } from './entities/email-campaign-audience.entity';
 import { EmailCampaignAnalytic } from './entities/email-campaign-analytic.entity';
+import { EmailCampaignAudienceService } from './services/email-campaign-audience.service';
+
+import { OutstandingEmailCampaignAudienceView } from './views/outstanding-email-campaign-audience.view';
 import { SummaryEmailCampaignAnalyticView } from './views/summary-email-campaign-analytic.view';
 import { SummaryEmailCampaignView } from './views/summary-email-campaign.view';
-import { EmailCampaignAudienceService } from './services/email-campaign-audience.service';
-import { OutstandingEmailCampaignAudienceView } from './views/outstanding-email-campaign-audience.view';
-import { WidgetService } from './services/widget.service';
-import { DashboardWidgetView } from './views/dashboard-widget.view';
-import { ChartDashboardWidgetView } from './views/chart-dashboard-widget.view';
+import { ChartEmailCampaignView } from './views/chart-email-campaign.view';
+import { WidgetEmailCampaignView } from './views/widget-email-campaign.view';
 
 const providers: Provider[] = [
   {
@@ -37,10 +38,6 @@ const providers: Provider[] = [
     provide: 'CAMPAIGN_EMAIL_CAMPAIGN_AUDIENCE_SERVICE',
     useClass: EmailCampaignAudienceService,
   },
-  {
-    provide: 'CAMPAIGN_WIDGET_SERVICE',
-    useClass: WidgetService,
-  },
 ];
 
 @Module({
@@ -52,11 +49,12 @@ const providers: Provider[] = [
       EmailCampaignAudience,
       EmailCampaignAnalytic,
       EmailTemplate,
+
       SummaryEmailCampaignView,
       SummaryEmailCampaignAnalyticView,
       OutstandingEmailCampaignAudienceView,
-      DashboardWidgetView,
-      ChartDashboardWidgetView,
+      WidgetEmailCampaignView,
+      ChartEmailCampaignView,
     ]),
   ],
   providers: [...providers],

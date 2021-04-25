@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useCallback, useMemo } from "react";
-import { ChartEmailCampaign } from "../../../models/ChartEmailCampaign";
+import { ChartEmailCampaign } from "../../../models";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import moment from "moment";
@@ -16,7 +16,7 @@ import { useIsMounted } from "../../../utilities/hooks";
 import { useSnackbar } from "notistack";
 import EmailCampaignRepository from "../../../repositories/EmailCampaignRepository";
 
-interface ICardChart {}
+interface ICardEmailCampaignChart {}
 
 const chartOptions = {
   responsive: true,
@@ -27,7 +27,7 @@ const chartOptions = {
   },
 };
 
-const CardEmailCampaignChart: React.FC<ICardChart> = () => {
+const CardEmailCampaignChart: React.FC<ICardEmailCampaignChart> = () => {
   const { t } = useTranslation();
   const isMounted = useIsMounted();
   const { enqueueSnackbar } = useSnackbar();

@@ -7,14 +7,13 @@ import {
   FindAllContactDto,
   FindOneContactDto,
   UpdateContactDto,
+  UpdateSubscriptionContactDto,
 } from '../dtos/contact.dto';
 
 @Controller()
 export class ContactController {
-  constructor(
-    @Inject('AUDIENCE_CONTACT_SERVICE')
-    private readonly contactService: ContactService,
-  ) {}
+  @Inject('AUDIENCE_CONTACT_SERVICE')
+  private readonly contactService: ContactService;
 
   @MessagePattern('MS_AUDIENCE_CREATE_CONTACT')
   create(@Payload() createContactDto: CreateContactDto) {
@@ -44,5 +43,12 @@ export class ContactController {
   @MessagePattern('MS_AUDIENCE_REMOVE_CONTACT')
   remove(@Payload() deleteContactDto: DeleteContactDto) {
     return this.contactService.remove(deleteContactDto);
+  }
+
+  @MessagePattern('MS_AUDIENCE_UPDATE_SUBSCRIPTION_CONTACT')
+  updateSubscription(
+    @Payload() updateSubscriptionContactDto: UpdateSubscriptionContactDto,
+  ) {
+    return this.contactService.updateSubscription(updateSubscriptionContactDto);
   }
 }

@@ -19,14 +19,15 @@ import { User } from '../entities/user.entity';
 
 @Injectable()
 export class OrganizationService {
-  constructor(
-    @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
-    @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
+  //entity
+  @InjectRepository(Organization)
+  private readonly organizationRepository: Repository<Organization>;
+
+  @InjectRepository(Role)
+  private readonly roleRepository: Repository<Role>;
+
+  @InjectRepository(User)
+  private readonly userRepository: Repository<User>;
 
   async findAll(options: FindAllOrganizationDto): Promise<Organization[]> {
     const { relations } = options;
@@ -192,7 +193,7 @@ export class OrganizationService {
   protected makeSearchable(
     builder: SelectQueryBuilder<Organization>,
     { search }: FindAllOrganizationDto,
-  ) {
+  ): SelectQueryBuilder<Organization> {
     if (search) {
       const params = { search: `%${search}%` };
       builder.andWhere(

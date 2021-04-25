@@ -1,6 +1,6 @@
 import React, { lazy } from "react";
 
-import PublicLayout from "../layouts/p";
+import PublicLayout from "../layouts/public";
 
 const Unsubscribe = lazy(() => import("../pages/public/unsubscribe"));
 

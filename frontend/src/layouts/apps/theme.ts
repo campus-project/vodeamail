@@ -10,6 +10,11 @@ export const theme = createMuiTheme({
     },
   },
   overrides: {
+    MuiLink: {
+      root: {
+        textDecoration: "none !important",
+      },
+    },
     MuiPaper: {
       elevation1: {
         boxShadow: "0px 2px 8px #0000001a",

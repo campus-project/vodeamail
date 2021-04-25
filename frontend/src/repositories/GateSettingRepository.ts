@@ -2,9 +2,9 @@ import { api, createCancelTokenHandler } from "../utilities/services";
 
 const endPoint = () => process.env.REACT_APP_GATEWAY_ENDPOINT;
 
-const Role = {
+const GateSetting = {
   all: function (params: any = null) {
-    return api.get(`${endPoint()}/role`, {
+    return api.get(`${endPoint()}/gate-setting`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.all.name
@@ -12,7 +12,7 @@ const Role = {
     });
   },
   show: function (id: number | string, params: any = null) {
-    return api.get(`${endPoint()}/role/${id}`, {
+    return api.get(`${endPoint()}/gate-setting/${id}`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.show.name
@@ -20,7 +20,7 @@ const Role = {
     });
   },
   create: function (payload: any, params: any = null) {
-    return api.post(`${endPoint()}/role`, payload, {
+    return api.post(`${endPoint()}/gate-setting`, payload, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.create.name
@@ -28,7 +28,7 @@ const Role = {
     });
   },
   update: function (id: number | string, payload: any, params: any = null) {
-    return api.put(`${endPoint()}/role/${id}`, payload, {
+    return api.put(`${endPoint()}/gate-setting/${id}`, payload, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.update.name
@@ -36,7 +36,7 @@ const Role = {
     });
   },
   delete: function (id: number | string, params: any = null) {
-    return api.delete(`${endPoint()}/role/${id}`, {
+    return api.delete(`${endPoint()}/gate-setting/${id}`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.delete.name
@@ -45,6 +45,6 @@ const Role = {
   },
 };
 
-export default Role;
+export default GateSetting;
 
-const cancelTokenHandlerObject = createCancelTokenHandler(Role);
+const cancelTokenHandlerObject = createCancelTokenHandler(GateSetting);

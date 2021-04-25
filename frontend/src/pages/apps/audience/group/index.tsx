@@ -108,7 +108,6 @@ const Group: React.FC<any> = () => {
 
     await GroupRepository.all({
       ...params,
-      using: "builder",
     })
       .then((resp: AxiosResponse<any>) => {
         if (isMounted.current) {

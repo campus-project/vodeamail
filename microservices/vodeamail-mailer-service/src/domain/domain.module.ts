@@ -3,9 +3,10 @@ import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientProxyFactory } from '@nestjs/microservices';
 import { ConfigService } from '../infrastructure/config/config.service';
+import { SentEmailService } from './services/sent-email.service';
+
 import { SentEmail } from './entities/sent-email.entity';
 import { SentEmailClick } from './entities/sent-email-click.entity';
-import { SentEmailService } from './services/sent-email.service';
 
 const providers: Provider[] = [
   {

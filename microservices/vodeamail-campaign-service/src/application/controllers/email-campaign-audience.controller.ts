@@ -12,10 +12,8 @@ import {
 
 @Controller()
 export class EmailCampaignAudienceController {
-  constructor(
-    @Inject('CAMPAIGN_EMAIL_CAMPAIGN_AUDIENCE_SERVICE')
-    private readonly emailCampaignAudienceService: EmailCampaignAudienceService,
-  ) {}
+  @Inject('CAMPAIGN_EMAIL_CAMPAIGN_AUDIENCE_SERVICE')
+  private readonly emailCampaignAudienceService: EmailCampaignAudienceService;
 
   @MessagePattern('MS_CAMPAIGN_SET_ACCEPTED_EMAIL_CAMPAIGN_AUDIENCE')
   setAccepted(

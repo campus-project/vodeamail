@@ -11,10 +11,8 @@ import {
 
 @Controller()
 export class EmailTemplateController {
-  constructor(
-    @Inject('CAMPAIGN_EMAIL_TEMPLATE_SERVICE')
-    private readonly emailTemplateService: EmailTemplateService,
-  ) {}
+  @Inject('CAMPAIGN_EMAIL_TEMPLATE_SERVICE')
+  private readonly emailTemplateService: EmailTemplateService;
 
   @MessagePattern('MS_CAMPAIGN_CREATE_EMAIL_TEMPLATE')
   create(@Payload() createEmailTemplateDto: CreateEmailTemplateDto) {

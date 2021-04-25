@@ -6,7 +6,6 @@ import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { EmailCampaignController } from './controllers/email-campaign.controller';
 import { EmailTemplateController } from './controllers/email-template.controller';
 import { EmailCampaignAudienceController } from './controllers/email-campaign-audience.controller';
-import { WidgetController } from './controllers/widget.controller';
 
 @Module({
   imports: [TerminusModule, DomainModule, InfrastructureModule],
@@ -15,7 +14,6 @@ import { WidgetController } from './controllers/widget.controller';
     EmailCampaignController,
     EmailTemplateController,
     EmailCampaignAudienceController,
-    WidgetController,
   ],
 })
 export class ApplicationModule {}

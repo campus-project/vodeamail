@@ -1,4 +1,5 @@
 import * as actions from "../../actions";
+import { organizationUrl } from "../../../utilities/helpers";
 
 const initialState = {
   items: [
@@ -77,7 +78,14 @@ const initialState = {
       icon: "vicon-business",
       title: "pages:preference.setting.organization.title",
       description: "pages:preference.setting.organization.description",
-      href: "/apps/preference/organization",
+      href: organizationUrl(),
+      isNativeLink: true,
+    },
+    {
+      icon: "vicon-key",
+      title: "pages:preference.setting.privilege.title",
+      description: "pages:preference.setting.privilege.description",
+      href: "/apps/preference/gate-setting",
     },
     {
       icon: "vicon-people",
@@ -86,10 +94,10 @@ const initialState = {
       href: "/apps/preference/role",
     },
     {
-      icon: "vicon-key",
-      title: "pages:preference.setting.privilege.title",
-      description: "pages:preference.setting.privilege.description",
-      href: "/apps/preference/gate-setting",
+      icon: "vicon-profile",
+      title: "pages:preference.setting.people.title",
+      description: "pages:preference.setting.people.description",
+      href: "/apps/preference/user",
     },
   ],
 };

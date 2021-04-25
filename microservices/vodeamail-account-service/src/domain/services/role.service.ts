@@ -19,14 +19,15 @@ import { User } from '../entities/user.entity';
 
 @Injectable()
 export class RoleService {
-  constructor(
-    @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
-    @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
+  //entity
+  @InjectRepository(Role)
+  private readonly roleRepository: Repository<Role>;
+
+  @InjectRepository(Organization)
+  private readonly organizationRepository: Repository<Organization>;
+
+  @InjectRepository(User)
+  private readonly userRepository: Repository<User>;
 
   async findAll(options: FindAllRoleDto): Promise<Role[]> {
     const { relations } = options;
@@ -234,7 +235,10 @@ export class RoleService {
   }
 
   @Transactional()
-  protected async syncOnlyAllowedSingleDefault(id: string, actorId?: string) {
+  protected async syncOnlyAllowedSingleDefault(
+    id: string,
+    actorId?: string,
+  ): Promise<void> {
     const roles = await this.roleRepository.find({
       where: {
         id: Not(id),
@@ -255,7 +259,7 @@ export class RoleService {
   protected makeFilter(
     builder: SelectQueryBuilder<Role>,
     options: FindOneRoleDto | FindAllRoleDto,
-  ) {
+  ): SelectQueryBuilder<Role> {
     const {
       organization_id: organizationId,
       is_special: isSpecial,
@@ -292,7 +296,7 @@ export class RoleService {
   protected makeSearchable(
     builder: SelectQueryBuilder<Role>,
     { search }: FindAllRoleDto,
-  ) {
+  ): SelectQueryBuilder<Role> {
     if (search) {
       const params = { search: `%${search}%` };
       builder.andWhere(

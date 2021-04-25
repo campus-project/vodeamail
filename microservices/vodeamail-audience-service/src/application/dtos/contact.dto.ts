@@ -97,4 +97,14 @@ export class UpdateContactDto extends CreateContactDto {
   id: string;
 }
 
+export class UpdateSubscriptionContactDto extends ActorOrganizationDto {
+  @IsNotEmpty()
+  @IsUUID('4')
+  id: string;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  is_subscribed: boolean;
+}
+
 export class DeleteContactDto extends ActorDeleteWithOrganizationDto {}

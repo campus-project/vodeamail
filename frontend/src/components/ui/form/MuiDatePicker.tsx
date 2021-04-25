@@ -18,7 +18,6 @@ const MuiDatePicker = withStyles((theme: Theme) =>
   <MuiPickersUtilsProvider utils={DateFnsUtils}>
     <KeyboardDatePicker
       format="dd/MM/yyyy"
-      margin={"normal"}
       fullWidth
       inputVariant="outlined"
       {...props}

@@ -2,9 +2,9 @@ import { api, createCancelTokenHandler } from "../utilities/services";
 
 const endPoint = () => process.env.REACT_APP_GATEWAY_ENDPOINT;
 
-const Role = {
+const User = {
   all: function (params: any = null) {
-    return api.get(`${endPoint()}/role`, {
+    return api.get(`${endPoint()}/user`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.all.name
@@ -12,39 +12,23 @@ const Role = {
     });
   },
   show: function (id: number | string, params: any = null) {
-    return api.get(`${endPoint()}/role/${id}`, {
+    return api.get(`${endPoint()}/user/${id}`, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.show.name
       ].handleRequestCancellation().token,
     });
   },
-  create: function (payload: any, params: any = null) {
-    return api.post(`${endPoint()}/role`, payload, {
-      params,
-      cancelToken: cancelTokenHandlerObject[
-        this.create.name
-      ].handleRequestCancellation().token,
-    });
-  },
   update: function (id: number | string, payload: any, params: any = null) {
-    return api.put(`${endPoint()}/role/${id}`, payload, {
+    return api.put(`${endPoint()}/user/${id}`, payload, {
       params,
       cancelToken: cancelTokenHandlerObject[
         this.update.name
       ].handleRequestCancellation().token,
     });
   },
-  delete: function (id: number | string, params: any = null) {
-    return api.delete(`${endPoint()}/role/${id}`, {
-      params,
-      cancelToken: cancelTokenHandlerObject[
-        this.delete.name
-      ].handleRequestCancellation().token,
-    });
-  },
 };
 
-export default Role;
+export default User;
 
-const cancelTokenHandlerObject = createCancelTokenHandler(Role);
+const cancelTokenHandlerObject = createCancelTokenHandler(User);

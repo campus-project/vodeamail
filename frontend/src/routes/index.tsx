@@ -1,6 +1,7 @@
 import React, { lazy } from "react";
 import auth from "./auth";
 import apps from "./apps";
+import p from "./public";
 
 const Home = lazy(() => import("../pages/Home"));
 const Logout = lazy(() => import("../pages/Logout"));
@@ -11,6 +12,7 @@ const routes = [
   { path: "/logout", element: <Logout /> },
   ...auth,
   ...apps,
+  ...p,
   { path: "*", element: <NotFound /> },
 ];
 

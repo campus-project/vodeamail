@@ -1,7 +1,7 @@
 import { ViewColumn, ViewEntity } from 'typeorm';
 
 @ViewEntity({
-  name: 'chart_dashboard_widgets',
+  name: 'chart_email_campaigns',
   expression: `
     SELECT 
       email_campaigns.organization_id,

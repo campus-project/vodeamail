@@ -11,10 +11,8 @@ import { OrganizationService } from '../../domain/services/organization.service'
 
 @Controller()
 export class OrganizationController {
-  constructor(
-    @Inject('ACCOUNT_ORGANIZATION_SERVICE')
-    private readonly organizationService: OrganizationService,
-  ) {}
+  @Inject('ACCOUNT_ORGANIZATION_SERVICE')
+  private readonly organizationService: OrganizationService;
 
   @MessagePattern('MS_ACCOUNT_CREATE_ORGANIZATION')
   create(@Payload() createOrganizationDto: CreateOrganizationDto) {

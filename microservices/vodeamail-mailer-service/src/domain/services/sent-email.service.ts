@@ -18,15 +18,17 @@ import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class SentEmailService {
-  constructor(
-    @InjectRepository(SentEmail)
-    private readonly sentEmailRepository: Repository<SentEmail>,
-    @InjectRepository(SentEmailClick)
-    private readonly sentEmailClickRepository: Repository<SentEmailClick>,
-    private readonly mailerService: MailerService,
-    @Inject('REDIS_TRANSPORT')
-    private readonly redisClient: ClientProxy,
-  ) {}
+  @Inject('REDIS_TRANSPORT')
+  private readonly redisClient: ClientProxy;
+
+  //entity
+  @InjectRepository(SentEmail)
+  private readonly sentEmailRepository: Repository<SentEmail>;
+
+  @InjectRepository(SentEmailClick)
+  private readonly sentEmailClickRepository: Repository<SentEmailClick>;
+
+  constructor(private readonly mailerService: MailerService) {}
 
   async findAll(options: FindAllSentEmailDto): Promise<SentEmail[]> {
     const { relations } = options;
@@ -103,7 +105,6 @@ export class SentEmailService {
       to,
       email_to,
       content,
-
       subject_id: subjectId,
       callback_accepted_message: callbackAcceptedMessage,
       callback_delivered_message: callbackDeliveredMessage,
@@ -184,7 +185,7 @@ export class SentEmailService {
   protected makeFilter(
     builder: SelectQueryBuilder<SentEmail>,
     options: FindOneSentEmailDto | FindAllSentEmailDto,
-  ) {
+  ): SelectQueryBuilder<SentEmail> {
     const { organization_id: organizationId } = options;
 
     builder.andWhere(
@@ -201,7 +202,7 @@ export class SentEmailService {
   protected makeSearchable(
     builder: SelectQueryBuilder<SentEmail>,
     { search }: FindAllSentEmailDto,
-  ) {
+  ): SelectQueryBuilder<SentEmail> {
     if (search) {
       const params = { search: `%${search}%` };
       builder.andWhere(
@@ -217,7 +218,7 @@ export class SentEmailService {
     return builder;
   }
 
-  protected async generateHash() {
+  protected async generateHash(): Promise<string> {
     const hash = this.makeHash(32);
 
     const isExists =
@@ -228,13 +229,13 @@ export class SentEmailService {
       })) > 0;
 
     if (isExists) {
-      return this.generateHash();
+      return await this.generateHash();
     }
 
     return hash;
   }
 
-  protected makeHash(length) {
+  protected makeHash(length): string {
     let result = [];
     let characters =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

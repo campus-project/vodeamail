@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Box, Grid, Typography } from "@material-ui/core";
+import { Box, Grid, Link, Typography } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import MuiCard, { MuiCardProps } from "../../../components/ui/card/MuiCard";
 import { createStyles, Theme, withStyles } from "@material-ui/core/styles";
@@ -54,7 +54,18 @@ const Preference: React.FC<any> = () => {
         {preferences.map((preference: any, index: number) => (
           <Fragment key={index}>
             <Grid item md={4} xs={12}>
-              <CardPreference component={LinkDom} to={preference.href}>
+              <CardPreference
+                {...(preference.isNativeLink
+                  ? {
+                      component: Link,
+                      href: preference.href,
+                      target: "_blank",
+                    }
+                  : {
+                      component: LinkDom,
+                      to: preference.href,
+                    })}
+              >
                 <CardPreferenceIcon>
                   <i className={`${preference.icon} nav-icon`} />
                 </CardPreferenceIcon>

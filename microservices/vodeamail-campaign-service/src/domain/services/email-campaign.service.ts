@@ -8,34 +8,49 @@ import * as _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  ChartEmailCampaignDto,
   CreateEmailCampaignDto,
   DeleteEmailCampaignDto,
   FindAllEmailCampaignDto,
   FindOneEmailCampaignDto,
   UpdateEmailCampaignDto,
+  WidgetEmailCampaignDto,
 } from '../../application/dtos/email-campaign.dto';
 import { EmailCampaign } from '../entities/email-campaign.entity';
 import { EmailCampaignGroup } from '../entities/email-campaign-group.entity';
 import { EmailCampaignAudience } from '../entities/email-campaign-audience.entity';
 import { EmailTemplate } from '../entities/email-template.entity';
 import { SummaryEmailCampaignAnalyticView } from '../views/summary-email-campaign-analytic.view';
+import { WidgetEmailCampaignView } from '../views/widget-email-campaign.view';
+import { ChartEmailCampaignView } from '../views/chart-email-campaign.view';
 
 @Injectable()
 export class EmailCampaignService {
-  constructor(
-    @InjectRepository(EmailCampaign)
-    private readonly emailCampaignRepository: Repository<EmailCampaign>,
-    @InjectRepository(EmailCampaignGroup)
-    private readonly emailCampaignGroupRepository: Repository<EmailCampaignGroup>,
-    @InjectRepository(EmailCampaignAudience)
-    private readonly emailCampaignAudienceRepository: Repository<EmailCampaignAudience>,
-    @InjectRepository(EmailTemplate)
-    private readonly emailTemplateRepository: Repository<EmailTemplate>,
-    @InjectRepository(SummaryEmailCampaignAnalyticView)
-    private readonly summaryEmailCampaignAnalyticRepository: Repository<SummaryEmailCampaignAnalyticView>,
-    @Inject('REDIS_TRANSPORT')
-    private readonly redisClient: ClientProxy,
-  ) {}
+  @Inject('REDIS_TRANSPORT')
+  private readonly redisClient: ClientProxy;
+
+  //entity
+  @InjectRepository(EmailCampaign)
+  private readonly emailCampaignRepository: Repository<EmailCampaign>;
+
+  @InjectRepository(EmailCampaignGroup)
+  private readonly emailCampaignGroupRepository: Repository<EmailCampaignGroup>;
+
+  @InjectRepository(EmailCampaignAudience)
+  private readonly emailCampaignAudienceRepository: Repository<EmailCampaignAudience>;
+
+  @InjectRepository(EmailTemplate)
+  private readonly emailTemplateRepository: Repository<EmailTemplate>;
+
+  //view
+  @InjectRepository(SummaryEmailCampaignAnalyticView)
+  private readonly summaryEmailCampaignAnalyticRepository: Repository<SummaryEmailCampaignAnalyticView>;
+
+  @InjectRepository(WidgetEmailCampaignView)
+  private readonly widgetEmailCampaignViewRepository: Repository<WidgetEmailCampaignView>;
+
+  @InjectRepository(ChartEmailCampaignView)
+  private readonly chartEmailCampaignViewRepository: Repository<ChartEmailCampaignView>;
 
   async findAll(options: FindAllEmailCampaignDto): Promise<EmailCampaign[]> {
     const { relations } = options;
@@ -201,6 +216,18 @@ export class EmailCampaignService {
     const data = await this.findAll(options);
 
     return _.head(data);
+  }
+
+  async widget(widgetEmailCampaignDto: WidgetEmailCampaignDto) {
+    return await this.widgetEmailCampaignViewRepository.findOne({
+      where: { organization_id: widgetEmailCampaignDto.organization_id },
+    });
+  }
+
+  async chart(chartEmailCampaignDto: ChartEmailCampaignDto) {
+    return await this.chartEmailCampaignViewRepository.find({
+      where: { organization_id: chartEmailCampaignDto.organization_id },
+    });
   }
 
   @Transactional()

@@ -118,9 +118,12 @@ const RoleForm: React.FC<any> = () => {
         }
 
         enqueueSnackbar(
-          t("common:successfully_created", {
-            label: t("pages:role.title"),
-          }),
+          t(
+            id ? "common:successfully_updated" : "common:successfully_created",
+            {
+              label: t("pages:role.title"),
+            }
+          ),
           {
             variant: "success",
           }
@@ -155,7 +158,7 @@ const RoleForm: React.FC<any> = () => {
           </MuiButtonIconRounded>
         </Box>
         <Typography variant={"h5"}>
-          {t("common:create_label", {
+          {t(id ? "common:update_label" : "common:create_label", {
             label: t("pages:role.title"),
           })}
         </Typography>
