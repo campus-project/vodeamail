@@ -102,6 +102,9 @@ services:
 #      DB_USERNAME: "homestead"
 #      DB_PASSWORD: "secret"
 #      REDIS_URL: "redis://redis:6379"
+#      ANALYTIC_OPEN_URL: http://localhost:3010/a/o
+#      ANALYTIC_CLICK_URL: http://localhost:3010/a/c
+#      ANALYTIC_UNSUBSCRIBE_URL: http://localhost:3010/a/u
 #    networks:
 #      - infrastrucuture
 #    depends_on:
