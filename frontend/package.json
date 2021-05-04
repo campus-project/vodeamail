@@ -11,9 +11,6 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@material-ui/pickers": "^3.3.10",
-    "@testing-library/jest-dom": "^5.11.6",
-    "@testing-library/react": "^11.2.2",
-    "@testing-library/user-event": "^12.5.0",
     "axios": "^0.21.0",
     "chart.js": "^2.9.4",
     "classnames": "^2.2.6",
@@ -77,6 +74,9 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.6",
+    "@testing-library/react": "^11.2.2",
+    "@testing-library/user-event": "^12.5.0",
     "@types/classnames": "^2.2.11",
     "@types/jest": "^26.0.16",
     "@types/lodash": "^4.14.165",
