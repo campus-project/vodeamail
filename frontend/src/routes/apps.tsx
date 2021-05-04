@@ -1,8 +1,8 @@
 import React, { lazy } from "react";
 import { Navigate } from "react-router-dom";
 
-import LayoutApps from "../layouts/apps/Apps";
-import LayoutBaseApps from "../layouts/apps/BaseApps";
+import LayoutApps from "../layouts/apps";
+import LayoutAppsBase from "../layouts/apps/Base";
 
 const Dashboard = lazy(() => import("../pages/apps/dashboard"));
 
@@ -106,7 +106,7 @@ const routes = [
   },
   {
     path: "apps/campaign",
-    element: <LayoutBaseApps />,
+    element: <LayoutAppsBase />,
     children: [
       { path: "email-template/create", element: <EmailTemplateForm /> },
       {

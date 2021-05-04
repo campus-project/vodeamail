@@ -9,10 +9,9 @@ import MomentUtils from "@date-io/moment";
 import { useDispatch, useSelector } from "react-redux";
 import { useJwtService } from "../../utilities/hooks";
 import Loading from "../../components/ui/Loading";
-import { initMenu } from "../../store/actions";
+import { initMenu, setLastLocation } from "../../store/actions";
 import theme from "./theme";
 import { ConfirmProvider } from "material-ui-confirm";
-import { setLastLocation } from "../../store/actions";
 import { useLocation } from "react-router";
 
 const LayoutApps: React.FC<any> = () => {

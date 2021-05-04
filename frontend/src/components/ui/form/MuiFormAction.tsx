@@ -1,7 +1,7 @@
+import React, { ReactNode } from "react";
 import { createStyles, Theme, withStyles } from "@material-ui/core/styles";
 import MuiCard, { MuiCardProps } from "../card/MuiCard";
 import { Box, Button, CircularProgress, Typography } from "@material-ui/core";
-import React, { ReactNode } from "react";
 
 export interface MuiFormActionProps {
   title: string | ReactNode;

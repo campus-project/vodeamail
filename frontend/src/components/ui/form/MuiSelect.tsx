@@ -1,6 +1,6 @@
+import React from "react";
 import { createStyles, Theme, withStyles } from "@material-ui/core/styles";
 import { MenuItem, Select, SelectProps } from "@material-ui/core";
-import React from "react";
 
 export interface MuiOption {
   value: string | ReadonlyArray<string> | number;

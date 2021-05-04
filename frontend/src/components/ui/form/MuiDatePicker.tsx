@@ -1,4 +1,5 @@
 import "date-fns";
+import React from "react";
 import DateFnsUtils from "@date-io/date-fns";
 import { createStyles, Theme, withStyles } from "@material-ui/core/styles";
 import {
@@ -6,7 +7,6 @@ import {
   KeyboardDatePickerProps,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
-import React from "react";
 
 export interface MuiDatePickerProps extends KeyboardDatePickerProps {}
 
