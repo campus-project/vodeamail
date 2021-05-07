@@ -80,7 +80,7 @@ export class VodeaCloudService {
           Authorization: `Bearer ${vodeaCloudTokenDto.access_token}`,
         },
       })
-      .then((resp) => (user = resp.data.data))
+      .then((resp) => (user = resp.data))
       .catch((e) => {
         if (e?.response?.status === 401) {
           throw new UnauthorizedException();
